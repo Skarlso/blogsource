@@ -1,0 +1,23 @@
+---
+title: Go Progress Quest
+author: hannibal
+layout: post
+date: 2015-11-09
+url: /2015/11/09/go-progress-quest/
+categories:
+  - Go
+  - programming
+tags:
+  - rpg
+---
+Hi Folks. 
+
+I started to build a Progress Quest type of web app in Go.
+
+If you&#8217;d like to join, or just tag along, please drop by here => <a href="https://github.com/Skarlso/goprogressquest" target="_blank">Go Progress Quest</a> and feel free to submit an issue if you have an idea, or would like to contribute!
+
+I will try and document the Progress&#8230; 
+
+Thank you for reading!
+  
+Gergely.
