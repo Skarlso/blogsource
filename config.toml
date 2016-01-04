@@ -1,0 +1,21 @@
+contentdir = "content"
+layoutdir = "layouts"
+publishdir = "public"
+baseurl = "https://skarlso.github.io/"
+title = "Ramblings of a build engineer"
+canonifyurls = true
+disqusShortname = "hannibalDisqus"
+
+[taxonomies] 
+    category = "categories"
+    tag = "tags"
+
+[params]
+    sidebartitle = "Ramblings..."
+    sidebartagline = "...of a build engineer."
+    highlightStyle = "true"
+
+[[menu.social]]
+    pre = "<i class='fa fa-fort-awesome fa-3x'></i>"
+    url = "http://skarlso.com"
+    identifier = "site"

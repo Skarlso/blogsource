@@ -19,7 +19,7 @@ Also, I love writing this post in Markdown. I always liked the formatting rules 
 
 Code will look a little more readble now as well:
 
-```go
+~~~go
 func main() {
     handlerChain := alice.New(Logging, PanicHandler)
     router := mux.NewRouter().StrictSlash(true)
@@ -29,7 +29,7 @@ func main() {
     log.Printf("Starting server to listen on port: 8989...")
     http.ListenAndServe(":8989", router)
 }
-```
+~~~
 
 Much easier on the eyes. And linking is a breeze as well.
 

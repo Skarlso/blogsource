@@ -99,7 +99,9 @@
 	            </div>
             {{ end }}
           </section>
+          {{ if not .Params.nocomment }}
           	{{ template "_internal/disqus.html" . }}
+          {{ end }}
         
       {{ partial "footer.html" . }}
     </div>
