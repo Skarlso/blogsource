@@ -6,7 +6,7 @@ build:
 deploy:
     steps:
         - install-packages:
-            packages: git-push
+            packages: git
         - git-push:
             gh_oauth: $GIT_TOKEN
             gh_pages: true
