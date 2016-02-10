@@ -6,11 +6,11 @@ build:
 deploy:
     steps:
         - install-packages:
-            packages: git
-        - git-push:
+            packages: git ssh-client
+        - leipert/git-push:
             gh_oauth: $GIT_TOKEN
             gh_pages: true
             gh_pages_domain: skarlso.github.io
             basedir: public
-            repo: skarlso.github.io
+            repo: skarlso/skarlso.github.io
             branch: master
