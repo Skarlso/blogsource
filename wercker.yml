@@ -5,6 +5,8 @@ build:
             theme: redlounge
 deploy:
     steps:
+        - install-packages:
+            packages: git-push
         - git-push:
             gh_oauth: $GIT_TOKEN
             gh_pages: true
