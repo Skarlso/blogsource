@@ -11,4 +11,4 @@ deploy:
             token: $GIT_TOKEN
             domain: skarlso.github.io
             basedir: public
-            repo: Skarlso/skarlso.github.io
+            repo: skarlso/skarlso.github.io
