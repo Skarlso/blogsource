@@ -9,7 +9,6 @@ deploy:
             packages: git ssh-client
         - leipert/git-push:
             gh_oauth: $GIT_TOKEN
-            gh_pages_domain: skarlso.github.io
             repo: skarlso/skarlso.github.io
             branch: master
             basedir: public    
