@@ -3,3 +3,11 @@ build:
     steps:
         - arjen/hugo-build:
             theme: redlounge
+deploy:
+    steps:
+        - install-packages:
+            packages: git ssh-client
+        - lukevivier/gh-pages@0.2.1:
+            token: $GIT_TOKEN
+            domain: skarlso.github.io
+            basedir: public
