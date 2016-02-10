@@ -2,4 +2,4 @@ box: debian
 build:
     steps:
         - arjen/hugo-build:
-            theme: red-lounge
+            theme: redlounge
