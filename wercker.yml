@@ -1,4 +1,4 @@
-box: ubuntu 
+box: debian
 build:
     steps:
         - arjen/hugo-build:
@@ -6,7 +6,7 @@ build:
 deploy:
     steps:
         - install-packages:
-            packages: git-core
+            packages: git ssh_client
         - leipert/git-push:
             gh_oauth: $GIT_TOKEN
             repo: skarlso/skarlso.github.io
