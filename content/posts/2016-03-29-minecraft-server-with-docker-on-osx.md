@@ -56,7 +56,7 @@ Forwarding from virtualbox can be done through the UI or through command line. T
 Name: Minecraft; Protocol: TCP; Host IP: 192.168.0.X(x=your local machine); Host Port: 25565; Guest IP: Leave Blank; Guest Port: 25565.
 
 ![Network](/img/network.png)
-Where the cursor is blinking, you'll have to define your own local IP which you are using for your domain address.
+Where the number is missing, you'll have to define your own local IP which you are using for your domain address.
 
 This should forward any ports coming from your VM to your local IP. In the container we have an expose and as the README states it's started using -p 25565:25565 which will make sure that from the container, 25565 is exposed to the VM. And from the VM 25565 is exposed to your local. Chain forwarding.
 
