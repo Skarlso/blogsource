@@ -16,7 +16,7 @@ Previously we created a Minecraft server using Docker. After my server got popul
 
 For that, I'm using AWS S3 with the CLI and a little bash command which I added to a cron job which runs every week or so.
 
-The script is really straightforward. I'm doing manual versioning, although S3 does provide one out of the box. However, amazon's S3 versioning doesn't allow limiting the number of versions being kept. And since I'm doing that anyways, I'm taking care of limiting the uploaded number of archives.
+The script is really straightforward. I'm doing manual versioning, although S3 does provide one out of the box. However, amazon's S3 versioning doesn't allow limiting the number of versions being kept. And since I'm doing that anyways, might as well take care of the rest.
 
 Without further ado, here is the script:
 
