@@ -12,9 +12,9 @@ categories:
 
 Hi Folks.
 
-Previously we created a Minecraft server using Docker. After my server got popular in the family and a lot of stuff started to pile up on it, as a good IT person, I'm backing up the world one in a while.
+Previously we created a Minecraft server using Docker. After my server got popular in the family, and a lot of stuff started to pile up on it, as a good IT person, I'm backing up the world once in a while.
 
-For that, I'm using AWS S3 with the CLI and a little bash command which I added to a cron job which runs every week or so.
+For that, I'm using AWS S3 with the CLI and a little bash script which runs once a week.
 
 The script is really straightforward. I'm doing manual versioning, although S3 does provide one out of the box. However, amazon's S3 versioning doesn't allow limiting the number of versions being kept. And since I'm doing that anyways, might as well take care of the rest.
 
@@ -69,11 +69,13 @@ else
 fi
 ~~~
 
-It uses environment properties to define where to upload your world and how many versions to keep.
+It uses environment properties to define where to upload the given world and how many versions to keep.
 
-I'm calling this from a cron job. And it's sitting next to where the Minecraft world is.
+I'm calling this from a cron job, and it's sitting next to where the Minecraft world is.
 
 That's it folks.
+
+I'll start expanding on this idea and implement various services, like your own server address, or dropbox, or what have you.
 
 Happy backing up.
 
