@@ -1,5 +1,5 @@
 ---
-title: Minecraft world automatic backup to AWS S3 bucket
+title: Minecraft world automatic backup to AWS S3 bucket - Part 2 (Custom functions)
 author: hannibal
 layout: post
 date: 2016-04-17
