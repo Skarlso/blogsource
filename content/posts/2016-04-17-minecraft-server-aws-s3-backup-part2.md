@@ -14,7 +14,9 @@ Hi folks.
 
 Got an update for the backup script. This time, you'll have the ability to implement your own upload capabilities. I provide a mock implementation for the required functions.
 
-Here is the script again, now modified and a bit cleaned up.
+Here is the script again, now modified and a bit cleaned up. I hope it's helpful.
+
+<!--more-->
 
 ~~~bash
 #!/bin/bash
