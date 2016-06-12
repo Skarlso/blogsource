@@ -46,7 +46,7 @@ Setup - Creds
 
 So, first, let's create a little setup which configures our credentials from the file. This is pretty straightforward.
 
-~~~Go
+~~~go
 // Credentials which stores google ids.
 type Credentials struct {
     Cid string `json:"cid"`
@@ -71,7 +71,7 @@ Setup - OAuth client
 
 First, construct the OAuth config.
 
-~~~Go
+~~~go
 conf := &oauth2.Config{
   ClientID:     c.Cid,
   ClientSecret: c.Csecret,
@@ -85,7 +85,7 @@ conf := &oauth2.Config{
 
 This will give you a conf struct which you can then use to Authenticate your user. Once we have this, all we need to do is call ```AuthCodeURL``` on this config. This will give us a URL we need to call which redirects to a Google Sign-In form. Once the user fills that out, it will redirect to the given URL with a callback and provide a TOKEN in form a query parameter called ```code```. This will look something like this ```http://127.0.0.1:9090/auth?code=4FLKFskdjflf....```. To get the URL let's extract this into a small function:
 
-~~~Go
+~~~go
 func getLoginURL() string {
     return conf.AuthCodeURL("")
 }
@@ -93,7 +93,7 @@ func getLoginURL() string {
 
 We can put this URL as a link to a Button forexample.
 
-~~~Go
+~~~go
 func loginHandler(c *gin.Context) {
     c.Writer.Write([]byte("<html><title>Golang Google</title> <body> <a href='" + getLoginURL() + "'><button>Login with Google!</button> </a> </body></html>"))
 }
@@ -111,7 +111,7 @@ Getting the Client
 
 To obtain the client, you need to do this:
 
-~~~Go
+~~~go
   // Handle the exchange code to initiate a transport.
 tok, err := conf.Exchange(oauth2.NoContext, c.Query("code"))
 if err != nil {
@@ -128,7 +128,7 @@ Obtaining information from the user
 
 It's their API url that you need to call with the authenticated client. The code for that:
 
-~~~Go
+~~~go
 resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
   if err != nil {
   c.AbortWithError(http.StatusBadRequest, err)
@@ -161,7 +161,7 @@ Putting it all together
 
 How does this all look together? Something like this. Though, I've built no front-end.
 
-~~~Go
+~~~go
 package main
 
 import (
@@ -273,7 +273,7 @@ This is it folks. Notice that there are some more stuff in there. Disregard them
 After you have the email, you should be able to go on and store it and retrieve it later if you want. With Gin, you can even do authenticated end-points.
 
 
-~~~Go
+~~~go
 authorized := r.Group("/")
 // per group middleware! in this case we use the custom created
 // AuthRequired() middleware just in the "authorized" group.
