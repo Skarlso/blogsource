@@ -24,13 +24,13 @@ Setup
 Google OAuth token
 ------------------
 
-First thing first, what you need is, to register your application with Google, so you'll get a Token that you can use for authentication purposes.
+First things first, what you need is, to register your application with Google, so you'll get a Token that you can use for authentication purposes.
 
-You can do there here -> [Google Developer Console](https://console.developers.google.com/iam-admin/projects). You'll have to create a new project. Once it's done, click on ```Credentials``` and create an OAuth token. You should see something like this -> "To create an OAuth client ID, you must first set a product name on the consent screen.". Go through the questions, like, what type your application is, and then you're done. I'm selecting Web App for this tutorial. In the next, when you have created your app, in the redirect url write the url you wish to use when authenticating. Do NOT use ```localhost```. If you are running on your own, use http://127.0.0.1:port/whatever.
+You can do there here -> [Google Developer Console](https://console.developers.google.com/iam-admin/projects). You'll have to create a new project. Once it's done, click on ```Credentials``` and create an OAuth token. You should see something like this -> "To create an OAuth client ID, you must first set a product name on the consent screen.". Go through the questions, like, what type your application is, and then you're done. I'm selecting Web App for this tutorial. In the questions there is a section asking for redirect URL, there, write the url you wish to use when authenticating. Do NOT use ```localhost```. If you are running on your own, use http://127.0.0.1:port/whatever.
 
 This will get you a ```client ID``` and a ```client secret```. I'm going to save these into a file which will sit next to my web app. It could be stored more securely, for example, in a database or a mounted secure, encrypted drive, and so and so forth, but that's not the point of this tutorial right now.
 
-Now that's done, your application can now be identified, so login can happen using one's Google creds.
+Your application can now be identified, so login can happen using one's Google creds.
 
 
 The Application
@@ -44,7 +44,7 @@ Google has a nice little library to use with OAuth 2.0 which I shall be using as
 Setup - Creds
 -------------
 
-So, first, let's create a little setup which configures our credentials from the file. This is pretty straightforward.
+Let's create a little setup which configures our credentials from the file. This is pretty straightforward.
 
 ~~~go
 // Credentials which stores google ids.
@@ -69,7 +69,7 @@ Once we have the creds loaded, we can now go on to construct our OAuth client.
 Setup - OAuth client
 --------------------
 
-First, construct the OAuth config.
+Construct the OAuth config like this:
 
 ~~~go
 conf := &oauth2.Config{
@@ -83,7 +83,7 @@ conf := &oauth2.Config{
 }
 ~~~
 
-This will give you a conf struct which you can then use to Authenticate your user. Once we have this, all we need to do is call ```AuthCodeURL``` on this config. This will give us a URL we need to call which redirects to a Google Sign-In form. Once the user fills that out, it will redirect to the given URL with a callback and provide a TOKEN in form a query parameter called ```code```. This will look something like this ```http://127.0.0.1:9090/auth?code=4FLKFskdjflf....```. To get the URL let's extract this into a small function:
+It will give you a conf struct which you can then use to Authenticate your user. Next, all we need to do is call ```AuthCodeURL``` on this config. It will give us a URL we need to call which redirects to a Google Sign-In form. Once the user fills that out, it will redirect to the given URL with a callback and provide a TOKEN in the form of a query parameter called ```code```. This will look something like this ```http://127.0.0.1:9090/auth?code=4FLKFskdjflf3343d4f/*```. To get the URL let's extract this into a small function:
 
 ~~~go
 func getLoginURL() string {
@@ -91,7 +91,7 @@ func getLoginURL() string {
 }
 ~~~
 
-We can put this URL as a link to a Button forexample.
+We can put this URL as a link to a Button. For example:
 
 ~~~go
 func loginHandler(c *gin.Context) {
@@ -99,7 +99,7 @@ func loginHandler(c *gin.Context) {
 }
 ~~~
 
-Once the user clicks this, (s)he is redirected to Google Sign-In Form which, when filled out, will yield the above URL with a TOKEN in the code section.
+The link provided here, will be the Sign-In form redirection URL.
 
 Registration
 ============
@@ -121,7 +121,7 @@ if err != nil {
 client := conf.Client(oauth2.NoContext, tok)
 ~~~
 
-That client will now be a Google Authenticated HTTP client. To get something that you can actually use from this do the following...
+To get something that you can actually use from this do the following...
 
 Obtaining information from the user
 -----------------------------------
@@ -154,7 +154,7 @@ And this will yield a body like this:
 }
 ~~~
 
-Tadaam. Parse this, and you've got an email which you can store. Check this against a db record if you already have that email and you have your registration / login.
+Tadaam. Parse this, and you've got an email which you can store somewhere for registration purposes.
 
 Putting it all together
 =======================
@@ -201,12 +201,6 @@ var conf *oauth2.Config
 
 func indexHandler(c *gin.Context) {
     c.HTML(http.StatusOK, "index.tmpl", gin.H{})
-}
-
-func battleHandler(c *gin.Context) {
-    c.HTML(http.StatusOK, "battle.tmpl", gin.H{
-        "user": "Anyad",
-    })
 }
 
 func init() {
@@ -289,9 +283,9 @@ authorized.Use(AuthRequired)
 }
 ~~~
 
-Once you have your Google Auth, you can access these URLS, or do a c.AbortWithError which will stop the chain and redirect the user to a Login page.
+Once you have your Google Auth, you can access these URLS, or do a c.AbortWithError which will stop the chain and redirect the user back to a Login page.
 
-I hope this helped. Any comments, please feel free to drop a comment.
+I hope this helped. Any comments or advice are welcomed.
 
 Google API Documentation
 ========================
