@@ -12,7 +12,7 @@ categories:
 
 Hi folks.
 
-Today, I would like to write up a step - by - step guid with a sample web app on how to do Google assisted sign-in and user handling.
+Today, I would like to write up a step - by - step guide with a sample web app on how to do Google assisted sign-in and user handling.
 
 <!--more-->
 
@@ -26,11 +26,11 @@ Google OAuth token
 
 First things first, what you need is, to register your application with Google, so you'll get a Token that you can use for authentication purposes.
 
-You can do there here -> [Google Developer Console](https://console.developers.google.com/iam-admin/projects). You'll have to create a new project. Once it's done, click on ```Credentials``` and create an OAuth token. You should see something like this -> "To create an OAuth client ID, you must first set a product name on the consent screen.". Go through the questions, like, what type your application is, and then you're done. I'm selecting Web App for this tutorial. In the questions there is a section asking for redirect URL, there, write the url you wish to use when authenticating. Do NOT use ```localhost```. If you are running on your own, use http://127.0.0.1:port/whatever.
+You can do there here -> [Google Developer Console](https://console.developers.google.com/iam-admin/projects). You'll have to create a new project. Once it's done, click on ```Credentials``` and create an OAuth token. You should see something like this -> "To create an OAuth client ID, you must first set a product name on the consent screen.". Go through the questions, like, what type your application is, and once you arrive at stage where it's asking for your application's name -- there is a section asking for redirect URL; there, write the url you wish to use when authenticating your user. If you don't know this yet, don't fret, we can come back and change it later. Do NOT use ```localhost```. If you are running on your own, use http://127.0.0.1:port/whatever.
 
-This will get you a ```client ID``` and a ```client secret```. I'm going to save these into a file which will sit next to my web app. It could be stored more securely, for example, in a database or a mounted secure, encrypted drive, and so and so forth, but that's not the point of this tutorial right now.
+This will get you a ```client ID``` and a ```client secret```. I'm going to save these into a file which will sit next to my web app. It could be stored more securely, for example, in a database or a mounted secure, encrypted drive, and so and so forth, but that's not the point of this tutorial.
 
-Your application can now be identified, so login can happen using one's Google creds.
+Your application can now be identified, so login can happen using one's Google credentials.
 
 
 The Application
@@ -39,12 +39,12 @@ The Application
 Library
 -------
 
-Google has a nice little library to use with OAuth 2.0 which I shall be using as well. The library is available here => [Google OAth 2.0](https://github.com/golang/oauth2). It's a bit cryptic at first to setup, but not to worry. After a little bit of fiddling you'll understand fast what it does, and how you can use it.
+Google has a nice library to use with OAuth 2.0. The library is available here => [Google OAth 2.0](https://github.com/golang/oauth2). It's a bit cryptic at first to setup, but not to worry. After a bit of fiddling you'll understand fast what it does.
 
-Setup - Creds
--------------
+Setup - Credentials
+-------------------
 
-Let's create a little setup which configures our credentials from the file. This is pretty straightforward.
+Let's create a setup which configures our credentials from the file we saved earlier. This is pretty straightforward.
 
 ~~~go
 // Credentials which stores google ids.
@@ -75,7 +75,8 @@ Construct the OAuth config like this:
 conf := &oauth2.Config{
   ClientID:     c.Cid,
   ClientSecret: c.Csecret,
-  RedirectURL:  "http://localhost:9090/auth", // If the loging is successful, this will be the redirected URL location to with a query param called 'code'
+  RedirectURL:  "http://localhost:9090/auth", // If the login is successful, this will be the redirected URL location to with a query param called 'code'.
+                                              // This is the URL we configured earlier during the account creation.
   Scopes: []string{
     "https://www.googleapis.com/auth/userinfo.email", // You have to select your own scope from here -> https://developers.google.com/identity/protocols/googlescopes#google_sign-in
   },
@@ -83,7 +84,7 @@ conf := &oauth2.Config{
 }
 ~~~
 
-It will give you a conf struct which you can then use to Authenticate your user. Next, all we need to do is call ```AuthCodeURL``` on this config. It will give us a URL we need to call which redirects to a Google Sign-In form. Once the user fills that out, it will redirect to the given URL with a callback and provide a TOKEN in the form of a query parameter called ```code```. This will look something like this ```http://127.0.0.1:9090/auth?code=4FLKFskdjflf3343d4f/*```. To get the URL let's extract this into a small function:
+It will give you a conf struct which you can then use to Authenticate your user. Next, all we need to do is call ```AuthCodeURL``` on this config. It will give us a URL we need to call which redirects to a Google Sign-In form. Once the user fills that out and clicks 'Allow', we'll get back a TOKEN in the ```code``` query parameter. This will look something like this ```http://127.0.0.1:9090/auth?code=4FLKFskdjflf3343d4f/*```. To get the URL let's extract this into a small function:
 
 ~~~go
 func getLoginURL() string {
@@ -99,7 +100,7 @@ func loginHandler(c *gin.Context) {
 }
 ~~~
 
-The link provided here, will be the Sign-In form redirection URL.
+The link provided here, will be the Sign-In form redirection URL. Note, that I'm using Gin here as my router services this is an http.Handler by default.
 
 Registration
 ============
@@ -121,12 +122,12 @@ if err != nil {
 client := conf.Client(oauth2.NoContext, tok)
 ~~~
 
-To get something that you can actually use from this do the following...
+To get something that you can actually can use from this -- for example and email address -- do the following...
 
 Obtaining information from the user
 -----------------------------------
 
-It's their API url that you need to call with the authenticated client. The code for that:
+It's their API url that you need to call with the authenticated client. The code for that is:
 
 ~~~go
 resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
@@ -159,7 +160,7 @@ Tadaam. Parse this, and you've got an email which you can store somewhere for re
 Putting it all together
 =======================
 
-How does this all look together? Something like this. Though, I've built no front-end.
+All the code together looks like this (disregard the templates):
 
 ~~~go
 package main
@@ -262,7 +263,7 @@ func main() {
 }
 ~~~
 
-This is it folks. Notice that there are some more stuff in there. Disregard them, or delete them. Like the index handler and the templates. They are just something that I used.
+This is it folks. I'm doing some extra in there, like loading static handling for css and img. You can ignore those.
 
 After you have the email, you should be able to go on and store it and retrieve it later if you want. With Gin, you can even do authenticated end-points.
 
