@@ -5,7 +5,7 @@ layout: post
 date: 2016-07-28
 url: /2016/07/28/jenkins-best-practices
 categories:
-  - Jenins
+  - Jenkins
 ---
 
 Hi folks.
