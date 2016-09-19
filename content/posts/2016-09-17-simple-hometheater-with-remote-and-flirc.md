@@ -16,10 +16,10 @@ Hello folks.
 Today, I would like to tell you about my configuration for a low budget Home Theater setup.
 
 My tools are as follows:
-* [FLIRC](https://flirc.tv/)
-* [Raspberry Pi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/)
-* 500G SSD
-* An a good 'ol wifi
+- [FLIRC](https://flirc.tv/)
+- [Raspberry Pi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/)
+- 500G SSD
+- An a good 'ol wifi
 
 TL;DR
 ------
