@@ -31,12 +31,12 @@ Flirc
 
 First, the remote control. So, I like to sit in my couch and watch the movie from there. I hate getting up, or having a keyboard at arm length to control the pi. Flirc is a very easy way of doing just that with a simple remote control.
 
-It costs ~$22 and is easy to setup. Works with any kind of remote control. Setting up key bindings for the control, is as simple as starting the Flirc software and pressing buttons. Now, my pi is running headless, and the Flirc binary isn't quite working with a pi; so to do the binding, I just did that on my main machine. After I bound some key combinations to my remote, I proceeded to setup the pi.
+It costs ~$22 and is easy to setup. Works with any kind of remote control. Setting up key bindings for the control, is as simple as starting the Flirc software and pressing buttons on the remote to map to keyboard keys. Now, my pi is running headless, and the Flirc binary isn't quite working with raspbian; so to do the binding, I just did that on my main machine. When I was done, I just plugged in the Flirc, and proceeded to setup the pi.
 
 Raspberry Pi 2
 ----------------
 
-The pi 2 is a small powerhouse. However, the SD card on which it sits is simply not fast enough to be able to handle large files properly. So, instead of coping the movie to the pi, I'm streaming through the pi from a faster SSD. For streaming, I'm using `omxplayer`. With omxplayer, I had a few problems, because sound was not coming through the HDMI cable. After a little bit of research I found that, for starters, you need to change a setting in the pi's boot config. Namely, uncomment this line:
+The pi 2 is a small powerhouse. However, the SD card on which it sits is simply not fast enough. From time to time, I experienced lateness in sound, or stutter in video. So, instead of having the movie on the pi, I'm streaming through a faster SSD with [SSHFS](https://github.com/libfuse/sshfs). For playing, I'm using `omxplayer`. With omxplayer, I had a few problems, because sound was not coming through the HDMI cable. A little bit of research lead me to this change in the pi's boot config. Uncomment this line:
 
 ~~~bash
 #hdmi_driver=2
@@ -52,16 +52,18 @@ sudo amixer -c 0 cset numid=3 2
 
 This saved my bacon. The whole answer can be found here: [Stackoverflow](http://raspberrypi.stackexchange.com/questions/44/why-is-my-audio-sound-output-not-working).
 
-Moving on, all I had to do is just run this command: `omxplayer -o hdmi -r /media/stream/my_movie.mkv`. This used the local HDMI connection to play my movie from a mounting point where I was streaming my movie through.
+Once SSHFS was working, and HDMI received sound, I just executed this command: `omxplayer -o hdmi /media/stream/my_movie.mkv`. This told omxplayer to use the local HDMI connection for video output.
 
-All this was from my computer through an SSH session so I never controlled the pi directly. Once done, I proceeded to sit down with a nice, cold Lemon - Menta beer and a remote control. Now, `omxplayer` is controlled through the buttons + (volume up), - (volume down), <SPACE> (stop, play), and q for quitting. Flirc is able to map any key combination on a keyboard to any button on the remote. Combinations can be done by selecting a control key and pressing another key. That will be registered as a key combination. So mapping `+` to the volume up button was by pressing shift and then '='.
+All this was from my computer through an SSH session so I never controlled the pi directly. Once done, I proceeded to sit down with a nice, cold Lemon - Menta beer and a remote control. 
+
+Once little gotcha -- `omxplayer` is controlled through the buttons + (volume up), - (volume down), <SPACE> (stop, play), and q for quitting. Flirc is able to map any key *combinations* on a keyboard as well to any button on the remote. Combinations can be done by selecting a control key and pressing another key. So mapping `+` to the volume up button was by pressing shift and then '='.
 
 Wrapping Up
 ------------
 
-I enjoyed the movie while being able to adjust the volume, or pause it, when my popcorn was ready, and close the player when the movie was done.
+I enjoyed the movie while being able to adjust the volume, or pause it, when my popcorn was ready, and close the player when the movie was done. There are a number of other ways to do this, like using [kodi](https://kodi.tv/) + [yatse](https://play.google.com/store/apps/details?id=org.leetzone.android.yatsewidgetfree&hl=en). Which lets you remote control a media software with your mobile phone. But I'm using the pi for a number of other things and the GUI is rather resource heavy. 
 
-There you have it folks. Home theater on the budget.
+There you have it folks. Might not be the easiest setup, but it's pretty awesome anyways.
 
 Cheers,
 Gergely.
