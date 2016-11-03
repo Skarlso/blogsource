@@ -1,14 +1,15 @@
-box: golang 
+box: golang
 build:
     steps:
         - arjen/hugo-build:
             theme: redlounge
+            version: "HEAD"
 deploy:
     steps:
         - install-packages:
-            packages: git 
+            packages: git
         - leipert/git-push:
             gh_oauth: $GIT_TOKEN
             repo: skarlso/skarlso.github.io
             branch: master
-            basedir: public    
+            basedir: public
