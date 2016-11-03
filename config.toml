@@ -5,6 +5,7 @@ baseurl = "https://skarlso.github.io/"
 title = "Ramblings of a build engineer"
 canonifyurls = true
 disqusShortname = "hannibalDisqus"
+Paginate = 10
 
 [taxonomies]
     category = "categories"
@@ -14,6 +15,9 @@ disqusShortname = "hannibalDisqus"
     sidebartitle = "Ramblings..."
     sidebartagline = "...of a build engineer."
     highlightStyle = "true"
+    hideShareOptions = true
+    twitterName = "Skarlso"
+    githubName = "Skarlso"
 
 [[menu.social]]
     pre = "<i class='fa fa-fort-awesome fa-3x'></i>"
