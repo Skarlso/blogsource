@@ -40,9 +40,9 @@ Just to recap, we left off previously on the point where we successfully obtaine
 
 In my example, to keep things simple, I will use the email address since that has to be unique in the land of Google. You could assign an ID to the user, and you could complicate things even further, but my goal is not to write an academic paper about cryptography here.
 
-#  Implementation
+# Implementation
 
-##  Making something useful out of the data
+## Making something useful out of the data
 
 In order for the app to recognise a user it must save some data about the user. I'm doing that in MongoDB right now, but that could be any form of persistence layer, like, SQLite3, BoltDB, PostgresDB, etc.
 
@@ -52,7 +52,7 @@ Once the user used google to provide us with sufficient information about him/he
 
 The session can be in the form of a cookie, or a Redis storage, or URL re-writing. I'm choosing a cookie here.
 
-### Save / Load user information
+### Save / Load user information
 
 All I'm doing is a simple, *returning / new* user handling. The concept is simple. If the email isn't saved, we save it. If it's saved, we set a logic to our page render to greet the returning user.
 
@@ -101,7 +101,7 @@ The template is than rendered depending on the `seen` boolean like this:
 
 You can see here, that if `seen` is *true* the header message will say: "Welcome *back*...".
 
-### Initiating a session ###
+### Initiating a session ###
 
 When the user is successfully authenticated, we activate a session so that the user can access pages that require authorization. Here, I have to mention that I'm using [Gin](https://github.com/gin-gonic/gin), so restricted end-points are made with groups which require a middleware.
 
