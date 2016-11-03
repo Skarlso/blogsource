@@ -40,9 +40,9 @@ Just to recap, we left off previously on the point where we successfully obtaine
 
 In my example, to keep things simple, I will use the email address since that has to be unique in the land of Google. You could assign an ID to the user, and you could complicate things even further, but my goal is not to write an academic paper about cryptography here.
 
-# Implementation
+#  Implementation
 
-## Making something useful out of the data
+##  Making something useful out of the data
 
 In order for the app to recognise a user it must save some data about the user. I'm doing that in MongoDB right now, but that could be any form of persistence layer, like, SQLite3, BoltDB, PostgresDB, etc.
 
