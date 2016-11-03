@@ -22,8 +22,6 @@ This is a follow up on my previous post about Google Sign-In. In this post we wi
 
 Everything I did in the first post, and that I'm going to do in this example, can be found in this project: [GoProgressQuestWebApp](https://github.com/Skarlso/goquestwebapp).
 
-## Previously
-
 Just to recap, we left off previously on the point where we successfully obtained information about the user, with a secure token and a session initiated with them. Google nicely enough provided us with some details which we can use. This information was in JSON format and looked something like this:
 
 ~~~json
