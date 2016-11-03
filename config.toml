@@ -5,7 +5,6 @@ baseurl = "https://skarlso.github.io/"
 title = "Ramblings of a build engineer"
 canonifyurls = true
 disqusShortname = "hannibalDisqus"
-theme = "Hugo-Octopress"
 
 [taxonomies]
     category = "categories"
