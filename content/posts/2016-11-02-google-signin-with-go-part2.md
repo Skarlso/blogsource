@@ -24,7 +24,7 @@ Everything I did in the first example, and that I'm going to do in this example,
 
 Just to recap, we left off previously on the point where we successfully obtained information about the user, with a secure token and a session initiated with them. Google nicely enough provided us with some details which we can use. This information was in JSON format and looked something like this:
 
-``` json
+~~~json
 {
   "sub": "1111111111111111111111",
   "name": "Your Name",
@@ -36,7 +36,7 @@ Just to recap, we left off previously on the point where we successfully obtaine
   "email_verified": true,
   "gender": "male"
 }
-```
+~~~
 
 In my example, to keep things simple, I will use the email address since that has to be unique in the land of Google. You could assign an ID to the user, and you could complicate things even further, but my goal is not to write an academic paper about cryptography here.
 
@@ -58,7 +58,7 @@ All I'm doing is a simple, *returning / new* user handling. The concept is simpl
 
 In the `AuthHandler` I'm doing the following:
 
-``` go
+~~~go
 ...
 seen := false
 db := database.MongoDBConnection{}
@@ -74,13 +74,13 @@ if _, mongoErr := db.LoadUser(u.Email); mongoErr == nil {
 }
 c.HTML(http.StatusOK, "battle.tmpl", gin.H{"email": u.Email, "seen": seen})
 ...
-```
+~~~
 
 Let's break this down a bit. There is a db connection here, which calls a function that either returns an error, or it doesn't. If it doesn't, that means we have our user. If it does, it means we have to save the user. This is a very simple case (disregard for now, that the error could be something else as well (If you can't get passed that, you could type check the error or check if the returned record contains the requested user information instead of checking for an error.)).
 
 The template is than rendered depending on the `seen` boolean like this:
 
-``` html
+~~~html
 <!DOCTYPE html>
 <link rel="icon"
       type="image/png"
@@ -97,7 +97,7 @@ The template is than rendered depending on the `seen` boolean like this:
     {{end}}
   </body>
 </html>
-```
+~~~
 
 You can see here, that if `seen` is *true* the header message will say: "Welcome *back*...".
 
@@ -107,7 +107,7 @@ When the user is successfully authenticated, we activate a session so that the u
 
 As I mentioned earlier, I'm using cookies as session handlers. For this, a new session store has to be created with some secure token. This is achieved with the following code fragments ( note that I'm using a Gin session middleware which uses gorilla's session handler located here: [Gin-Gonic(Sessions)](https://github.com/gin-gonic/contrib)):
 
-``` go
+~~~go
 // RandToken in handlers.go:
 // RandToken generates a random @l length token.
 func RandToken(l int) string {
@@ -126,11 +126,11 @@ store.Options(sessions.Options{
 
 // using the cookie store:
 router.Use(sessions.Sessions("goquestsession", store))
-```
+~~~
 
 After this `gin.Context` lets us access this session store by doing `session := sessions.Default(c)`. Now, create a session variable called `user-id` like this:
 
-``` go
+~~~go
 session.Set("user-id", u.Email)
 err = session.Save()
 if err != nil {
@@ -138,7 +138,7 @@ if err != nil {
     c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
     return
 }
-```
+~~~
 
 Don't forget to `save` the session. ;) That is it. If I restart the server, the cookie won't be usable any longer, since it will generate a new token for the cookie store. The user will have to log in again. **Note**: It might be that you'll see something like this, from `session`: `[sessions] ERROR! securecookie: the value is not valid`. You can ignore this error.
 
@@ -146,17 +146,17 @@ Don't forget to `save` the session. ;) That is it. If I restart the server, the 
 
 Now, that our session is alive, we can use it to restrict access to some part of the application. With Gin, it looks like this:
 
-``` go
+~~~go
 authorized := router.Group("/battle")
 authorized.Use(middleware.AuthorizeRequest())
 {
     authorized.GET("/field", handlers.FieldHandler)
 }
-```
+~~~
 
 This creates a grouping of end-points under `/battle`. Which means, everything under `/battle` will only be accessible if the middleware passed to the `Use` function calls the next handler in the chain. If it aborts the call chain, the end-point will not be accessible. My middleware is pretty simple, but it gets the job done:
 
-``` go
+~~~go
 // AuthorizeRequest is used to authorize a request for a certain end-point group.
 func AuthorizeRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -169,7 +169,7 @@ func AuthorizeRequest() gin.HandlerFunc {
 		c.Next()
 	}
 }
-```
+~~~
 
 Note, that this only check if `user-id` is set or not. That's certainly not enough for a secure application. Its only supposed to be a simple example of the mechanics of the auth middleware. Also, the session usually contains more than one parameter. It's more likely that it contains several variables, which describe the user including a state for CORS protection. For CORS I'd recommend using [rs/cors](https://github.com/rs/cors).
 
