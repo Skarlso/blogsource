@@ -16,10 +16,11 @@ Hello folks.
 Today, I would like to tell you about my configuration for a low budget Home Theater setup.
 
 My tools are as follows:
-* [FLIRC](https://flirc.tv/)
-* [Raspberry Pi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/)
-* 500G SSD
-* An a good 'ol wifi
+
+ * [FLIRC](https://flirc.tv/)
+ * [Raspberry Pi 2](https://www.raspberrypi.org/products/raspberry-pi-2-model-b/)
+ * 500G SSD
+ * An a good 'ol wifi
 
 TL;DR
 ------
@@ -54,14 +55,14 @@ This saved my bacon. The whole answer can be found here: [Stackoverflow](http://
 
 Once SSHFS was working, and HDMI received sound, I just executed this command: `omxplayer -o hdmi /media/stream/my_movie.mkv`. This told omxplayer to use the local HDMI connection for video output.
 
-All this was from my computer through an SSH session so I never controlled the pi directly. Once done, I proceeded to sit down with a nice, cold Lemon - Menta beer and a remote control. 
+All this was from my computer through an SSH session so I never controlled the pi directly. Once done, I proceeded to sit down with a nice, cold Lemon - Menta beer and a remote control.
 
 Once little gotcha -- `omxplayer` is controlled through the buttons + (volume up), - (volume down), <SPACE> (stop, play), and q for quitting. Flirc is able to map any key *combinations* on a keyboard as well to any button on the remote. Combinations can be done by selecting a control key and pressing another key. So mapping `+` to the volume up button was by pressing shift and then '='.
 
 Wrapping Up
 ------------
 
-I enjoyed the movie while being able to adjust the volume, or pause it, when my popcorn was ready, and close the player when the movie was done. There are a number of other ways to do this, like using [kodi](https://kodi.tv/) + [yatse](https://play.google.com/store/apps/details?id=org.leetzone.android.yatsewidgetfree&hl=en). Which lets you remote control a media software with your mobile phone. But I'm using the pi for a number of other things and the GUI is rather resource heavy. 
+I enjoyed the movie while being able to adjust the volume, or pause it, when my popcorn was ready, and close the player when the movie was done. There are a number of other ways to do this, like using [kodi](https://kodi.tv/) + [yatse](https://play.google.com/store/apps/details?id=org.leetzone.android.yatsewidgetfree&hl=en). Which lets you remote control a media software with your mobile phone. But I'm using the pi for a number of other things and the GUI is rather resource heavy.
 
 There you have it folks. Might not be the easiest setup, but it's pretty awesome anyways.
 
