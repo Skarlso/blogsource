@@ -2,7 +2,7 @@ box: golang
 build:
     steps:
         - arjen/hugo-build:
-            # theme: redlounge
+            theme: redlounge
             # version: "HEAD"
 deploy:
     steps:
