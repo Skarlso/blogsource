@@ -24,7 +24,7 @@ Everything I did in the first example, and that I'm going to do in this example,
 
 Just to recap, we left off previously on the point where we successfully obtained information about the user, with a secure token and a session initiated with them. Google nicely enough provided us with some details which we can use. This information was in JSON format and looked something like this:
 
-~~~json
+~~~JSON
 {
   "sub": "1111111111111111111111",
   "name": "Your Name",
@@ -80,7 +80,7 @@ Let's break this down a bit. There is a db connection here, which calls a functi
 
 The template is than rendered depending on the `seen` boolean like this:
 
-~~~html
+~~~HTML
 <!DOCTYPE html>
 <link rel="icon"
       type="image/png"
