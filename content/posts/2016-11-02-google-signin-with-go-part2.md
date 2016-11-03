@@ -178,12 +178,13 @@ If you would try to access http://127.0.0.1:9090/battle/field without logging in
 # Final Words
 
 That's pretty much it. Important parts are:
-+ Saving the right information
-+ Secure cookie store
-+ CORS for sessions
-+ Checks of the users details in the cookie
-+ Authorised end-points
-+ Session handling
+
+ + Saving the right information
+ + Secure cookie store
+ + CORS for sessions
+ + Checks of the users details in the cookie
+ + Authorised end-points
+ + Session handling
 
 Any questions, remarks, ideas, are very welcomed in the comment section. There are plenty of very nice Go frameworks which do Google OAuth2 out of the box. I recommend using them, as they save you a lot of legwork.
 
