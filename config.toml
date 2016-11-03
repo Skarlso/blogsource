@@ -18,6 +18,7 @@ Paginate = 10
     hideShareOptions = true
     twitterName = "Skarlso"
     githubName = "Skarlso"
+    google_analytics = "UA-69463020-2"
 
 [[menu.social]]
     pre = "<i class='fa fa-fort-awesome fa-3x'></i>"
