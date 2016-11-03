@@ -2,7 +2,7 @@ box: golang
 build:
     steps:
         - arjen/hugo-build:
-            theme: Hugo-Octopress
+            theme: hugo-octopress
             # version: "HEAD"
 deploy:
     steps:
