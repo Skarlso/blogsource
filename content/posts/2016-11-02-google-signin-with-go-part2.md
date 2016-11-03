@@ -14,11 +14,13 @@ Hi Folks.
 
 This is a follow up on my previous post about Google Sign-In. In this post we will discover what to do with the information retrieved in the first encounter, which you can find here: [Google Sign-In Part 1](http://skarlso.github.io/2016/06/12/google-signin-with-go/).
 
-# The Project #
+# Forewords
+
+## The Project
 
 Everything I did in the first example, and that I'm going to do in this example, can be found in this project: [GoProgressQuestWebApp](https://github.com/Skarlso/goquestwebapp).
 
-# Previously on this blog #
+## Previously on this blog
 
 Just to recap, we left off previously on the point where we successfully obtained information about the user, with a secure token and a session initiated with them. Google nicely enough provided us with some details which we can use. This information was in JSON format and looked something like this:
 
@@ -38,17 +40,19 @@ Just to recap, we left off previously on the point where we successfully obtaine
 
 In my example, to keep things simple, I will use the email address since that has to be unique in the land of Google. You could assign an ID to the user, and you could complicate things even further, but my goal is not to write an academic paper about cryptography here. :)
 
-# Making something useful out of the data #
+## Implementation
+
+### Making something useful out of the data
 
 In order for the app to recognise a user it must save some data about the user. I'm doing that in MongoDB right now, but that could be any form of persistence layer, like, SQLite3, BoltDB, PostgresDB, etc.
 
-## After successful user authorization ##
+#### After successful user authorization
 
 Once the user used google to provide us with sufficient information about him/herself, we can retrieve data about that user from our records. The data could be anything that is linked to our unique identifier like: Character Profile, Player Information, Status, Last Logged-In, etcetc. For this, there are two things that need to happen after authorization: Save/Load user information and initiate a session.
 
 The session can be in the form of a cookie, or a Redis storage, or URL re-writing. I'm choosing a cookie here.
 
-### Save / Load user information ###
+#### Save / Load user information
 
 All I'm doing is a simple, *returning / new* user handling. The concept is simple. If the email isn't saved, we save it. If it's saved, we set a logic to our page render to greet the returning user.
 
@@ -97,7 +101,7 @@ The template is than rendered depending on the `seen` boolean like this:
 
 You can see here, that if `seen` is *true* the header message will say: "Welcome *back*...".
 
-### Initiating a session ###
+#### Initiating a session
 
 When the user is successfully authenticated, we activate a session so that the user can access pages that require authorization. Here, I have to mention that I'm using [Gin](https://github.com/gin-gonic/gin), so restricted end-points are made with groups which require a middleware.
 
@@ -138,7 +142,7 @@ if err != nil {
 
 Don't forget to `save` the session. ;) That is it. If I restart the server, the cookie won't be usable any longer, since it will generate a new token for the cookie store. The user will have to log in again. **Note**: It might be that you'll see something like this, from `session`: `[sessions] ERROR! securecookie: the value is not valid`. You can ignore this error.
 
-## Restricting access to certain end-points with the auth Middleware™ ##
+### Restricting access to certain end-points with the auth Middleware™
 
 Now, that our session is alive, we can use it to restrict access to some part of the application. With Gin, it looks like this:
 
@@ -171,7 +175,7 @@ Note, that this only check if `user-id` is set or not. That's certainly not enou
 
 If you would try to access http://127.0.0.1:9090/battle/field without logging in, you'd be redirected to an `error.tmpl` with the message: **Please log in.**.
 
-# Final Words #
+## Final Words
 
 That's pretty much it. Important parts are:
 * Saving the right information
