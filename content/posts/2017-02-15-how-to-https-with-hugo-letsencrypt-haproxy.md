@@ -2,7 +2,7 @@
 title: How to HTTPS with Hugo LetsEncrypt and HAProxy
 author: hannibal
 layout: post
-date: 2017-02-15T19:20+01:00
+date: 2017-02-15T19:20:00+01:00
 url: /2017/02/15/how-to-https-with-hugo-letsencrypt-haproxy
 categories:
   - Hugo
