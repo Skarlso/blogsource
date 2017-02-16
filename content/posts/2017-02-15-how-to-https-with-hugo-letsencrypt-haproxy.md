@@ -36,7 +36,7 @@ are for haproxy and hugo, if you wish to use apache and nginx for example, you'l
 ## Hugo
 
 You will need hugo, which can be downloaded from here: [Hugo](https://gohugo.io). A simple website will be enough. For themes, you can take a look
-at the humongus list located here: [HugoThemes](http://themes.gohugo.io/).
+at the humongous list located here: [HugoThemes](http://themes.gohugo.io/).
 
 ## Haproxy
 
@@ -47,7 +47,7 @@ Haproxy can be found here: [Haproxy](https://www.haproxy.com). There are a numbe
 
 Information about Let's Encrypt can be found on their website here: [Let's Encrypt](https://letsencrypt.org).
 Let's Encrypt's client is now called [Certbot](https://certbot.eff.org/) which is used to generate the certificates. To get the latest code
-you either clone the repository [Certbot](https://github.com/certbot/certbot), or use an autodownloader:
+you either clone the repository [Certbot](https://github.com/certbot/certbot), or use an auto downloader:
 
 ~~~bash
 user@webserver:~$ wget https://dl.eff.org/certbot-auto
@@ -59,7 +59,7 @@ Either way, I'm using the current latest version: *v0.11.1*.
 
 ## Sudo
 
-This goes without saying, but that these operations will require you to have sudo priviliges. I suggest staying in sudo for ease of use.
+This goes without saying, but that these operations will require you to have sudo privileges. I suggest staying in sudo for ease of use.
 This means that the commands, I'll write here, will assume you are in `sudo su` mode thus no `sudo` prefix will be used.
 
 ## Portforwarding
@@ -71,14 +71,14 @@ In order for your website to work under https this guide assumes that you have p
 ## Single Server Environment
 
 It is possible for haproxy, certbot and your website to run on designated servers. Haproxy's abilities allows to define multiple server sources.
-In this guied, my haproxy, website and certbot will all run on the same server; thus redirecting to 127.0.0.1 and local ips. This is more
-convinient, because otherwise the haproxy IP would have to be a permanent local/remote ip. Or an automated script would have to be setup which is
+In this guide, my haproxy, website and certbot will all run on the same server; thus redirecting to 127.0.0.1 and local ips. This is more
+convenient, because otherwise the haproxy IP would have to be a permanent local/remote ip. Or an automated script would have to be setup which is
 notified upon IP change and updates the ip records.
 
 ## Creating a Certificate
 
 Diving in, the first thing you will require is a certificate. A certificate will allow for encrypted traffic and an authenticated website.
-Let's Encrypt which is baseically functioning as an indipendent, free, automated CA (Certificate Authority). Usually,
+Let's Encrypt which is basically functioning as an independent, free, automated CA (Certificate Authority). Usually,
 the process would be to pay a CA to give you a signed, generated certificate for your website, and you would have to set that up with your DNS
 provider. Let's Encrypt has that all automated, and free of any charge. Neat.
 
