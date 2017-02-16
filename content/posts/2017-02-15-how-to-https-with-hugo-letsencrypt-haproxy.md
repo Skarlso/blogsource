@@ -2,7 +2,7 @@
 title: How to HTTPS with Hugo LetsEncrypt and HAProxy
 author: hannibal
 layout: post
-date: 2017-02-15
+date: 2017-02-15T19:20+01:00
 url: /2017/02/15/how-to-https-with-hugo-letsencrypt-haproxy
 categories:
   - Hugo
@@ -95,8 +95,8 @@ git clone https://github.com/certbot/certbot /opt/letsencrypt
 Make sure that there is nothing listening on ports: 80, 443. To list usage:
 
 ~~~bash
-netstat -na | grep ':80.*LISTEN'
-netstat -na | grep ':443.*LISTEN'
+netstat -nlt | grep ':80\s'
+netstat -nlt | grep ':443\s'
 ~~~
 
 Kill everything that might be on these ports, like apache2 and httpd. These will be used by haproxy and certbot for challenges
