@@ -18,7 +18,7 @@ Hi folks.
 
 Today, I would like to write about how to do HTTPS for a website, without the need to buy a certificate and set it up via your DNS provider. Let's begin.
 
-## Abstract
+## Abstract
 
 What you will achieve by the end of this post:
 - Every call to HTTP will be redirected to HTTPS via [haproxy](https://www.haproxy.com).
@@ -33,7 +33,7 @@ are for haproxy and hugo, if you wish to use apache and nginx for example, you'l
 
 # What You Will Need
 
-## Hugo
+## Hugo
 
 You will need hugo, which can be downloaded from here: [Hugo](https://gohugo.io). A simple website will be enough. For themes, you can take a look
 at the humongus list located here: [HugoThemes](http://themes.gohugo.io/).
@@ -82,7 +82,7 @@ Let's Encrypt which is baseically functioning as an indipendent, free, automated
 the process would be to pay a CA to give you a signed, generated certificate for your website, and you would have to set that up with your DNS
 provider. Let's Encrypt has that all automated, and free of any charge. Neat.
 
-### Certbot
+### Certbot
 
 So let's get started. Clone the repository into `/opt/letsencrypt` for further usage.
 
@@ -116,7 +116,7 @@ generated certificate will be located under `/etc/letsencrypt/archive` and `/etc
 a symlink to the latest version of the cert. It's wise to not copy these away from here, since the live link is always updated to the latest version.
 Our script will handle haproxy, which requires one cert file made from privkey + fullchain|.pem files.
 
-### Setup Auto-Renewal
+### Setup Auto-Renewal
 
 Let's Encrypt issues short lived certificates (90 days). In order to not have to do this procedure every 89 days, certbot provides a nifty
 command called `renew`. However, for the cert to be generated, the port 443 has to be open. This means, haproxy needs to be stopped before
@@ -184,7 +184,7 @@ DOMAIN='example.com' sudo -E bash -c 'cat /etc/letsencrypt/live/$DOMAIN/fullchai
 
 It will create a combined cert under `/etc/haproxy/certs/example.com.pem`.
 
-### Haproxy configuration
+### Haproxy configuration
 
 If haproxy happens to be running, stop it with `service haproxy stop`.
 
