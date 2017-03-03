@@ -157,7 +157,7 @@ This way you don&#8217;t even need the Enum anymore. Just use some configuration
 
 Hope this helps.
 
-I whipped this up from memory so please feel free to tell me if I missed something or have a syntax error in there somewhere&#8230; <img src="http://ramblingsofaswtester.com/wp-includes/images/smilies/simple-smile.png" alt=":)" class="wp-smiley" style="height: 1em; max-height: 1em;" />
+I whipped this up from memory so please feel free to tell me if I missed something or have a syntax error in there somewhere&#8230;
 
 As always,
   

@@ -31,7 +31,7 @@ So how windows is handling this is actually with a software called Optimus. Now 
 
 So first of all I installed <a href="http://www.ubuntu.com/download/ubuntu/download" target="_blank">Ubuntu 32 bit</a> because I experienced more problems with 64 bit. To be honest the ubuntu page also recommends 32 bit. You don&#8217;t get to much from the 64 any ways. 
 
-After I downloaded and burned my disc and installed ubuntu next to my windows 7, I went for the updates. Now HERE is the first key point in my struggle. After the install I went for the additional drivers listed. There were actually additional drivers listed at that point!! Which is interesting because AFTER I installed the updates they disappeared and never appeared again. I&#8217;m guessing that one of the packages overrode my drivers. I would go back and reinstall the thing and experiment with it, but I don&#8217;t care any more. <img src="http://ramblingsofaswtester.com/wp-includes/images/smilies/simple-smile.png" alt=":)" class="wp-smiley" style="height: 1em; max-height: 1em;" />
+After I downloaded and burned my disc and installed ubuntu next to my windows 7, I went for the updates. Now HERE is the first key point in my struggle. After the install I went for the additional drivers listed. There were actually additional drivers listed at that point!! Which is interesting because AFTER I installed the updates they disappeared and never appeared again. I&#8217;m guessing that one of the packages overrode my drivers. I would go back and reinstall the thing and experiment with it, but I don&#8217;t care any more. 
 
 So let&#8217;s move on&#8230;
 
@@ -209,7 +209,7 @@ For my sanities sake I will write it down here too.
 
 **First**
   
-Remove nvidia drivers&#8230; Again. <img src="http://ramblingsofaswtester.com/wp-includes/images/smilies/simple-smile.png" alt=":)" class="wp-smiley" style="height: 1em; max-height: 1em;" />
+Remove nvidia drivers&#8230; Again.
 
 **Second**
   
@@ -301,7 +301,7 @@ After this I could finally see my cards settings for example by typing in:
   </table>
 </div>
 
-This executed the settings app and I was able to edit some settings I required while ubuntu was running fine with my other video card as primary card. <img src="http://ramblingsofaswtester.com/wp-includes/images/smilies/simple-smile.png" alt=":)" class="wp-smiley" style="height: 1em; max-height: 1em;" />
+This executed the settings app and I was able to edit some settings I required while ubuntu was running fine with my other video card as primary card.
 
 Now that was quite the fun, like I said, not? 
 

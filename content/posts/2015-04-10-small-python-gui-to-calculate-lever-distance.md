@@ -16,11 +16,7 @@ Just a small script which calculates your distance from a lever focal point if y
 
 Like this:
 
-[<img class="alignnone size-thumbnail wp-image-480" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/04/slide0001_image007-150x120.png" alt="slide0001_image007" width="150" height="120" />][1]
-
 This script will give you D1. And this is how it will look like in doing so:
-
-[<img class="alignnone size-thumbnail wp-image-481" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/04/Screen-Shot-2015-04-10-at-15.03.02-150x150.png" alt="Screen Shot 2015-04-10 at 15.03.02" width="150" height="150" />][2]
 
 So, in order for me (77kg) to lift an object of 80kg which is on a, by default, 1 meter long lever, I have to stand back ~1.03meters. Which is totally cool, right?
 
@@ -92,8 +88,4 @@ root.<span style="color: black;">mainloop</span><span style="color: black;">&#40
 Please enjoy, and feel free to alter in any way. I&#8217;m using Tkinter and a grid layout which I find very easy to work with.
 
 Thanks for reading,
-  
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/04/slide0001_image007.png
- [2]: http://ramblingsofaswtester.com/wp-content/uploads/2015/04/Screen-Shot-2015-04-10-at-15.03.02.png

@@ -90,7 +90,7 @@ And try&#8230; testenv|space|admin;14 => which should result in: https://admin.t
 
 The location.replace at the end will bring you to the web page. It&#8217;s interesting to note the s will be replaced by admin;14 which is a nice magic by JavaScript.
 
-**NOTE**: This only works on a page like google.co.uk. For chrome pages, like the new tab, omnibox has this ability disabled unfortunately. <img src="http://ramblingsofaswtester.com/wp-includes/images/smilies/frownie.png" alt=":(" class="wp-smiley" style="height: 1em; max-height: 1em;" />
+**NOTE**: This only works on a page like google.co.uk. For chrome pages, like the new tab, omnibox has this ability disabled unfortunately.
 
 &#8220;Well then it&#8217;s completely useless, isn&#8217;t it?&#8221; &#8211; you might say. Well, it&#8217;s usage is limited in power, that&#8217;s true. But it&#8217;s still useful as I&#8217;m sure you have a couple of pages open anyways which you don&#8217;t mind using up&#8230;? And you have to remember less keywords only a few powerful ones.
 

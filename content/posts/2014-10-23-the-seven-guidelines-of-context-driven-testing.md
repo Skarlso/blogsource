@@ -20,8 +20,6 @@ So without further ado&#8230;
 
 <!--more-->
 
-[<img class="alignnone size-thumbnail wp-image-331" src="http://ramblingsofaswtester.com/wp-content/uploads/2014/10/ContextDragon2-150x150.jpg" alt="ContextDragon2" width="150" height="150" />][1]
-
 Click for larger image.
 
 I have a hand drawn as well but I&#8217;m guessing that one wouldn&#8217;t be of much use since it follows my own imagination.
@@ -43,5 +41,3 @@ I hope somebody found this useful.
 Thanks for reading!
   
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2014/10/ContextDragon2.jpg

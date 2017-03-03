@@ -107,10 +107,6 @@ Plotting in Python was exquisite interesting. The garphs which were produced sho
 
 This resulted in very interesting graphs like this:
 
-[<img class="alignnone size-medium wp-image-315" src="http://ramblingsofaswtester.com/wp-content/uploads/2014/08/Screenshot-250814-181034-265x300.png" alt="Screenshot - 250814 - 18:10:34" width="265" height="300" />][1]
-
-&nbsp;
-
 **Week Two**
 
 So last week we had plotting and counting this week was even more interesting. Week Two&#8217;s main focus was **Probability**. Specifically the <a href="http://en.wikipedia.org/wiki/Monte_Carlo_method" target="_blank"><strong>Monte Carlo</strong> <strong>methods</strong></a>. Tl;dr; it describes that if you try something enough times you can derive a result that will be, with very high probability, the one you are looking for (expected value).
@@ -138,10 +134,6 @@ Now let me say this without too much remorse. I truly, fully and with all my hea
 &nbsp;
 
 South Park Version of Yahtzee + Tron:
-
-[<img class="alignnone  wp-image-313" src="http://ramblingsofaswtester.com/wp-content/uploads/2014/08/soutpark_yahtzee-300x141.jpg" alt="soutpark_yahtzee" width="345" height="162" />][2]
-
-&nbsp;
 
 I share the enthusiastic look of Stan here.
 
@@ -188,10 +180,6 @@ For me this was the most interesting part of the course. I LOVED this task. Focu
   * Grid Search / <a href="http://en.wikipedia.org/wiki/Breadth-first_search" target="_blank">Breadth First Search</a>
 
 And the task with which we were supposed to achieve this was&#8230;. <span style="color: #ff0000;"><strong>Zombie Apocalypse</strong></span>. It was sort of like **<a href="http://en.wikipedia.org/wiki/Conway's_Game_of_Life" target="_blank">Conway&#8217;s Game of Life</a>**. Given a grid in which there were <span style="color: #ff0000;"><strong>Zombies</strong></span>** **and <span style="color: #000000;"><strong><span style="color: #339966;">Humans </span></strong></span> **<span style="color: #000000;">Obstacles.</span>**
-
-[<img class="alignnone size-medium wp-image-317" src="http://ramblingsofaswtester.com/wp-content/uploads/2014/08/zombies_screen_shot-300x213.png" alt="zombies_screen_shot" width="300" height="213" />][3]
-
-&nbsp;
 
 The Zombies could only move up, down, left, right. The humans could flee diagonally and none of them could penetrate an obstacle. It was very much fun to write this. The most challenge was to learn the proper implementation of the breadth first search algorithm as the Zombies had to detect the nearest Humans to move towards to and the Humans needed to see the nearest Zombies to flee from.
 
@@ -288,13 +276,5 @@ So this was the end of the course. I learned a a lot from this course and I&#821
 
 And I think math is important for proper, deep understanding of programming as a science. I think refreshing my math skills gave me at least a deeper trust in my ability to write a piece of code however complicated it might appear. After writing a minimax algorithm I think some Hibernate with DIP and SRP will prove to be less of a problem. Or at least a different category of a problem&#8230;. Hehe.
 
-[<img class="alignnone size-medium wp-image-306" src="http://ramblingsofaswtester.com/wp-content/uploads/2014/08/Fallout_PIP-Boy-300x300.jpg" alt="Fallout_PIP-Boy" width="300" height="300" />][4]
-
 Thanks for reading!
-  
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2014/08/Screenshot-250814-181034.png
- [2]: http://ramblingsofaswtester.com/wp-content/uploads/2014/08/soutpark_yahtzee.jpg
- [3]: http://ramblingsofaswtester.com/wp-content/uploads/2014/08/zombies_screen_shot.png
- [4]: http://ramblingsofaswtester.com/wp-content/uploads/2014/08/Fallout_PIP-Boy.jpg

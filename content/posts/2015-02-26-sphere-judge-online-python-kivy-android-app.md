@@ -182,8 +182,6 @@ In order to get this installed on our device, we will use python-android&#8217;
 
 Upon success, you should see it on your device. This is how the hello world app looks like:
 
-[<img class="alignnone size-thumbnail wp-image-442" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/02/Screenshot_2015-02-26-12-52-25-150x150.png" alt="Screenshot_2015-02-26-12-52-25" width="150" height="150" />][1]
-
 <h1 style="text-align: center;">
   Finishing up
 </h1>
@@ -191,7 +189,4 @@ Upon success, you should see it on your device. This is how the hello world app
 This has been quite the ride so far. We will continue our journey when I&#8217;ll start writing my own app for SPOJ.
 
 Thanks for reading!
-  
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/02/Screenshot_2015-02-26-12-52-25.png

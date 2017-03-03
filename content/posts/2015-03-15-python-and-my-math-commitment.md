@@ -14,8 +14,6 @@ Let&#8217;s talk about plans. It&#8217;s good to have one. For example, I have a
 
 I kind of like math. So, I have this book:
 
-[<img class="alignnone size-thumbnail wp-image-452" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/03/matek-150x150.jpg" alt="matek" width="150" height="150" />][1]
-
 It&#8217;s 1400 pages long and basically, has everything in it. It&#8217;s a rather exhaustive book. Hence, my plan is to finish the book by the end of 2015 and write a couple of python scripts that calculate something interesting.
 
 For example, Newton&#8217;s law of cooling how I learned it is:
@@ -55,7 +53,4 @@ K <span style="color: #66cc66;">=</span> <span style="color: #dc143c;">sys</span
 Enjoy.
 
 And as always,
-  
 Thanks for reading!
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/03/matek.jpg

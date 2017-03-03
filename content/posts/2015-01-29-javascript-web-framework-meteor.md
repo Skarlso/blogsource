@@ -283,8 +283,6 @@ Now, if you are like me, someone who has experience with the android SDK and its
 
 And sure enough the app appeared on my device.
 
-[<img class="alignnone size-thumbnail wp-image-402" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/01/meteor-150x150.png" alt="meteor" width="150" height="150" />][1]
-
 This is actually quite awesome. I only plugged in my device, enabled developer options and USB debugging and that&#8217;s it. I&#8217;m quite impressed so far with Meteor and the Power of JavaScript. The app is on my phone and the static JavaScript parts are still working even though I shut the server down.
 
 So my next burning question is&#8230; Will it Blend? I mean, Perform?
@@ -295,11 +293,7 @@ So, now that I know that using, installing and getting started is pretty simple,
 
 I have a quad core i7 16GB RAM Samsung SSD running Linux. Let&#8217;s see 100 threads 10 second interval 10 times loop for a start. Look at how gorgeous this is.
 
-[<img class="alignnone size-thumbnail wp-image-404" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/01/performance1-e1422478859195-150x150.png" alt="performance1" width="150" height="150" />][2]
-
 40ms on average. Now let&#8217;s crank it up and I&#8217;m performing the test on a separate machine but still on the same network. 1000 threads.
-
-[<img class="alignnone size-thumbnail wp-image-405" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/01/performance2-150x150.png" alt="performance2" width="150" height="150" />][3]
 
 This time I&#8217;ve got a bit more churn and my pc started to fan like there is no tomorrow. But the server stayed stable. Latency did not waver for a bit. Next, 10.000 for as long as my machine can handle it&#8230;. Better save my work. Hah, my JMeter died. But it clocked at an average of 1000ms response time and the server stayed absolutely stable with no package lost, or errors.
 
@@ -310,9 +304,4 @@ I can say with a full heart that I&#8217;m impressed by Meteor and I very much l
 I recommend Meteor and I&#8217;ll be playing around with it a bit more for sure.
 
 Thanks for reading!
-  
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/01/meteor.png
- [2]: http://ramblingsofaswtester.com/wp-content/uploads/2015/01/performance1-e1422478859195.png
- [3]: http://ramblingsofaswtester.com/wp-content/uploads/2015/01/performance2.png

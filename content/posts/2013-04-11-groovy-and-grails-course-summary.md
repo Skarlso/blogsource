@@ -228,7 +228,7 @@ It was pretty interesting. GSPs have similarities to JSPs but retained only the 
 
 Peter very much pressed the fact that the Controllers should be your only entry point from HTML requests and the views should be the only output of it. The controllers shouldn&#8217;t be throwing around business logic they should only act as proxies between the outer shell and the inner layering.
 
-I think I understood most of the stuff which we were going through. Again, it was pretty straight forward. The application of it is what need practice. <img src="http://ramblingsofaswtester.com/wp-includes/images/smilies/simple-smile.png" alt=":)" class="wp-smiley" style="height: 1em; max-height: 1em;" />
+I think I understood most of the stuff which we were going through. Again, it was pretty straight forward. The application of it is what need practice.
 
 Durring the course we created several applications. With dynamic scaffolding as well as static. We created and edited our own views and gsps. Created our own Controllers and what nots. One thing is clear. Grails let&#8217;s you progress a hell of a lot in a matter of minutes.
 
@@ -241,7 +241,7 @@ As final words we talked about plugins and the testing of Views and a bit more c
 So all in all the course was excellent. Peter did a very good job of introducing use to Grails and Groovy. It&#8217;s a very good framework to build upon with a powerful language at our disposal. I&#8217;m pretty certain that Grails will evolve even more and be a great asset to people who choose to develop with it. Handle with Care though. Because no matter how awesome a tool is, it can always be used for bad purposes. 😉
 
 As always,
-  
+
 Thanks for reading and have a nice day / evening.
 
  [1]: http://www.amazon.co.uk/Grails-Action-Peter-Ledbrook/dp/1617290963/ref=sr_1_2?ie=UTF8&qid=1365713080&sr=8-2&keywords=peter+ledbrook "Grails in Action"

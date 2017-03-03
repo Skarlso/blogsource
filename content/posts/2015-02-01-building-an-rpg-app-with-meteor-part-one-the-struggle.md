@@ -34,8 +34,6 @@ I&#8217;m planning this to be a series of posts as I&#8217;m going along buildin
 
 Our main character will have a basic inventory. He will have space to carry stuff around and a body to put stuff on. One ring on each hand, one weapon in each hand, helmet, armour, legs, and a necklace. That&#8217;s it. For simplicities sake. The game mechanics will be like those old books which you could play, Fighting RPG Books, like the one Ian Livingstone was writing. This is one of my favourites; Robot commando:
 
-[<img class="alignnone size-thumbnail wp-image-418" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/02/Robot-Commando-best-Fighting-Fantasy-book-150x150.jpg" alt="Robot-Commando-best-Fighting-Fantasy-book" width="150" height="150" />][1]
-
 #### Stats
 
 &nbsp;
@@ -189,7 +187,4 @@ I&#8217;m going to stop here now. After spending a couple of hours I can determi
 Stay tuned for more.
 
 And as always,
-  
 Thanks for reading!
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/02/Robot-Commando-best-Fighting-Fantasy-book.jpg

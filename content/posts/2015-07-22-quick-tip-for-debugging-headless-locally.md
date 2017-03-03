@@ -17,10 +17,5 @@ Especially on a windows install the Answer File / Unattended install can be like
 
 It&#8217;s a small windows, but your can click on **Show** which will open the VM in a proper view.
 
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/07/Screenshot-from-2015-07-22-152235-150x150.png" alt="Screenshot from 2015-07-22 15:22:35" width="150" height="150" class="alignnone size-thumbnail wp-image-574" />][1]
-
 Enjoy,
-  
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/07/Screenshot-from-2015-07-22-152235.png

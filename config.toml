@@ -22,5 +22,5 @@ Paginate = 10
 
 [[menu.social]]
     pre = "<i class='fa fa-fort-awesome fa-3x'></i>"
-    url = "http://skarlso.com"
+    url = "https://skarlso.com"
     identifier = "site"

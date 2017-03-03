@@ -61,19 +61,13 @@ In order for the aggregation to work, there needs to be an **artifact connection
 
 As you can see, it&#8217;s pretty basic. It isn&#8217;t much. It&#8217;s supposed to be a trigger job for downstream projects. You could have this one at anything. Maybe scheduled, or have some kind of gathering here of some results, and so on and so forth. The end part of the configuration is the interesting bit.
 
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/10/parentJobConfig1-150x150.png" alt="parentJobConfig" width="150" height="150" class="alignnone size-thumbnail wp-image-616" />][1]
-
 Aggregation is setup, but it won&#8217;t work, because despite there being an upstream/downstream relationship, there also needs to be an artifact connection which uses **fingerprinting**. Fingerprinting for Jenkins is needed in oder to make the physical connection between the jobs via hashes. This is what you will get if that is not setup:
-
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/10/statusBeforeFingerprint-150x150.png" alt="statusBeforeFingerprint" width="150" height="150" class="alignnone size-thumbnail wp-image-615" />][2]
 
 But if there is no artifact between them, what do you do? You create one.
 
 # The Artifact which Binds Us
 
 Adding a simple **timestamp file** is enough to make a connection. So let&#8217;s do that. This is how it will look like =>
-
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/10/statusAfterFingerprint-150x150.png" alt="statusAfterFingerprint" width="150" height="150" class="alignnone size-thumbnail wp-image-614" />][3]
 
 The important bits about this picture are the small echo which simply creates a file which will contain some time stamp data, and after that the archive artifact, which also fingerprints that file, marking it with a hash which identifies this job as using that particular artifact. 
 
@@ -159,17 +153,11 @@ With this, we create the childs configuration like this:
 
 Again, the improtant bit is this:
   
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/10/childJobWithArtifactCopy-150x150.png" alt="childJobWithArtifactCopy" width="150" height="150" class="alignnone size-thumbnail wp-image-611" />][4]
-
 After the copy is setup, we launch our parent job and if everything is correct, you should see something like this:
-
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/10/resultAfterArtifactCopySuccess-150x150.png" alt="resultAfterArtifactCopySuccess" width="150" height="150" class="alignnone size-thumbnail wp-image-613" />][5]
 
 # Wrapping it Up
 
 For final words, important bit to take away from this is that you need an **artifact connection between the jobs** to make this work. Whatever your downstream / upstream connection is, it doesn&#8217;t matter. Also, there can be a problem that you have everything set up, and there are artifacts which bind the jobs together but you still can&#8217;t see the results, then your best option is to specify the jobs BY NAME in the aggregate test plug-in like this:
-
-[<img src="http://ramblingsofaswtester.com/wp-content/uploads/2015/10/aggregatingByName-150x150.png" alt="aggregatingByName" width="150" height="150" class="alignnone size-thumbnail wp-image-622" />][6]
 
 I know this is a pain if there are multiple jobs, but at least, jenkins is providing you with Autoexpande once you start typing.
 
@@ -178,12 +166,4 @@ Of course this also works with multiple downstream jobs if they copy the artifac
 Any questions, please feel free to comment and I will answer to the best of my knowledge.
 
 Cheers,
-  
 Gergely.
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/10/parentJobConfig1.png
- [2]: http://ramblingsofaswtester.com/wp-content/uploads/2015/10/statusBeforeFingerprint.png
- [3]: http://ramblingsofaswtester.com/wp-content/uploads/2015/10/statusAfterFingerprint.png
- [4]: http://ramblingsofaswtester.com/wp-content/uploads/2015/10/childJobWithArtifactCopy.png
- [5]: http://ramblingsofaswtester.com/wp-content/uploads/2015/10/resultAfterArtifactCopySuccess.png
- [6]: http://ramblingsofaswtester.com/wp-content/uploads/2015/10/aggregatingByName.png

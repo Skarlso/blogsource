@@ -145,8 +145,6 @@ First, go-server:
 
 Pretty straight forward, no? We forward 8153 to vagrant (which forwards it to my mac), so after we start go-server service we should be able to visit: http://127.0.0.1:8153/go/home.
 
-[<img class="alignnone size-thumbnail wp-image-519" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-00.00.08-150x150.png" alt="Screen Shot 2015-06-06 at 00.00.08" width="150" height="150" />][1]
-
 Lo&#8217;, and behold, go server. Let&#8217;s add an agent too.
 
 <div class="wp_syntax">
@@ -166,8 +164,6 @@ service go-agent start</pre>
 
 No need to forward anything here. And as you can see, my agent was added successfully.
 
-[<img class="alignnone size-thumbnail wp-image-520" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-00.03.47-150x150.png" alt="Screen Shot 2015-06-06 at 00.03.47" width="150" height="150" />][2]
-
 All nice, and dandy. The agent is there, and I enabled it, so it&#8217;s ready to work. Let&#8217;s give it something to do, shall we?
 
 # The App
@@ -180,29 +176,17 @@ First step in this process, define the pipeline. I&#8217;m going to keep it simp
 
 In step one you have to define something called the **Material**. That will be the source on which the agent will work. This can be multiple, in different folders within the confines of the pipeline, or singular.
 
-[<img class="alignnone size-thumbnail wp-image-523" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.09.55-150x150.png" alt="Screen Shot 2015-06-06 at 09.09.55" width="150" height="150" />][3]
-
 I defined my git project and tested the connection OK. Next up is the first **Stage **and the initial **Job **to perform. This, for me, will be a compile or an assemble, and later on a test run.
-
-[<img class="alignnone size-thumbnail wp-image-524" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.12.19-150x150.png" alt="Screen Shot 2015-06-06 at 09.12.19" width="150" height="150" />][4]
 
 Now, Go is awesome in parallelising jobs. If my project would be large enough, I could have multiple jobs here. But for now, I&#8217;ll use stages because they run subsequently. So, first stage, compile. Next stage, testing and archiving the results.
 
 I added the next stage and defined the artefact. Go supports test-reports. If you define the path to a test artefact than go will parse it and create a nice report out of it.
 
-[<img class="alignnone size-thumbnail wp-image-525" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.20.23-150x150.png" alt="Screen Shot 2015-06-06 at 09.20.23" width="150" height="150" />][5]
-
-[<img class="alignnone size-thumbnail wp-image-526" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.22.23-150x150.png" alt="Screen Shot 2015-06-06 at 09.22.23" width="150" height="150" />][6]
-
 Now, let&#8217;s run it. It will probably fail on something. 😉
 
 Well, I&#8217;ll be&#8230; It worked on the first run.
 
-[<img class="alignnone size-thumbnail wp-image-529" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.29.51-150x150.png" alt="Screen Shot 2015-06-06 at 09.29.51" width="150" height="150" />][7]
-
 And here are the test results.
-
-[<img class="alignnone size-thumbnail wp-image-530" src="http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.30.54-150x150.png" alt="Screen Shot 2015-06-06 at 09.30.54" width="150" height="150" />][8]
 
 # Wrap-up
 
@@ -211,18 +195,5 @@ Well, that&#8217;s it folks. Gradle project, with vagrant, docker, and go.cd. I 
 Any questions, please feel free to ask it in the comment section below.
 
 Cheers,
-  
 Have a nice weekend,
-  
 Gergely.
-
-&nbsp;
-
- [1]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-00.00.08.png
- [2]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-00.03.47.png
- [3]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.09.55.png
- [4]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.12.19.png
- [5]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.20.23.png
- [6]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.22.23.png
- [7]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.29.51.png
- [8]: http://ramblingsofaswtester.com/wp-content/uploads/2015/06/Screen-Shot-2015-06-06-at-09.30.54.png
