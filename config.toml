@@ -1,7 +1,7 @@
 contentdir = "content"
 layoutdir = "layouts"
 publishdir = "public"
-baseurl = "https://skarlso.github.io/"
+baseurl = "http://skarlso.github.io/"
 title = "Ramblings of a build engineer"
 canonifyurls = true
 disqusShortname = "hannibalDisqus"
