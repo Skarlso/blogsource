@@ -7,6 +7,7 @@ url: /2017/03/01/old-post-images
 categories:
   - Rant
 ---
+
 Hi folks.
 
 Just a quick headsup, that older posts and images, may have been lost unfortunately, because I made the terrible mistake, when I
