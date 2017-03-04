@@ -3,9 +3,9 @@ title: Images on older posts
 author: hannibal
 layout: post
 date: 2017-03-01T18:20:00+01:00
-url: /2017/03/01/-images-on-old-posts
+url: /2017/03/01/images-on-old-posts
 categories:
-  - rant
+  - rant
 ---
 
 Hi folks.
