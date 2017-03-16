@@ -40,7 +40,7 @@ SSH IP restriction to KeyPair names and list of tags to create or in what region
 To describe how these parts fit together, one must use a CloudFormation Template file which is either in JSON or in
 YAML format. A simple example looks like this:
 
-~~~YAML
+~~~yaml
 Parameters:
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instance
@@ -78,7 +78,7 @@ templates can also contain simple logical switches, like, conditions, ref for va
 
 For example consider this part in the above example:
 
-~~~YAML
+~~~yaml
       KeyName:
         Ref: KeyName
 ~~~
@@ -97,7 +97,7 @@ kinds.
 
 For a simple example look at this configuration:
 
-~~~YAML
+~~~yaml
 version: 0.0
 os: linux
 files:
@@ -196,7 +196,7 @@ It communications on HTTPS port 443.
 CodeDeploy identifies instances which need to be updated according to our preferences, by tagging the EC2 and Auto Scaling groups.
 Tagging happens in the CloudFormation template through the AutoScalingGroup settings like this:
 
-~~~JSON
+~~~json
 "Tags" : [
     {
         "Key" : "fu_stage",
