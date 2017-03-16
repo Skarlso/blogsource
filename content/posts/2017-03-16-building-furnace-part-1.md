@@ -1,5 +1,5 @@
 ---
-title: Furnace: The building of a AWS CLI Tool for CloudFormation and CodeDeploy: Part 1
+title: Furnace - The building of an AWS CLI Tool for CloudFormation and CodeDeploy - Part 1
 author: hannibal
 layout: post
 date: 2017-03-16T21:49:00+01:00
