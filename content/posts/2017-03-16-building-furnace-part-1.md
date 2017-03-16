@@ -1,5 +1,5 @@
 ---
-title: Furnace: The building of a AWS CLI Tool for CloudFormation and CodeDeploy - Part 1
+title: Furnace: The building of a AWS CLI Tool for CloudFormation and CodeDeploy: Part 1
 author: hannibal
 layout: post
 date: 2017-03-16T21:49:00+01:00
@@ -41,29 +41,29 @@ To describe how these parts fit together, one must use a CloudFormation Template
 YAML format. A simple example looks like this:
 
 ~~~yaml
-Parameters:
-  KeyName:
-    Description: The EC2 Key Pair to allow SSH access to the instance
-    Type: AWS::EC2::KeyPair::KeyName
-Resources:
-  Ec2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      SecurityGroups:
-      - Ref: InstanceSecurityGroup
-      - MyExistingSecurityGroup
+    Parameters:
       KeyName:
-        Ref: KeyName
-      ImageId: ami-7a11e213
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable SSH access via port 22
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: '22'
-        ToPort: '22'
-        CidrIp: 0.0.0.0/0
+        Description: The EC2 Key Pair to allow SSH access to the instance
+        Type: AWS::EC2::KeyPair::KeyName
+    Resources:
+      Ec2Instance:
+        Type: AWS::EC2::Instance
+        Properties:
+          SecurityGroups:
+          - Ref: InstanceSecurityGroup
+          - MyExistingSecurityGroup
+          KeyName:
+            Ref: KeyName
+          ImageId: ami-7a11e213
+      InstanceSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+          GroupDescription: Enable SSH access via port 22
+          SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: '22'
+            ToPort: '22'
+            CidrIp: 0.0.0.0/0
 ~~~
 
 There are a myriad of these template samples [here](https://aws.amazon.com/cloudformation/aws-cloudformation-templates/).
@@ -98,28 +98,28 @@ kinds.
 For a simple example look at this configuration:
 
 ~~~yaml
-version: 0.0
-os: linux
-files:
-  - source: /index.html
-    destination: /var/www/html/
-  - source: /healthy.html
-    destination: /var/www/html/
-hooks:
-  BeforeInstall:
-    - location: scripts/install_dependencies
-      timeout: 300
-      runas: root
-    - location: scripts/clean_up
-      timeout: 300
-      runas: root
-    - location: scripts/start_server
-      timeout: 300
-      runas: root
-  ApplicationStop:
-    - location: scripts/stop_server
-      timeout: 300
-      runas: root
+    version: 0.0
+    os: linux
+    files:
+      - source: /index.html
+        destination: /var/www/html/
+      - source: /healthy.html
+        destination: /var/www/html/
+    hooks:
+      BeforeInstall:
+        - location: scripts/install_dependencies
+          timeout: 300
+          runas: root
+        - location: scripts/clean_up
+          timeout: 300
+          runas: root
+        - location: scripts/start_server
+          timeout: 300
+          runas: root
+      ApplicationStop:
+        - location: scripts/stop_server
+          timeout: 300
+          runas: root
 ~~~
 
 CodeDeploy applications have hooks and life-cycle events which can be used to control the deployment process of an like, starting
@@ -136,13 +136,13 @@ If the preferred way to deploy the application is from GitHub a commit hash must
 application is to be deployed. For example:
 
 ~~~go
-rev = &codedeploy.RevisionLocation{
-    GitHubLocation: &codedeploy.GitHubLocation{
-        CommitId:   aws.String("kajdf94j0f9k309klksjdfkj"),
-        Repository: aws.String("Skarlso/furnace-codedeploy-app"),
-    },
-    RevisionType: aws.String("GitHub"),
-}
+    rev = &codedeploy.RevisionLocation{
+        GitHubLocation: &codedeploy.GitHubLocation{
+            CommitId:   aws.String("kajdf94j0f9k309klksjdfkj"),
+            Repository: aws.String("Skarlso/furnace-codedeploy-app"),
+        },
+        RevisionType: aws.String("GitHub"),
+    }
 ~~~
 
 Commit Id is the hash of the latest release and repository is the full account/repository pointing to the application.
@@ -153,15 +153,15 @@ The second way is to use an S3 bucket. The bucket will contain an archived versi
 saying given extension, because it has to be specified like this (and can be either 'zip', or 'tar' or 'tgz'):
 
 ~~~go
-rev = &codedeploy.RevisionLocation{
-    S3Location: &codedeploy.S3Location{
-        Bucket:     aws.String("my_codedeploy_bucket"),
-        BundleType: aws.String("zip"),
-        Key:        aws.String("my_awesome_app"),
-        Version:    aws.String("VersionId"),
-    },
-    RevisionType: aws.String("S3"),
-}
+    rev = &codedeploy.RevisionLocation{
+        S3Location: &codedeploy.S3Location{
+            Bucket:     aws.String("my_codedeploy_bucket"),
+            BundleType: aws.String("zip"),
+            Key:        aws.String("my_awesome_app"),
+            Version:    aws.String("VersionId"),
+        },
+        RevisionType: aws.String("S3"),
+    }
 ~~~
 
 Here, we specify the bucket name, the extension, the name of the file and an optional version id, which can be ignored.
@@ -173,18 +173,18 @@ instances that we create. In order to do this, the agent needs to be present on 
 the following UserData (UserData in CF is the equivalent of a bootsrap script):
 
 ~~~bash
-"UserData" : {
-    "Fn::Base64" : { "Fn::Join" : [ "\n", [
-        "#!/bin/bash -v",
-        "sudo yum -y update",
-        "sudo yum -y install ruby wget",
-        "cd /home/ec2-user/",
-        "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
-        "chmod +x ./install",
-        "sudo ./install auto",
-        "sudo service codedeploy-agent start",
-    ] ] }
-}
+    "UserData" : {
+        "Fn::Base64" : { "Fn::Join" : [ "\n", [
+            "#!/bin/bash -v",
+            "sudo yum -y update",
+            "sudo yum -y install ruby wget",
+            "cd /home/ec2-user/",
+            "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
+            "chmod +x ./install",
+            "sudo ./install auto",
+            "sudo service codedeploy-agent start",
+        ] ] }
+    }
 ~~~
 
 A simple user data configuration in the CloudFormation template will make sure that every instance that we create will have the
@@ -197,38 +197,38 @@ CodeDeploy identifies instances which need to be updated according to our prefer
 Tagging happens in the CloudFormation template through the AutoScalingGroup settings like this:
 
 ~~~json
-"Tags" : [
-    {
-        "Key" : "fu_stage",
-        "Value" : { "Ref": "AWS::StackName" },
-        "PropagateAtLaunch" : true
-    }
-]
+    "Tags" : [
+        {
+            "Key" : "fu_stage",
+            "Value" : { "Ref": "AWS::StackName" },
+            "PropagateAtLaunch" : true
+        }
+    ]
 ~~~
 
 This will give the EC2 instance a tag called `fu_stage` with value equaling to the name of the stack. Once this is done, CodeDeploy
 looks like this:
 
 ~~~go
-params := &codedeploy.CreateDeploymentInput{
-    ApplicationName:               aws.String(appName),
-    IgnoreApplicationStopFailures: aws.Bool(true),
-    DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
-    Revision:                      revisionLocation(),
-    TargetInstances: &codedeploy.TargetInstances{
-        AutoScalingGroups: []*string{
-            aws.String("AutoScalingGroupPhysicalID"),
-        },
-        TagFilters: []*codedeploy.EC2TagFilter{
-            {
-                Key:   aws.String("fu_stage"),
-                Type:  aws.String("KEY_AND_VALUE"),
-                Value: aws.String(config.STACKNAME),
+    params := &codedeploy.CreateDeploymentInput{
+        ApplicationName:               aws.String(appName),
+        IgnoreApplicationStopFailures: aws.Bool(true),
+        DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
+        Revision:                      revisionLocation(),
+        TargetInstances: &codedeploy.TargetInstances{
+            AutoScalingGroups: []*string{
+                aws.String("AutoScalingGroupPhysicalID"),
+            },
+            TagFilters: []*codedeploy.EC2TagFilter{
+                {
+                    Key:   aws.String("fu_stage"),
+                    Type:  aws.String("KEY_AND_VALUE"),
+                    Value: aws.String(config.STACKNAME),
+                },
             },
         },
-    },
-    UpdateOutdatedInstancesOnly: aws.Bool(false),
-}
+        UpdateOutdatedInstancesOnly: aws.Bool(false),
+    }
 ~~~
 
 CreateDeploymentInput is the entire parameter list that is needed in order to identify instances to deploy code to. We can see
@@ -245,37 +245,37 @@ there is `delete-application`. `status` will display information about the stack
 Something like this:
 
 ~~~bash
-2017/03/16 21:14:37 Stack state is:  {
-  Capabilities: ["CAPABILITY_IAM"],
-  CreationTime: 2017-03-16 20:09:38.036 +0000 UTC,
-  DisableRollback: false,
-  Outputs: [{
-      Description: "URL of the website",
-      OutputKey: "URL",
-      OutputValue: "http://FurnaceSt-ElasticL-ID.eu-central-1.elb.amazonaws.com"
-    }],
-  Parameters: [
-    {
-      ParameterKey: "KeyName",
-      ParameterValue: "UserKeyPair"
-    },
-    {
-      ParameterKey: "SSHLocation",
-      ParameterValue: "0.0.0.0/0"
-    },
-    {
-      ParameterKey: "CodeDeployBucket",
-      ParameterValue: "None"
-    },
-    {
-      ParameterKey: "InstanceType",
-      ParameterValue: "t2.nano"
+    2017/03/16 21:14:37 Stack state is:  {
+      Capabilities: ["CAPABILITY_IAM"],
+      CreationTime: 2017-03-16 20:09:38.036 +0000 UTC,
+      DisableRollback: false,
+      Outputs: [{
+          Description: "URL of the website",
+          OutputKey: "URL",
+          OutputValue: "http://FurnaceSt-ElasticL-ID.eu-central-1.elb.amazonaws.com"
+        }],
+      Parameters: [
+        {
+          ParameterKey: "KeyName",
+          ParameterValue: "UserKeyPair"
+        },
+        {
+          ParameterKey: "SSHLocation",
+          ParameterValue: "0.0.0.0/0"
+        },
+        {
+          ParameterKey: "CodeDeployBucket",
+          ParameterValue: "None"
+        },
+        {
+          ParameterKey: "InstanceType",
+          ParameterValue: "t2.nano"
+        }
+      ],
+      StackId: "arn:aws:cloudformation:eu-central-1:9999999999999:stack/FurnaceStack/asdfadsf-adsfa3-432d-a-fdasdf",
+      StackName: "FurnaceStack",
+      StackStatus: "CREATE_COMPLETE"
     }
-  ],
-  StackId: "arn:aws:cloudformation:eu-central-1:9999999999999:stack/FurnaceStack/asdfadsf-adsfa3-432d-a-fdasdf",
-  StackName: "FurnaceStack",
-  StackStatus: "CREATE_COMPLETE"
-}
 ~~~
 
 ( This will later be improved to include created resources as well. )
