@@ -18,6 +18,9 @@ Today, I would like to write up a step - by - step guide with a sample web app o
 
 Let's get started.
 
+**EDIT**: A sample project of this, and [Part 2](http://skarlso.github.io/2016/11/02/google-signin-with-go-part2/), can be found
+[here](https://github.com/Skarlso/goquestwebapp) or [here](https://github.com/Skarlso/google-oauth-go-sample).
+
 Setup
 =====
 
