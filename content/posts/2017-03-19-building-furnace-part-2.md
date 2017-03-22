@@ -3,7 +3,7 @@ title: Furnace - The building of an AWS CLI Tool for CloudFormation and CodeDepl
 author: hannibal
 layout: post
 date: 2017-03-19T12:03:00+01:00
-url: /2017/03/19/building-furnace-part-1
+url: /2017/03/19/building-furnace-part-2
 categories:
   - Golang
   - AWS
