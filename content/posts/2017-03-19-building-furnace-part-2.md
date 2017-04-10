@@ -59,7 +59,7 @@ This is something I'm returning in a test for stubbing a client call:
 
 This doesn't look so appealing, but one gets used to it quickly.
 
-## Error handling
+## Error handling
 
 Errors also have their own types. An AWS error looks like this:
 
@@ -91,7 +91,7 @@ If it's an AWS error, we can check further for the error code that it returns in
 on to the caller to a potential fatal. Here, I'm ignoring the AlreadyExistsException because, if it does, we just go on to a next
 action.
 
-## Examples
+## Examples
 
 Luckily the API doc is very mature. In most of the cases, they provide an example to an API call. These examples, however, from
 time to time provide more confusion than clarity. Take CloudFormation. For me, when I first glanced upon the
@@ -105,7 +105,7 @@ template where extracted for me by `ValidateTemplate` API call which returned al
 `[]*cloudformation.Parameter` slice. These things are not described in the document or visible from the examples. I mainly found
 them through playing with the API and focused experimentation.
 
-## Waiters
+## Waiters
 
 From other SDK implementations, we got used to Waiters. These handy methods wait for a service to become available or for certain
 situations to take in effect, like a Stage being `CREATE_COMPLETE`. The Go waiters, however, don't allow for callback to be fired,
@@ -179,7 +179,7 @@ And with that, let's dive into the basics of Furnace.
 
 Furnace is divided into three main packages.
 
-### commands
+### commands
 
 Commands package is where the gist of Furnace lies. These commands represent the commands which are used through the CLI. Each
 file has the implementation for one command. The structure is devised by this library: [Yitsushi's Command Library](https://github.com/Yitsushi/go-commander).
@@ -219,7 +219,7 @@ Contains the configuration loader and some project wide defaults which are as fo
 Further more, config loads the CloudFormation template and checks if some necessary settings are present in the environment, exp:
 the configuration folder under `~/.config/go-furnace`.
 
-### utils
+### utils
 
 These are some helper functions which are used throughout the project. To list them:
 - error_handler - Is a simple error handler. I'm thinking of refactoring this one to some saner version.
@@ -253,7 +253,7 @@ them.
 
 ## General Practices Applied to the Project
 
-### Commands
+### Commands
 
 For each command the main entry point is the `execute` function. These functions are usually calling out the small chunks of
 distributed methods. Logic was kept to a bare minimum ( probably could be simplified even further ) in the execute functions
@@ -265,11 +265,11 @@ Errors are handled immediately and usually through a fatal. If any error occurs 
 versions this might become more granular. I.e. don't immediately stop the world, maybe try to recover, or create a Poller or
 Re-Tryer, which tries a call again for a configured amount of times.
 
-### Output colors
+### Output colors
 
 Not that important, but still... Aesthetics. Displaying data to the console in a nice way gives it some extra flare.
 
-### Makefile
+### Makefile
 
 This project works with a Makefile for various reasons. Later on, once the project might become more complex, a Makefile makes it
 really easy to handle different ways of packaging the application. Currently, for example, it provides a `linux` target which will
