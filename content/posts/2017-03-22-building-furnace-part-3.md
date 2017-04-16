@@ -13,7 +13,7 @@ categories:
 
 Hi folks.
 
-Previously on this blog: [Part 1](http://skarlso.github.io/2017/03/16/building-furnace-part-1/). [Part 2](http://skarlso.github.io/2017/03/16/building-furnace-part-2/).
+Previously on this blog: [Part 1](http://skarlso.github.io/2017/03/16/building-furnace-part-1/). [Part 2](https://skarlso.github.io/2017/03/19/building-furnace-part-2/). [Part 4](https://skarlso.github.io/2017/04/16/building-furnace-part-4/).
 
 
 In this part, I'm going to talk about the experimental plugin system of Furnace.

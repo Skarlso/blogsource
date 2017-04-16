@@ -13,7 +13,7 @@ categories:
 
 Hi folks.
 
-Previously on this blog: [Part 1](http://skarlso.github.io/2017/03/16/building-furnace-part-1/).
+Previously on this blog: [Part 1](http://skarlso.github.io/2017/03/16/building-furnace-part-1/), [Part 3](https://skarlso.github.io/2017/03/22/building-furnace-part-3/), [Part 4](https://skarlso.github.io/2017/04/16/building-furnace-part-4/)
 
 In this part, I'm going to talk about the AWS Go SDK and begin do dissect the intricacies of Furnace.
 

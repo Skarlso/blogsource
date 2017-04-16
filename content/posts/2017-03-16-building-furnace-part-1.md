@@ -9,6 +9,10 @@ categories:
   - AWS
 ---
 
+# Other posts:
+
+[Part 2](https://skarlso.github.io/2017/03/19/building-furnace-part-2/), [Part 3](https://skarlso.github.io/2017/03/22/building-furnace-part-3/), [Part 4](https://skarlso.github.io/2017/04/16/building-furnace-part-4/).
+
 # Building Furnace: Part 1
 
 # Intro

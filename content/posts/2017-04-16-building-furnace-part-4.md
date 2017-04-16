@@ -13,7 +13,7 @@ categories:
 
 Hi folks.
 
-Previously on this blog: [Part 1](http://skarlso.github.io/2017/03/16/building-furnace-part-1/). [Part 2](http://skarlso.github.io/2017/03/16/building-furnace-part-2/). [Part 3](http://skarlso.github.io/2017/03/22/building-furnace-part-3/).
+Previously on this blog: [Part 1](http://skarlso.github.io/2017/03/16/building-furnace-part-1/). [Part 2](https://skarlso.github.io/2017/03/19/building-furnace-part-2/). [Part 3](http://skarlso.github.io/2017/03/22/building-furnace-part-3/).
 
 
 In this part we are going to talk about Unit Testing Furnace and how to work some magic with AWS and Go.
