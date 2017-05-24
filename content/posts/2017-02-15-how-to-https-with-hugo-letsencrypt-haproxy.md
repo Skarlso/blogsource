@@ -108,7 +108,7 @@ The whole command looks like this:
 
 ~~~bash
 cd /opt/letsencrypt
-./certbot-auto certonly --standalon -d example.com -d www.example.com
+./certbot-auto certonly --standalone -d example.com -d www.example.com
 ~~~
 
 If this displays something like, "couldn't connect" you probably still have something running on a port it tries to use. The
