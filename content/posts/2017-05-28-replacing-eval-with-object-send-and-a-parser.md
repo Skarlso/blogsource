@@ -98,7 +98,7 @@ Some of this we don't need. Like, `$..book` part.
 
 ![dontneed1](/img/dontneed1.jpg)
 
-The other things we don't need are all the `'[]`
+The other things we don't need are all the `'[]?()`
 
 ![dontneed2](/img/dontneed2.jpg)
 
@@ -116,15 +116,15 @@ Let's break it down.
 
 ![confused](/img/confused.jpg)
 
-So, this is a handful. Operations can be `<=,>=,<,>,==,!=` and operands can be either numbers, or words, and element accessor can be nested. Since something like this is perfectly valid: `$..book[?(@.written.year == 1997)]`.
+So, this is a handful. Operations can be `<=,>=,<,>,==,!=` and operands can be either numbers, or words, and element accessor can be nested since something like this is perfectly valid: `$..book[?(@.written.year == 1997)]`.
 
 ![feedline](/img/feedline.jpg)
 
-To avoid being overwhelmed by something like this, ruby has our back with a method called `dig`.
+To avoid being overwhelmed, ruby has our back with a method called `dig`.
 
 ![dig](/img/dig.jpg)
 
-This, basically lets us pass in some parameters into a dig function on a hash or an array which will go on and access those elements in order how they were supplied until it either returns a `nil` or an end result.
+This, basically lets us pass in some parameters into a dig function on a hash or an array with variadic parameters, which will go on and access those elements in order how they were supplied. Until it either returns a `nil` or an end result.
 
 For example:
 ~~~ruby
@@ -157,13 +157,13 @@ if t = scanner.scan(/\['\w+'\]+/)
 
 #### Operator
 
-Selecting the operator is another interesting part as it can be a single one or multiple and all sorts. Until I realized that no... it can actually be only a handful.
+Selecting the operator is another interesting part as it can be a single one or multiple and all sorts. Until I realized that no... it can actually be only a couple.
 
 ![whatone](/img/whatone.jpg)
 
 ![whattwo](/img/whattwo.jpg)
 
-Also, after a bit of fiddling and doing a silly case statement on the operator, and doing something silly, which immediately felt wrong like:
+Also, after a bit of fiddling and doing and doing a silly case statement first:
 
 ~~~ruby
 case op
@@ -175,13 +175,13 @@ when '<'
 end
 ~~~
 
-I promptly saw that this is not how it should be done.
+...I promptly saw that this is not how it should be done.
 
-And here comes object.send.
+And here comes Object.send.
 
 ![send](/img/send.jpg)
 
-This gave me the opportunity to write something like this:
+This gave me the opportunity to write this:
 
 ~~~ruby
 dig(elements, @_current_node).send(operator, operand)
@@ -191,7 +191,7 @@ Much better. Now I could send all the things in the way of a node.
 
 ![send](/img/sendtwo.jpg)
 
-Parsing an op looks like this:
+Parsing an op be like:
 
 ~~~ruby
 elsif t = scanner.scan(/\s+[<>=][<>=]?\s+?/)
@@ -205,23 +205,23 @@ Now comes the final piece. The value which we are comparing. This could either b
 elsif t = scanner.scan(/(\s+)?'?(\w+)?[.,]?(\w+)?'?(\s+)?/)
 ~~~
 
-Without StackOverflow I would say this is fine ((although I need to remove all those space check, shees)). What are all the question marks? Basically, everything is optional. Because it's valid having something like this: `$..book[?(@.price)]`. Which is basically just asserting if a given node has a price element.
+Without StackOverflow I would say this is fine ((although I need to remove all those space check, shees)). What are all the question marks? Basically, everything is optional. Because an this expression `$..book[?(@.price)]` is valid. Which is basically just asserting if a given node has a price element.
 
 #### Logical Operators
 
 The last thing that remains is logical operators, which if you are using eval, is pretty straight forward. It takes care of anything that you might add in like `&&, ||, |, &, ^` etc etc.
 
-Now, that's something I did with a case though. Until I find a nicer solution. Basically, since we can already parse a single expression it's just a question of breaking down a multi structure expression like this: `$..book[?(@['price'] > 20 && @.written.year == 1998)]`.
+Now, that's something I did with a case though. Until I find a nicer solution. Since we can already parse a single expression it's just a question of breaking down a multi structure expression as the following one: `$..book[?(@['price'] > 20 && @.written.year == 1998)]`.
 
 ~~~ruby
 exps = exp.split(/(&&)|(\|\|)/)
 ~~~
 
-This splits up the string by either `&&` or `||` and using groups () also includes the operators. Than I evaluate the expressions and save the whole thing in an array like `[true, '&&', false]`. You know what could immediately resolve this? Yep...
+This splits up the string by either `&&` or `||` and the usage of groups () also includes the operators. Than I evaluate the expressions and save the whole thing in an array like `[true, '&&', false]`. You know what could immediately resolve this? Yep...
 
 ![saynotoeval](/img/saynotoeval.jpg).
 
-I'd rather just parse it.
+I'd rather just parse it although technically an eval at this stage wouldn't be that big of a problem...
 
 ~~~ruby
 def parse(exp)
@@ -241,7 +241,7 @@ end
 
 # Closing words
 
-That's it folks. The parser is done. And there is no eval being used. There are some more things here that are interesting. Like, array indexing is allowed in jsonpath which is solved by sending .length to a current node, like this:
+That's it folks. The parser is done. And there is no eval being used. There are some more things here that are interesting. Like, array indexing is allowed in jsonpath which is solved by sending `.length` to a current node. For example:
 
 ~~~ruby
 if scanner.scan(/\./)
