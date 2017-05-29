@@ -42,13 +42,13 @@ end.call
 ~~~
 
 SAFE levels:
-| $SAFE | Description                                                                                           |
-|-------|-------------------------------------------------------------------------------------------------------|
-|   0   |No checking of the use of externally supplied (tainted) data is performed. This is Ruby's default mode.|
-|  >= 1 |Ruby disallows the use of tainted data by potentially dangerous operations.                            |
-|  >= 2 |Ruby prohibits the loading of program files from globally writable locations.                          |
-|  >= 3 |All newly created objects are considered tainted.                                                      |
-|  >= 4 |Ruby effectively partitions the running program in two. None - tainted objects may not be modified. Typically, this will be used to create a sandbox: the program sets up an environment using a lower $SAFE level, then resets $SAFE to 4 to prevent subsequent changes to that environment.|
+
+$SAFE	Description
+0	No checking of the use of externally supplied (tainted) data is performed. This is Ruby's default mode.
+>= 1	Ruby disallows the use of tainted data by potentially dangerous operations.
+>= 2	Ruby prohibits the loading of program files from globally writable locations.
+>= 3	All newly created objects are considered tainted.
+>= 4	Ruby effectively partitions the running program in two. None - tainted objects may not be modified. Typically, this will be used to create a sandbox: the program sets up an environment using a lower $SAFE level, then resets $SAFE to 4 to prevent subsequent changes to that environment.
 
 This has the disadvantage that anything below 4 is just, meh. But nothing above 1 will actually work with JsonPath so... scratch that.
 
@@ -60,7 +60,7 @@ Not bad, and there are a few gems out there which are trying to do that like [Sa
 
 ### Object.send
 
-![nobodylikesyou](nobodylikesyou.jpg)
+![nobodylikesyou](/img/nobodylikesyou.jpg)
 
 `Object.send` is the best way to get some flexibility while still being safe. You basically just call methods on objects by describing said method on an object and giving parameters to it, like:
 
