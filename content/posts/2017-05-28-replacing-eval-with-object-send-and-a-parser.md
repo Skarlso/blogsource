@@ -254,7 +254,7 @@ end
 
 If an expression begins with a `.`. So you see that using `send` will help a lot, and understanding what eval is trying to evaluate and rather writing your own parser, isn't that hard at all using ruby.
 
-I hope you enjoyed reading this little tid-bit as much as I enjoyed writing and drawing it. Leave a comment if your liked the drawings or if you did not and I should never do them again (( I don't really care, this is my blog haha. )).
+I hope you enjoyed reading this little tid-bit as much as I enjoyed writing and drawing it. Leave a comment if your liked the drawings or if you did not and I should never do them again (( I don't really care, this is my blog haha. )). Note to self: I shouldn't draw on the other side of the drawing because of bleed-through.
 
 Thank you!
 Gergely.
