@@ -140,6 +140,7 @@ At first, I wanted to add it to the hash class, but it proved to be a futile att
 
 ~~~ruby
     def dig(keys, hash)
+      return hash unless hash.is_a? Hash
       return nil unless hash.key?(keys.first)
       return hash.fetch(keys.first) if keys.size == 1
       prev = keys.shift
