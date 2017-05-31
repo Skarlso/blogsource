@@ -8,6 +8,6 @@ categories:
   - Scribble
 ---
 
-![Page1](/img/page1.jpg)
+![Page1](/img/page1.jpeg)
 
-![Page2](/img/page2.jpg)
+![Page2](/img/page2.jpeg)
