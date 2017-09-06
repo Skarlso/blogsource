@@ -2,8 +2,8 @@
 title: Furnace Binaries
 author: hannibal
 layout: post
-date: 2017-10-03T10:34:00+01:00
-url: /2017/10/03/furnace-binaries
+date: 2017-09-03T10:34:00+01:00
+url: /2017/09/03/furnace-binaries
 categories:
   - Go
   - Furnace
