@@ -28,7 +28,7 @@ It's quiet possible to reproduce this on AWS without infering costs. Unless you 
 I'm going to use the following services: [CloudFormation](https://aws.amazon.com/cloudformation/), [AWS Lambda](https://aws.amazon.com/lambda/details/), [CodeBuild](https://aws.amazon.com/codebuild/), [S3](https://aws.amazon.com/s3/).
 
 To deploy the below describe architecture in your account in us-east-1 region simply click this button:
-![[Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=blogbuilder&templateURL=https://s3.amazonaws.com/blog-builder-template-bucket/template.yaml)
+[![Launch Stack](/img/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=blogbuilder&templateURL=https://s3.amazonaws.com/blog-builder-template-bucket/template.yaml)
 
 BEFORE doing that though you need the following created:
 
