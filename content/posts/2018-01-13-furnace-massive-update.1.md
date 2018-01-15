@@ -82,7 +82,7 @@ It's not trivial however. And using the API can also be confusing. The Google Co
 
 ### Your First Stack
 
-Once you have everything set-up you'll need a configuration file for Furnace. The usage is outlined more here [YAML Configuration](##YAML-Configuration). The configuration file for GCP looks like this:
+Once you have everything set-up you'll need a configuration file for Furnace. The usage is outlined more here [YAML Configuration](#YAML-Configuration). The configuration file for GCP looks like this:
 
 ~~~yaml
 main:
