@@ -11,7 +11,7 @@ categories:
   - GCP
 ---
 
-# Intro
+# Intro
 
 Hi folks.
 
@@ -29,7 +29,7 @@ All the rest of the commands should work the same way as AWS.
 
 GCP has a similar service to AWS CloudFormations called [Deployment Manager](https://cloud.google.com/deployment-manager/docs/). The documentation is fairly detailed with a Bookshelf example app to deploy. Code and Templates can be found in their Git repositroy here: [Deployment Manager Git Repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples).
 
-### Setting up GCP
+### Setting up GCP
 
 As the README of Furnace outlines...
 
@@ -80,7 +80,7 @@ It's all explained in these documents: [Creating a Template Step-by-step](https:
 
 It's not trivial however. And using the API can also be confusing. The Google Code is just a generated Go code file using gRPC. But studying it may provide valuable insigth into how the API is structured. I'm also providing some basic samples that I gathered together and the readme does a bit more explaining on how to use them.
 
-### Your First Stack
+### Your First Stack
 
 Once you have everything set-up you'll need a configuration file for Furnace. The usage is outlined more here [YAML Configuration](##YAML-Configuration). The configuration file for GCP looks like this:
 
@@ -114,7 +114,7 @@ The AWS binaries can be found in `aws` folder, and respectively, the Google Clou
 
 If you would like to run both with a single command, a top level make file is provided for your convinience. Just run `make` from the root. That will build all binaries. Later on, Digital Oceans will join the ranks.
 
-## YAML Configuration
+## YAML Configuration
 
 Last but not least, Furnace now employs YAML files for configuration. However, it isn't JUST using YAML files. It also employs a smart configuration pattern which works as follows.
 
@@ -161,12 +161,12 @@ The intelligent part is, that this file could be placed anywhere in the project 
 
 Consider the following directory tree:
 
-├── docs
-│   ├── `furnace-aws status mydatabase`
-├── stacks
-│   ├── mystack.template
-│   └── mystack.yaml
-└── .mydatabase.furnace
+├── docs   
+│   ├── `furnace-aws status mydatabase`   
+├── stacks   
+│   ├── mystack.template   
+│   └── mystack.yaml   
+└── .mydatabase.furnace   
 
 You are currently in your `docs` directory and would like to ask for the status of your database. You don't have to move to the location of the setting file, just simply run the command from where you are. This only works if you are above the location of the file. If you would be below, furnace would say it can't find the file. Because it only traverses upwards.
 
