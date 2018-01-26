@@ -10,31 +10,31 @@ categories:
   - Certbot
 ---
 
-# Intro
+# Intro
 
 Hi folks.
 
 Today, I would like demonstrate how to use [Ansible](https://www.ansible.com/) in order to construct a server hosting multiple HTTPS domains with [Nginx](https://www.nginx.com/) and [LetsEncrypt](https://letsencrypt.org/). Are you ready? Let's dive in.
 
-## What you will need
+## What you will need
 
 There is really only one thing you need in order for this to work and that is Ansible. If you would like to run local tests without a remote server, than you will need [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). But those two are optional.
 
-## What We Are Going To Set Up
+## What We Are Going To Set Up
 
 The setup is as follows:
 
-### Nagios
+### Nagios
 
 We are going to have a Nagios with a custom check for pending security updates. That will run under nagios.example.com.
 
-### Hugo Website
+### Hugo Website
 
 The main web site is going to be a basic [Hugo](https://gohugo.io/) site. Hugo is a static Go based web site generator. This Blog is run by it.
 
 We are also going to setup [NoIP](https://www.noip.com/) which will provide the DNS for the sites.
 
-### Wiki
+### Wiki
 
 The wiki is a plain, basic [DokuWiki](https://www.dokuwiki.org/dokuwiki#).
 
@@ -42,7 +42,7 @@ The wiki is a plain, basic [DokuWiki](https://www.dokuwiki.org/dokuwiki#).
 
 And all the above will be hosted by Nginx with HTTPS provided by letsencrypt. We are going to set all these up with Ansible on top so it will be idempotent.
 
-### Repository
+### Repository
 
 All of the playbooks and the whole thing together can be viewed here: [Github Ansible Server Setup](https://github.com/Skarlso/ansible-server-setup).
 
@@ -50,7 +50,7 @@ All of the playbooks and the whole thing together can be viewed here: [Github An
 
 I won't be writing everything down to the basics about Ansible. For that you will need to go and read its documentation. But I will provide ample of clarification for using what I'll be using.
 
-### Some Basics
+### Some Basics
 
 Ansible is a configuration management tool which, unlike chef or puppet, isn't master - slave based. It's using SSH to run a set of instructions on a target machine. The instructions are written in yaml files and look something like this:
 
@@ -98,14 +98,14 @@ ansible_ssh_private_key_file: '{{vault_ansible_ssh_private_key_file}}'
 home_dir: /root
 ~~~
 
-### Further reading
+### Further reading
 
 Further readings are:
 
 * [Servers For Hackers](https://serversforhackers.com/c/an-ansible-tutorial)
 * [Ansible docs](http://docs.ansible.com/ansible/latest/intro_getting_started.html)
 
-### Vault
+### Vault
 
 The vault is the place where we can keep secure information. This file is called `vault` and usually lives under either `group_vars` or `host_vars`. The preference is up to you.
 
@@ -148,7 +148,7 @@ ansible-vault edit group_vars/webserver1/vault --vault-password-file=.vault_pass
 
 The following are a collection of tasks which execute in order. The end task, which is letsencrypt, relies on all the hosts being present and configured under Nginx. Otherwise it will throw an error that the host you are trying to configure HTTPS for, isn't defined.
 
-#### No-IP
+#### No-IP
 
 I'm choosing No-ip as a DNS provider because it's cheap and the sync tool is easy to automate. To automate the CLI of No-IP, I'm using a package called `expect`. This looks something like this:
 
@@ -177,7 +177,7 @@ END_SCRIPT
 
 The interesting part is the command running expect. Basically, it's expecting some kind of output which is outlined there. And has canned answers for those which it `send`s to the waiting command.
 
-#### To Util or Not To Util
+#### To Util or Not To Util
 
 So, there are small tasks, like installing vim and wget and such which could warrant the existance of a `utils` task. Utils task would install the packages that are used as convinience and don't really relate to a singe task.
 
@@ -202,7 +202,7 @@ deps: ['git', 'python-dev', 'build-essential', 'libpython-dev', 'libpython2.7', 
 
 This is much cleaner. And if a task is no longer needed, it's dependencies will no longer be needed either in most of the cases.
 
-#### Nagios
+#### Nagios
 
 I'm using Nagios 4 which is a real pain in the butt to install. Luckily, thanks to Ansiblei, I only ever had to figure it out once. Now I have a script for that. Installing Nagios demands several, smaller components to be installed. Thus our task uses import from outside tasks like this:
 
@@ -230,7 +230,7 @@ It checks if Nagios is installed or not. If yes, skip.
 
 I'm not going to paste in here all the subtasks because that would be huge. You can check those out in the repository under Nagios.
 
-#### Hugo
+#### Hugo
 
 Hugo is easy to install. Its sole requirement is Go. To install hugo you simply run `apt-get install hugo`. Setting up the
 site for me was just checking out the git repo and than execute hugo from the root folder like this:
@@ -239,7 +239,7 @@ site for me was just checking out the git repo and than execute hugo from the ro
 hugo server --bind=127.0.0.1 --port=8080 --baseUrl=https://example.com --appendPort=false --logFile hugo.log --verboseLog --verbose -v &
 ~~~
 
-#### Wiki
+#### Wiki
 
 I used DokuWiki because it's a file based wiki so installation is basically just downloading the archive, extracting it and done. The only thing that's needed for it, is php-fpm to run it and a few php modules which I'll outline in the ansible playbook.
 
@@ -311,7 +311,7 @@ And lives under `handlers` sub-folder.
 
 With this, Nginx is done and should be providing our sites under plain HTTP.
 
-#### LetsEncrypt
+#### LetsEncrypt
 
 Now comes the part where we enable HTTPS for all these three domains. Which is as follows:
 
@@ -332,7 +332,7 @@ variables for `certbot-auto` to run in a non-interactive mode. This looks as fol
 
 And that's that. The interesting and required part here is the `pre-hook` and `post-hook`. Without those it wouldn't work because
 the ports that certbot is performing the challenge on would be taken already. This stops nginx, performs the challenge and
-generates the certs, and starts nginx again.
+generates the certs, and starts nginx again. Also note `--redirect`. This will force HTTPS on the sites and disables plain HTTP.
 
 If all went well our sites should contain information like this:
 
@@ -344,7 +344,7 @@ If all went well our sites should contain information like this:
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 ~~~
 
-### Test Run using Vagrant
+### Test Run using Vagrant
 
 If you don't want to run all this on a live server to test out, you can do either of these two things:
 
