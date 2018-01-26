@@ -325,7 +325,7 @@ variables for `certbot-auto` to run in a non-interactive mode. This looks as fol
 
 ~~~yaml
 - name: Generate Certificate for Domains
-  shell: ./certbot-auto --authenticator standalone --installer nginx -d '{{ domain_example }}' -d '{{ domain_wiki }}' -d '{{ domain_nagios }}' --email example@gmail.com --agree-tos -n --no-verify-ssl --pre-hook "sudo systemctl stop nginx" --post-hook "sudo systemctl start nginx"
+  shell: ./certbot-auto --authenticator standalone --installer nginx -d '{{ domain_example }}' -d '{{ domain_wiki }}' -d '{{ domain_nagios }}' --email example@gmail.com --agree-tos -n --no-verify-ssl --pre-hook "sudo systemctl stop nginx" --post-hook "sudo systemctl start nginx" --redirect
   args:
     chdir: /opt/letsencrypt
 ~~~
