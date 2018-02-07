@@ -1,9 +1,9 @@
 ---
-title: Go Meetup Budapest
+title: Go Budapest Meetup
 author: hannibal
 layout: post
 date: 2018-02-07T22:01:00+01:00
-url: /2018/02/07/go-meetup-budapest
+url: /2018/02/07/go-budapest-meetup
 categories:
   - Go
   - Meetup
