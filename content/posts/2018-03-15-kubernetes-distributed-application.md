@@ -152,6 +152,10 @@ In Kubernetes you describe a desired state of the application and Kubernetes wil
 
 One of the basics of Kubernetes is that it uses Labels and Annotations for everything. Services, deployments, replicasets, everything is labeled. Don't remove or mess with these because, for example, if you have deployment that desires a replicates of 2 of an application and you remove the label from one of the containers, that container will get orphaned and the ReplicaSet will create a new one since now it only detects one as the desired capacity.
 
+### Kubernetes Cluster
+
+For Kuberenetes to work, a Kubernetes cluster needs to be present. Setting that up might be a bit painfully, but luckily help is there. Minikube sets up a cluster for us locally with one Node. And AWS has a beta service running in the form of a Kubernetes cluster where the only thing you need to do is request nodes and define your deployments. The Kubernetes cluster components are documented here: [Kubernetes Cluster Components](https://kubernetes.io/docs/concepts/overview/components/).
+
 ### Nodes
 
 A Node is a worker machine. A node can be anything from a vm to a physical machine, including all sorts of cloud provided vms.
@@ -233,11 +237,13 @@ A ReplicaSet is a low level replication manager. It ensures that the correct num
 
 ### DaemonSet
 
-So remember how I said Kubernetes is using Labels all the time? A DaemonSet is a controller that ensures that at any given time a given daemonized application is always running for a congiured Node.
+So remember how I said Kubernetes is using Labels all the time? A DaemonSet is a controller that ensures that at any given time a given daemonized application is always running for a configured Node.
 
-For example, you have a node which is hosting a mysql service or you'd like every node that is tagged as `logger` or `mission_critical` to run an auditing service / logger daemon. Then you create a daemonset and give it a node selector called `logger` or `mission_critical`. Which will look for a node that has that given label and always ensure that if a node exists it will also have an instance of that daemon running in it. Thus everyone running on that node will have access to that daemon locally.
+For example, you want all the nodes labelled with `logger` or `mission_critical` to run an logger / auditing service daemon. Then you create a DaemonSet and give it a node selector called `logger` or `mission_critical`. That will make Kubernetes look for a node that has that given label and always ensure that if a node exists it will also have an instance of that daemon running on it. Thus everyone running on that node will have access to that daemon locally.
 
-It does more than that though. The DaemonSet has all the benefits of the ReplicaSet. Meaning it's scalable and you'll get the benefit of Kubernetes managing it. Which means, if it dies, it will get re-created.
+In case of my application the NSQ daemon could be a DaemonSet. I would ensure it's up on a node which has the receiver component running by labelling a node with `receiver` and specifying a DaemonSet with `receiver` application selector.
+
+The DaemonSet has all the benefits of the ReplicaSet. It's scalable and Kubernetes manages it; which means, all life cycle events are handled by Kube enusring it never dies or if it dies it gets immediately replaced.
 
 ### Scaling
 
@@ -279,7 +285,7 @@ After this, all `kubectl` commands will use the namespace `face`.
 
 ### MySQL
 
-The first Service I'm going to deploy is my database. Since all the rest of the applications will be using it, it's paramount that it gets deployed first.
+The first Service I'm going to deploy is my database.
 
 I'm using the Kubernetes example located here [Kube MySQL](https://kubernetes.io/docs/tasks/run-application/run-single-instance-stateful-application/#deploy-mysql) which fits my needs. Note that this file is using a plain password for MYSQL_PASSWORD. Normally, you should use a vault, described here [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/). And than you'll use the env property like this:
 
@@ -315,7 +321,7 @@ And this is what you'll see in my deployment yaml file:
 ...
 ~~~
 
-There is one other thing it does that we need to talk about. It uses a volume to persist the database. The volume definition looks like this:
+There is one other thing it does. It uses a volume to persist the database. The volume definition looks like this:
 
 ~~~yaml
 ...
@@ -330,7 +336,7 @@ There is one other thing it does that we need to talk about. It uses a volume to
 ...
 ~~~
 
-`presistentVolumeClain` is the key here. It tells Kubernetes that this resource requires a persistent volume. How it's provided is abstracted away from the user. You can be sure the Kubernetes will provide you with a volume that will always be there. Similar to Pods. To read up on the details check out this document: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes).
+`presistentVolumeClain` is the key here. It tells Kubernetes that this resource requires a persistent volume. How it's provided is abstracted away from the user. You can be sure that Kubernetes will provide a volume that will always be there. Similar to Pods. To read up on the details check out this document: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes).
 
 Deploying the mysql Service is done with the following command:
 
@@ -438,9 +444,7 @@ mysql> show tables;
 mysql>
 ~~~
 
-You should be able to see all the tables and gather some data with selects.
-
-This concludes the database service setup. To see logs for this service run:
+This concludes the database service setup. Logs for this service can be viewed with the following command:
 
 ~~~bash
 kubectl logs deployment/mysql -f
@@ -457,9 +461,9 @@ command: ["/nsqlookupd"]
 args: ["--broadcast-address=nsqlookup.default.svc.cluster.local"]
 ~~~
 
-So what's happening here? What's the `--broadcast-address` for? By default, nsqlookup will use the `hostname` as broadcast address. Meaning, when the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image` which will not work of course. By setting the broadcast-addres to the broadcasted internal DNS that callback will be `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
+So what's happening here? What's the `--broadcast-address` for? By default, nsqlookup will use the `hostname` as broadcast address. Meaning, when the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image` which will not work of course. By setting the broadcast-addres to the internal DNS that callback will be `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
 
-NSQ Lookup also requires two ports to be available. One for broadcasting and one for nsqd daemon callback. These are defined in the Dockerfile and in the kubernetes yaml file like this:
+NSQ Lookup also requires two ports forwarded. One for broadcasting and one for nsqd daemon callback. These are exposed in the Dockerfile and then utilized in the kubernetes template like this:
 
 In the container template:
 
@@ -488,17 +492,17 @@ spec:
 
 Names are required by kubernetes to distinguish between them. The full template file can be found here: [NSQLookupd Template](https://github.com/Skarlso/kube-cluster-sample/blob/master/kube_files/nsqlookup.yaml).
 
-To create this service run the following command as before:
+To create this service I'm using the following command as before:
 
 ~~~bash
 kubectl apply -f nsqlookup.yaml
 ~~~
 
-This concludes the nsqlookupd service. And with that, we have two of the major players in the sack.
+This concludes the nsqlookupd service. And with that, two of the major players are in the sack.
 
 ### Receiver
 
-This is a tricky one. The receiver will run three things.
+This is a more complex one. The receiver will do three things.
 
 * It will create some deployments
 * It will create the nsq daemon
@@ -735,7 +739,7 @@ It looks something like this:
 
 ### Recap
 
-So what have we accomplished? We deployed a bunch of services all over the place. To recap on the commands executed, these are the ones in order:
+So what is the situation so far? I deployed a bunch of services all over the place. A recap off the commands I executed:
 
 ~~~bash
 kubectl create -f mysql.yaml
@@ -746,7 +750,9 @@ kubectl create -f face_recognition.yaml
 kubectl create -f frontend.yaml
 ~~~
 
-These could be any order actually. The nsq consumer re-connects and so does the daemon. Query-ing kube for running pods with `kubectl get pods` you should see something like this:
+These could be in any order because my application does not allocate connections on start. The image processor's NSQ consumer re-connects and so does the daemon.
+
+Query-ing kube for running pods with `kubectl get pods` should show something like this:
 
 ~~~bash
 ❯ kubectl get pods
