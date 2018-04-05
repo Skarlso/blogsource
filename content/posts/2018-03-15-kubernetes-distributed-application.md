@@ -20,9 +20,9 @@ My focus will be on Kubernetes and deployment rather than the structure and best
 
 Shall we?
 
-# The Application
+# The Application
 
-## TL;DR
+## TL;DR
 
 The application itself consists of three apps and three services. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
@@ -38,7 +38,7 @@ TODO: Insert gif here
 
 So how does this all work? Let's dive in.
 
-## Receiver
+## Receiver
 
 The receiver service is the starting point of the process. The receiver is an API which receives a request in the following format:
 
@@ -48,7 +48,7 @@ curl -d '{"path":"nfs://images/unknown.jpg"}' http://127.0.0.1:8000/image/post
 
 In this moment, receiver stores this path using a shared database cluster. The entity then will receive an ID from the database service. This application is based on the model where unique identification for Entity Objects is provided by the persistence layer. Once the ID is acquired, receiver will send a message to the `NSQ`. The receiver's job is done at this point.
 
-## Image Processor
+## Image Processor
 
 Here is where the fun begins. When Image Processor first runs it creates two Go routines. These are...
 
@@ -82,11 +82,11 @@ TODO: Insert nice gif here.
 
 As you can see, once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a Ping call to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it allows the remaining calls to happen.
 
-## Front-End
+## Front-End
 
 This is only a simplistic table view with Go's own html/template used to render a list of images.
 
-## Face Recognition
+## Face Recognition
 
 Here is where the identification magic is happening. I decided to make this a gRPC based service for a sole purpose of flexibility. I started writing it in Go, but decided that a Python implementation could be much sorter. In fact, not counting the gRPC code the recognition part is about 7 lines of Python code. I'm using this fantastic library which has all the C bindings going to OpenCV so I didn't had to implement those. [Face Recognition](https://github.com/ageitgey/face_recognition). Having an API contract here means that I can exchange the implementation any time as long as it receives and sends the same thing.
 
@@ -118,7 +118,7 @@ select person.name, person.id from person inner join person_images as pi on pers
 
 The gRPC call return the id of the person which is than used to update the image's `person` column.
 
-## NSQ
+## NSQ
 
 NSQ is a nice little Go based queue. It can be scaled and has a minimal footprint on the system. It has a lookup service which consumers use to receive messages and a daemon that senders use to send messages.
 
@@ -128,7 +128,7 @@ NSQ's philosophy is that the daemon should run with the sender application. That
 
 This means that there are as many NSQ daemons deployed as there are senders. Because the daemon has a minuscule resource requirement, it won't interfere with the requirements of the main application.
 
-## Configuration
+## Configuration
 
 In order to be as flexible as possible and making use of Kubernetes' ConfigSet, I'm using .env files to store configuration like the location of the database service or NSQ's lookup address in dev stages. In production, and that means the Kubernetes environment, I'll use environment properties to set up configuration.
 
@@ -140,7 +140,7 @@ For now, the important part is that all the components can be scaled and that th
 
 # Deployment with Kubernetes
 
-## Basics
+## Basics
 
 So, what **is** Kubernetes?
 
@@ -156,7 +156,7 @@ One of the basics of Kubernetes is that it uses Labels and Annotations for every
 
 For Kuberenetes to work, a Kubernetes cluster needs to be present. Setting that up might be a bit painfully, but luckily help is there. Minikube sets up a cluster for us locally with one Node. And AWS has a beta service running in the form of a Kubernetes cluster where the only thing you need to do is request nodes and define your deployments. The Kubernetes cluster components are documented here: [Kubernetes Cluster Components](https://kubernetes.io/docs/concepts/overview/components/).
 
-### Nodes
+### Nodes
 
 A Node is a worker machine. A node can be anything from a vm to a physical machine, including all sorts of cloud provided vms.
 
@@ -168,7 +168,7 @@ Pods are a logically grouped collection of containers. That means, one Pod can p
 
 When creating any kind of resource in Kubernetes, it will use something called a Deployment in the background. A deployment describes a desired state of the current application. It's an object you can use to update some Pods or a Service to be in a different state. Do an update, or a rollout of some kind, or create another application or a service. For example you don't directly conrtol a ReplicaSet (described later) but control the deployment object which creates and manages a ReplicaSet.
 
-### Services
+### Services
 
 By default a Pod will get an IP address. However, since Pods are a volatile thing in Kubernetes you'll need something more permanent if you wish to have a running API for example. Things like services, for example: a queue, mysql, an internal API, a frontend; need to be long running and behind a static, unchanging IP or DNS record.
 
@@ -176,7 +176,7 @@ For this purpose, Kubernetes has Services for which you can define modes of acce
 
 How does Kubernetes know if a service is running correctly? You can configure Health Checks and Availability Checks. A HealtCheck will check if a container is running but that doesn't mean that your service is successful. For that, you have the availability check which pings a different endpoint in your application.
 
-### DNS / Service Discovery
+### DNS / Service Discovery
 
 If you create a service in the cluster that service will get a DNS record in Kubernetes provided by special Kubernetes deployments called kube-proxy and kube-dns. These two provide service discover inside a cluster. So if you have a mysql service running, than everyone in the cluster can reach that service by pinging `mysql.default.svc.cluster.local`. Where:
 
@@ -190,7 +190,7 @@ The domain can be changed by using a custom DNS definition. From the outside a D
 * NodePort -- `kubectl get -o jsonpath="{.spec.ports[0].nodePort}" services mysql`
 * LoadBalancer -- `kubectl get -o jsonpath="{.spec.ports[0].LoadBalancer}" services mysql`
 
-### Template Files
+### Template Files
 
 Like Docker Compose, or TerraForm or other service management tools, Kubernetes also provides infrastructure describing templates. What that means is that you rarely have to do anything by hand.
 
@@ -231,11 +231,11 @@ This is a simple deployment where we do the following:
     * nginx:1.7.9 image (docker in this case)
     * exposed ports
 
-### ReplicaSet
+### ReplicaSet
 
 A ReplicaSet is a low level replication manager. It ensures that the correct number of replicates is running of a given Pod. However, Deployments are higher level and should always manage replicasets. You rarely have to use ReplicaSets directly. Unless you have a fringe case where you want to control the specifics of replication.
 
-### DaemonSet
+### DaemonSet
 
 So remember how I said Kubernetes is using Labels all the time? A DaemonSet is a controller that ensures that at any given time a given daemonized application is always running for a configured Node.
 
@@ -245,7 +245,7 @@ In case of my application the NSQ daemon could be a DaemonSet. I would ensure it
 
 The DaemonSet has all the benefits of the ReplicaSet. It's scalable and Kubernetes manages it; which means, all life cycle events are handled by Kube enusring it never dies or if it dies it gets immediately replaced.
 
-### Scaling
+### Scaling
 
 In Kubernetes it's trivial to scale. The ReplicaSets take care of the number of instances of a Pod to run. Like you saw in the nginx deployment with the setting `replicas:3`. It's up to us to write our application in a way that it allows Kubernetes to run multiple copies of it.
 
@@ -255,13 +255,13 @@ It's a convenient tool to handle container orchestration. Its unit of work are P
 
 It provides support for all major cloud providers natively by now and it's completely open source. Feel free to contribute, check the code if you would like to have a deeper understanding of how it works here: [Kubernetes on Github](https://github.com/kubernetes/kubernetes).
 
-## Minikube
+## Minikube
 
 I'm going to use [Minikube](https://github.com/kubernetes/minikube/). Minikube is a local kubernetes cluster simulator. It's not great in simulating multiple nodes though, but for starting out and local play without any costs, it's great. It uses a VM that can be fine tuned if necessary using VirtualBox and the likes.
 
 All the kube template files that I'll be using are located here: [Kube files](https://github.com/Skarlso/kube-cluster-sample/tree/master/kube_files).
 
-## Building the containers
+## Building the containers
 
 Kubernetes supports most of the containers out there. I'm going to use Docker. For all the services I've built, there is a Dockerfile included in the repository. I encourage you to study them. Most of them are simple. For the go services I'm using a multi stage build that got recently introduced. The Go services are Alpine Linux based. The Face Recognition service is Python. NSQ and MySQL are using their own Containers.
 
@@ -283,7 +283,7 @@ Switched to context "kube-face-cluster".
 
 After this, all `kubectl` commands will use the namespace `face`.
 
-### MySQL
+### MySQL
 
 The first Service I'm going to deploy is my database.
 
@@ -538,7 +538,7 @@ You can see the lookup-tcp-address and the broadcast-address are set. Lookup tcp
 
 #### Public facing
 
-Now, this is the first time I'm dpeloying a public facing interface. There are two options. I could use a LoadBalancer, because this API will be under heavy load. And if this would be deployed anywhere in production, than it should be a LoadBalancer. I'm doing local this locally though so something called a `NodePort` is enough. A `NodePort` simply opens a forwarded port for a service. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the yaml. For now, I'm just leaving it at default.
+Now, this is the first time I'm deploying a public facing interface. There are two options. I could use a LoadBalancer, because this API will be under heavy load. And if this would be deployed anywhere in production, than it should be a LoadBalancer. I'm doing this locally though so something called a `NodePort` is enough. A `NodePort` simply opens a forwarded port for a service. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the yaml. For now, I'm just leaving it at default.
 
 For further information check out the node port documentation located here: [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport).
 
@@ -579,7 +579,7 @@ spec:
 
 ### Image processor
 
-The Image Processor is where I'm handling passing of images to be identified. This is not a public facing API but should have access to nsqlookupd, mysql and the gRPC endpoint of the face recognition service deployed later. This is actually a boring service. In fact, it's not a service at all. It doesn't expose anything and thus it's the first deployment only template file. For brevity, here is the whole template:
+The Image Processor is where I'm handling passing of images to be identified. This is not a public facing API but should have access to nsqlookupd, mysql and the gRPC endpoint of the face recognition service deployed later. This is actually a boring service. In fact, it's not a service at all. It doesn't expose anything and thus it's the first deployment only component. For brevity, here is the whole template:
 
 ~~~yaml
 ---
@@ -622,7 +622,7 @@ spec:
 
 The only interesting point in this file are the multitude of environment properties that are used to configure the application. Note the nsqlookupd address and the grpc address.
 
-To create this deployment run:
+To create this deployment, run:
 
 ~~~bash
 kubectl apply -f image_processor.yaml
@@ -630,7 +630,7 @@ kubectl apply -f image_processor.yaml
 
 ### Face - Recognition
 
-The face recognition service does have a service. It's a boring one, only reachable by image-processor. It's definition looks as follows:
+The face recognition service does have a service. It's a simple one, only needed by image-processor. It's template is as follows:
 
 ~~~yaml
 apiVersion: v1
@@ -647,9 +647,9 @@ spec:
   clusterIP: None
 ~~~
 
-The more interesting part is that it requires two volumes. The two volumes are `known_people` and `unknown_people`. Can you guess what will be in these volumes? Yep, images. The `known_people` volume contains all the images associated to the known people in the database. The `unknown_people` volume will contain all the new images. And that's the path we will need to use when sending images from the receiver. Basically the path needs to be one that the face recognition service can access.
+The more interesting part is that it requires two volumes. The two volumes are `known_people` and `unknown_people`. Can you guess what they will contain? Yep, images. The `known_people` volume contains all the images associated to the known people in the database. The `unknown_people` volume will contain all the new images. And that's the path we will need to use when sending images from the receiver. That is, where ever the mount points to. Which in my case is `/unknown/people`. Basically the path needs to be one that the face recognition service can access.
 
-Now, with Kubernetes and Docker this is easy. It could be a mounted S3 or some kind of nfs or a local mount. I'm going to use a local one for the sake of simplicity.
+Now, with Kubernetes and Docker this is easy. It could be a mounted S3 or some kind of nfs or a local mount. The possibilities are endless (around a dozen or so). I'm going to use a local one for the sake of simplicity.
 
 Mounting a volume has two parts. First, the Dockerfile:
 
@@ -701,13 +701,13 @@ Where `image_files_in_folder` is:
 
 Neat.
 
-Now, if the receiver receives something like this...
+Now, if the receiver receives a request similar to the one below...
 
 ~~~bash
 curl -d '{"path":"/unknown_people/unknown220.jpg"}' http://192.168.99.100:30251/image/post
 ~~~
 
-...it will look for an image called unknown220.jpg, locate an image in the known_folder that corresponds to the person on the unknown image and return an id of the person that matches that image name with an inner join select.
+...it will look for an image called unknown220.jpg under `/unknown_people`; locate an image in the known_folder that corresponds to the person on the unknown image and return an id of the person that matches that image name with an inner join select.
 
 Looking at logs you should see something like this:
 
@@ -733,7 +733,7 @@ And that concludes all of the services that we need to deploy with Kubernetes to
 
 Last but not least, there is a small web-app which displays the information in the db for convenience. This is also a public facing service with the same parameters as the receiver's public facing service.
 
-It looks something like this:
+It looks like this:
 
 ![frontend](/img/kube-frontend.png)
 
