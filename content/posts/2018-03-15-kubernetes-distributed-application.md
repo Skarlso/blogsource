@@ -261,6 +261,8 @@ I'm going to use [Minikube](https://github.com/kubernetes/minikube/). Minikube i
 
 All the kube template files that I'll be using are located here: [Kube files](https://github.com/Skarlso/kube-cluster-sample/tree/master/kube_files).
 
+**NOTE** If, later on, you would like to play with scaling, but notice that the replicates are always in `Pending` state, remember, that minikube employs a single node only. It might not allow multiple replicas on the same node, or just plain ran out of resources to use.
+
 ## Building the containers
 
 Kubernetes supports most of the containers out there. I'm going to use Docker. For all the services I've built, there is a Dockerfile included in the repository. I encourage you to study them. Most of them are simple. For the go services I'm using a multi stage build that got recently introduced. The Go services are Alpine Linux based. The Face Recognition service is Python. NSQ and MySQL are using their own Containers.
@@ -791,9 +793,173 @@ As it happens during software development, change is requested/needed to some pa
 
 What I don't like right now is that the API only handles one image at a time. There is no option to bulk upload. Which, IMHO should be the default anyways.
 
+#### Code
+
+Modifying the code to do a bulk upload is pretty easy.
+
+Right now, we have the following code segment dealing with a single image:
+
+~~~go
+// PostImage handles a post of an image. Saves it to the database
+// and sends it to NSQ for further processing.
+func PostImage(w http.ResponseWriter, r *http.Request) {
+...
+}
+
+func main() {
+    router := mux.NewRouter()
+    router.HandleFunc("/image/post", PostImage).Methods("POST")
+    log.Fatal(http.ListenAndServe(":8000", router))
+}
+~~~
+
+We have two options. Add a new endpoint with `/images/post` and make the new client use that. Or modify the existing one. The new client code has the advantage that it could fall back to submitting the old way. The old client code though doesn't have this advantage so we can't change the way our code works right now. If we did that, imagine that you have a 90 servers. You do a slow paced rolling update. That will take our servers one step at a time doing an update on a server. If an update lasts around a minute, that will take around one and a half hours to complete.
+
+During that time, some of your servers will run the new code and some will run the old one. If an old code calls the end-point which is modified, it would fail and the application would stop working. But a new version would have the necessary fallback strategy implemented in case the new method doesn't exist.
+
+All the while we retire the old code by calling the new code in the background. Once we made sure the old code isn't used any longer, we just remove the end-point.
+
+#### New Endpoint
+
+Thus I decided to go with a new endpoint.
+
+This basically means that I'm adding a new route method:
+
+~~~go
+...
+router.HandleFunc("/images/post", PostImages).Methods("POST")
+...
+~~~
+
+And updating the old one to call the new one with a modified body like this:
+
+~~~go
+// PostImage handles a post of an image. Saves it to the database
+// and sends it to NSQ for further processing.
+func PostImage(w http.ResponseWriter, r *http.Request) {
+    var p Path
+    err := json.NewDecoder(r.Body).Decode(&p)
+    if err != nil {
+      fmt.Fprintf(w, "got error: %s", err)
+      return
+    }
+    fmt.Fprintf(w, "got path: %+v\n", p)
+    var ps Paths
+    paths := make([]Path, 0)
+    paths = append(paths, p)
+    ps.Paths = paths
+    var pathsJSON bytes.Buffer
+    json.NewEncoder(&pathsJSON).Encode(ps)
+    err = json.NewDecoder(r.Body).Decode(&p)
+    if err != nil {
+        fmt.Fprintf(w, "got error: %s", err)
+        return
+    }
+    r.Body = ioutil.NopCloser(&pathsJSON)
+    r.ContentLength = int64(pathsJSON.Len())
+    PostImages(w, r)
+}
+~~~
+
+Well, the naming could be better, but you should get the basic idea. I'm modifying the incoming single path by wrapping it into the new format and sending it over to the new end-point handler. And that's it. There are a few more modifications, to check them out take a look at this PR: [Rolling Update Bulk Image Path PR](https://github.com/Skarlso/kube-cluster-sample/pull/1).
+
+Now, we can call this new endpoint two ways:
+
+~~~bash
+# Single Path:
+curl -d '{"path":"unknown4456.jpg"}' http://127.0.0.1:8000/image/post
+
+# Multiple Paths:
+curl -d '{"paths":[{"path":"unknown4456.jpg"}]}' http://127.0.0.1:8000/images/post
+~~~
+
+Here, the client is a curl call. Normally, if the client would be a service, I would modify it that in case the new end-point throws a 404 it would try the old one first.
+
+For brevity, I'm not modifying NSQ and the others to handle bulk image processing. They will still receive it one - by - one. I'll leave that up to you to play with. ;)
+
+#### New Image
+
+To perform a rolling update, I must create a new image first from the receiver service. To do this, I'll create a new image with a new tag, denoting a version v1.1 for example.
+
+~~~bash
+docker build -t skarlso/kube-receiver-alpine:v1.1 .
+~~~
+
+Once this is complete, we can begin rolling out the change.
+
+#### Rolling update
+
+In Kubernetes, you can configure your rolling update in multiple ways.
+
+##### Manual Update
+
+If, say, I was using a container version in my config file called `v1.0` than doing an update is simply calling:
+
+~~~bash
+kubectl rolling-update receiver --image:skarlso/kube-receiver-alpine:v1.1
+~~~
+
+kubectl will output progress as it does the rolling update.
+
+~~~bash
+~~~
+
+If there is a problem during the rollout we can always rollback.
+
+~~~bash
+kubectl rolling-update receiver --rollback
+~~~
+
+It will set back the previous version no fuss, no muss.
+
+##### Apply a new configuration file
+
+The problem with by-hand updates is always that they aren't in source control. Something changed, a couple of servers got updated, but nobody witnessed it. A new person comes along and does a change to the template and applys the template to the cluster. All the servers are updated, but suddenly, there is a service outage.
+
+Long story sort, the servers which got updated are wacked over because the template didn't reflect what has been done by hand. That is bad.
+
+So the recommended way is to change the template to use the new version and than apply the template with the following command:
+
+~~~bash
+kubectl apply -f ./receiver.yaml
+~~~
+
+Kubernetes recommends that the Deployment handles the rollout with ReplicaSets. This means however, that there must be at least two replicates present for a rolling update. Otherwise the update won't work. So I'm increasing the replica count in the yaml and I set the new image version for the receiver container.
+
+~~~yaml
+  replicas: 2
+...
+    spec:
+      containers:
+      - name: receiver
+        image: skarlso/kube-receiver-alpine:v1.1
+...
+~~~
+
+Looking at the progress you should see something like this:
+
+~~~bash
+❯ kubectl rollout status deployment/receiver-deployment
+Waiting for rollout to finish: 1 out of 2 new replicas have been updated...
+~~~
+
+You can add in additional configuration settings by specifying the `strategy` part of the template like this:
+
+~~~yaml
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+~~~
+
+Additional information on all this can be found in these documents: [Deployment Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-back-a-deployment), [Updating a Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment), [Manage Deployments](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#updating-your-application-without-a-service-outage), [Rolling Update using ReplicaController](https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/).
+
+**NOTE MINIKUBE USERS**: Since we are doing this on a local machine with one node and 1 replica of an application, we have to set `maxUnavailable` to `1`. Otherwise, Kubernetes won't allow the update to happen and the new version will always be in `Pending` state.
+
 ### Scaling
 
-If we set the ReplicaSet...
+Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically, just have to put a number into the template of the desired replicas to use. Of course the settings are vast. You can specify that the replicates must run on different Nodes, or various waiting times on how long to wait for an instance to come up. The documentation is pretty nice on this located here: [Horizontal Scaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/), [Interactive Scaling with Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/scale-interactive/) and of course the details of a [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) which controls all the scaling made possible in Kubernetes.
 
 ### Cleanup
 
@@ -802,3 +968,13 @@ kubectl delete deployments --all
 kubectl delete services -all
 ~~~
 
+# Final Words
+
+And that is it ladies and gentleman. We wrote, deployed, updated and scaled a distributed application with Kubernetes.
+
+Any questions, please feel free to chat in the comments below, I'm happy to answer
+
+I hope you enjoyed reading this. I know, it's quiet long and I was thinking of splitting it up, but having a cohesive, one long page guide is sometimes useful and makes it easy to find something.
+
+Thank you for reading,
+Gergely.
