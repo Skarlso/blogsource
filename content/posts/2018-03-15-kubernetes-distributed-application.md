@@ -16,7 +16,7 @@ Alright folks. Settle in. This is going to be a long, but hopefully, fun ride.
 
 I'm going to deploy a distributed application with [Kubernetes](https://kubernetes.io/). I was trying to create an application which I thought resembles a real world app as close as possible. But obviously I cut some corners because of time and energy constraints.
 
-My focus will be on Kubernetes and deployment rather than the structure and best practices of a distributed application. That said, I did try to aim at not doing anything too stupid.
+My focus will be on Kubernetes and deployment.
 
 Shall we?
 
@@ -24,7 +24,7 @@ Shall we?
 
 ## TL;DR
 
-The application itself consists of three apps and three services. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
+The application itself consists of six parts. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
 It is a face recognition service which identifies images of people, comparing them to known individuals. A simple front-end displays a table of these images and what people they belong to. This happens by sending a request to the [receiver](https://github.com/Skarlso/kube-cluster-sample/tree/master/receiver). The request contains a path to an image. The image could sit on an NFS somewhere. The receiver stores this path in the DB (MySQL) and sends a processing request to a queue. The queue uses [NSQ](http://nsq.io/). The request contains the ID of the saved image.
 
@@ -731,7 +731,7 @@ image sent to nsq
 
 And that concludes all of the services that we need to deploy with Kubernetes to get this application to work.
 
-### Frontend
+### Frontend
 
 Last but not least, there is a small web-app which displays the information in the db for convenience. This is also a public facing service with the same parameters as the receiver's public facing service.
 
@@ -739,7 +739,7 @@ It looks like this:
 
 ![frontend](/img/kube-frontend.png)
 
-### Recap
+### Recap
 
 So what is the situation so far? I deployed a bunch of services all over the place. A recap off the commands I executed:
 
@@ -787,13 +787,13 @@ Running `minikube service list`:
 
 So, this is quiet boring because there are no nodes and only 1 replica is running for each service. Lets spice things up.
 
-### Rolling update
+### Rolling update
 
 As it happens during software development, change is requested/needed to some parts of the application. What happens to our cluster if I would like to change one of it's components without breaking the other? And also whilest maintaining backwards compatibility and no disruption to user experience. Thankfully Kubernetes can help with that somewhat.
 
 What I don't like right now is that the API only handles one image at a time. There is no option to bulk upload. Which, IMHO should be the default anyways.
 
-#### Code
+#### Code
 
 Modifying the code to do a bulk upload is pretty easy.
 
@@ -877,7 +877,7 @@ Here, the client is a curl call. Normally, if the client would be a service, I w
 
 For brevity, I'm not modifying NSQ and the others to handle bulk image processing. They will still receive it one - by - one. I'll leave that up to you to play with. ;)
 
-#### New Image
+#### New Image
 
 To perform a rolling update, I must create a new image first from the receiver service. To do this, I'll create a new image with a new tag, denoting a version v1.1 for example.
 
@@ -887,7 +887,7 @@ docker build -t skarlso/kube-receiver-alpine:v1.1 .
 
 Once this is complete, we can begin rolling out the change.
 
-#### Rolling update
+#### Rolling update
 
 In Kubernetes, you can configure your rolling update in multiple ways.
 
@@ -957,7 +957,7 @@ Additional information on all this can be found in these documents: [Deployment 
 
 **NOTE MINIKUBE USERS**: Since we are doing this on a local machine with one node and 1 replica of an application, we have to set `maxUnavailable` to `1`. Otherwise, Kubernetes won't allow the update to happen and the new version will always be in `Pending` state.
 
-### Scaling
+### Scaling
 
 Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically, just have to put a number into the template of the desired replicas to use. Of course the settings are vast. You can specify that the replicates must run on different Nodes, or various waiting times on how long to wait for an instance to come up. The documentation is pretty nice on this located here: [Horizontal Scaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/), [Interactive Scaling with Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/scale-interactive/) and of course the details of a [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) which controls all the scaling made possible in Kubernetes.
 
