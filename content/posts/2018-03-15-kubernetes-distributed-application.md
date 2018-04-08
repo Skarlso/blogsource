@@ -24,29 +24,27 @@ Shall we?
 
 ## TL;DR
 
+TODO: Insert gif here
+
 The application itself consists of six parts. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
-It is a face recognition service which identifies images of people, comparing them to known individuals. A simple front-end displays a table of these images and what people they belong to. This happens by sending a request to the [receiver](https://github.com/Skarlso/kube-cluster-sample/tree/master/receiver). The request contains a path to an image. The image could sit on an NFS somewhere. The receiver stores this path in the DB (MySQL) and sends a processing request to a queue. The queue uses [NSQ](http://nsq.io/). The request contains the ID of the saved image.
+It is a face recognition service which identifies images of people, comparing them to known individuals. A simple front-end displays a table of these images whom they belong to. This happens by sending a request to a [receiver](https://github.com/Skarlso/kube-cluster-sample/tree/master/receiver). The request contains a path to an image. The image could sit on an NFS somewhere. The receiver stores this path in the DB (MySQL) and sends a processing request to a queue. The queue uses [NSQ](http://nsq.io/). The request contains the ID of the saved image.
 
-An [Image Processing](https://github.com/Skarlso/kube-cluster-sample/tree/master/image_processor) service is constantly monitoring the queue for jobs to do. It picks off the items on the queue and processes them via Go routines. The processing consists of taking the ID, loading in the image and sending off the path to the image to a [face recognition](https://github.com/Skarlso/kube-cluster-sample/tree/master/face_recognition) back-end written in Python via [gRPC](https://grpc.io/). The back-end identifies the person on the image, marks the image as processed and this is where it all ends.
+An [Image Processing](https://github.com/Skarlso/kube-cluster-sample/tree/master/image_processor) service is constantly monitoring the queue for jobs to do. The processing consists of the following steps: taking the ID, loading in the image and finally, sending off the path to the image to a [face recognition](https://github.com/Skarlso/kube-cluster-sample/tree/master/face_recognition) back-end written in Python via [gRPC](https://grpc.io/). If the identification was successful, the back-end returns the name of the image corresponding to that person. The image_processor then updates the image record with the person id and marks the image as processed successfully. If identification is unsuccessful the image is left as pending. If there was a failure during identification the image is flagged as failed.
 
-You may wonder that if there is no back-feed on the processing, what's the point of the async behavior? Well, it is possible for a large building to want a history of people entering, leaving and generally being in the vicinity. They don't require this information immediately so speed is not of the essence. However, robustness is so they want a fault tolerant application which can handle possibly millions of images being sent of for processing. The turn-around time of a single image being processed on my potato is under 3 seconds.
-
-The images are stored, processed, than flagged. Failed images can be re-tried with a cron job for example.
-
-TODO: Insert gif here
+Failed images can be re-tried with a cron job, for example.
 
 So how does this all work? Let's dive in.
 
 ## Receiver
 
-The receiver service is the starting point of the process. The receiver is an API which receives a request in the following format:
+The receiver service is the starting point of the process. It's an API which receives a request in the following format:
 
 ~~~bash
-curl -d '{"path":"nfs://images/unknown.jpg"}' http://127.0.0.1:8000/image/post
+curl -d '{"path":"/unknown_images/unknown0001.jpg"}' http://127.0.0.1:8000/image/post
 ~~~
 
-In this moment, receiver stores this path using a shared database cluster. The entity then will receive an ID from the database service. This application is based on the model where unique identification for Entity Objects is provided by the persistence layer. Once the ID is acquired, receiver will send a message to the `NSQ`. The receiver's job is done at this point.
+In this moment, receiver stores this path using a shared database cluster. The entity then will receive an ID from the database service. This application is based on the model where unique identification for Entity Objects is provided by the persistence layer. Once the ID is acquired, receiver will send a message to NSQ. The receiver's job is done at this point.
 
 ## Image Processor
 
@@ -58,29 +56,29 @@ This is an NSQ consumer. It has two jobs. First, it listens for messages on the 
 
 ### ProcessImages
 
-This routine processes a slice of IDs until the slice is drained completely. Once the slice is drained the routine goes into suspend instead of sleep waiting on a channel. The processing of a signle ID is through the following steps in order:
+This routine processes a slice of IDs until the slice is drained completely. Once the slice is drained the routine goes into suspend instead of sleep waiting on a channel. The processing of a single ID is through the following steps in order:
 
 * Establish a gRPC connection to the Face Recognition service (explained under Face Recognition)
 * Retrieve the image record from the database
 * Setup two functions for the [Circuit Breaker](#circuit-breaker)
   * Function 1: The main function which does the RPC method call
   * Function 2: A health check for the Ping of the circuit breaker
-* Call Function 1 which sends the path of the image to the face recognition service. This path should be accessible.Preferably something shared, like an NFS
+* Call Function 1 which sends the path of the image to the face recognition service. This path should be accessible by the face recognition service. Preferably something shared, like an NFS
 * If this call fails, update the image record as FAILEDPROCESSING
-* If it succeeds, an image name should come back which corresponds to a person in the db. It runs a Joined SQL query which gets the corresponding person's id
-* It then proceeds to update the Image record in the database with PROCESSED status and the ID of the person that image was identified as
+* If it succeeds, an image name should come back which corresponds to a person in the db. It runs a joined SQL query which gets the corresponding person's id
+* Update the Image record in the database with PROCESSED status and the ID of the person that image was identified as
 
-And this is it. This service can be replicated, meaning, more than one could run of it at any given time without problems.
+This service can be replicated, meaning, more than one could run at the same time.
 
 ### Circuit Breaker
 
-So, in a system where replicating resources requires little time, there still could be cases where, for example, the network goes down, or there are communication problems of any kind between two services. I though for fun, I implement a little circuit breaker around the gRPC calls.
+In a system where replicating resources requires little to no effort, there still could be cases where, for example, the network goes down, or there are communication problems of any kind between two services. I implement a little circuit breaker around the gRPC calls for fun mostly.
 
-This is how it works basically:
+This is how it works:
 
 TODO: Insert nice gif here.
 
-As you can see, once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a Ping call to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it allows the remaining calls to happen.
+As you can see, once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a Ping call to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it opens the circuit and allows traffic to proceed.
 
 ## Front-End
 
@@ -88,11 +86,11 @@ This is only a simplistic table view with Go's own html/template used to render 
 
 ## Face Recognition
 
-Here is where the identification magic is happening. I decided to make this a gRPC based service for a sole purpose of flexibility. I started writing it in Go, but decided that a Python implementation could be much sorter. In fact, not counting the gRPC code the recognition part is about 7 lines of Python code. I'm using this fantastic library which has all the C bindings going to OpenCV so I didn't had to implement those. [Face Recognition](https://github.com/ageitgey/face_recognition). Having an API contract here means that I can exchange the implementation any time as long as it receives and sends the same thing.
+Here is where the identification magic is happening. I decided to make this a gRPC based service for a sole purpose of flexibility. I started writing it in Go, but decided that a Python implementation could be much sorter. In fact, not counting the gRPC code, the recognition part is about 7 lines of Python code. I'm using this fantastic library which has all the C bindings to OpenCV. [Face Recognition](https://github.com/ageitgey/face_recognition). Having an API contract here means that I can change the implementation anytime as long as it adheres to the contract.
 
-Note that there is a great Go library that I was about to use, but they have yet to write the C binding for that part of OpenCV. It's called [GoCV](https://gocv.io/). Go, check them out. They have some pretty amazing things, like real time camera feed processing with only a couple of lines of Go.
+Note that there is a great Go library that I was about to use, but they have yet to write the C binding for that part of OpenCV. It's called [GoCV](https://gocv.io/). Go, check them out. They have some pretty amazing things, like real time camera feed processing with only a couple of lines of Go code.
 
-How to library works is simple in nature. Have a set of images about people you know and have a record for. In this case, I have a folder with a couple of images named, `hannibal_1.jpg, hannibal_2.jpg, gergely_1.jpg, john_doe.jpg`. In the database I have two tables named, `person, person_images`. They look like this:
+How the Python library works is simple in nature. Have a set of images about people you know and have a record for. In this case, I have a folder with a couple of images named, `hannibal_1.jpg, hannibal_2.jpg, gergely_1.jpg, john_doe.jpg`. In the database I have two tables named, `person, person_images`. They look like this:
 
 ~~~bash
 +----+----------+
@@ -116,7 +114,7 @@ The face recognition library returns the name of the image the unknown image mat
 select person.name, person.id from person inner join person_images as pi on person.id = pi.person_id where image_name = 'hannibal_2.jpg';
 ~~~
 
-The gRPC call return the id of the person which is than used to update the image's `person` column.
+The gRPC call returns the id of the person which is than used to update the image's `person` column.
 
 ## NSQ
 
@@ -130,62 +128,62 @@ This means that there are as many NSQ daemons deployed as there are senders. Bec
 
 ## Configuration
 
-In order to be as flexible as possible and making use of Kubernetes' ConfigSet, I'm using .env files to store configuration like the location of the database service or NSQ's lookup address in dev stages. In production, and that means the Kubernetes environment, I'll use environment properties to set up configuration.
+In order to be as flexible as possible and making use of Kubernetes' ConfigSet, I'm using .env files in development to store configuration like the location of the database service or NSQ's lookup address. In production, and that means the Kubernetes environment, I'll use environment properties.
 
 ## Conclusion for the Application
 
-And that's all there is to the architecture of the application we are about to deploy. All of its components are changeable and only coupled through the database a queue and gRPC. This is imperative when deploying a distributed application because of how updating mechanics work. I will cover that part in the Deployment section.
-
-For now, the important part is that all the components can be scaled and that they don't step on each other while working on the same image for example.
+And that's all there is to the architecture of the application we are about to deploy. All of its components are changeable and only coupled through the database, a queue and gRPC. This is imperative when deploying a distributed application because of how updating mechanics work. I will cover that part in the Deployment section.
 
 # Deployment with Kubernetes
 
 ## Basics
 
-So, what **is** Kubernetes?
+What **is** Kubernetes?
 
 I'll cover some basics here, although I won't go too much into details as that would require a whole book like this one: [Kubernetes Up And Running](http://shop.oreilly.com/product/0636920043874.do). Also, you can look at the documentation if you are daring enough: [Kubernetes Documentation](https://kubernetes.io/docs/).
 
-Kubernetes is a containerized service and application manager. It scales easily, employs a swarm of containers but more importantly, it's highly configurable via yaml based template files. People compare Kubernetes to Docker swarm, but Kubernetes does way more than that. Not to mention the fact that it's container agnostic. So, you could use LXC with Kubernetes for example. It provides a layer above managing a cluster of deployed services and applications. How? Let's take a quick look at the building blocks of Kubernetes.
+Kubernetes is a containerized service and application manager. It scales easily, employs a swarm of containers but more importantly, it's highly configurable via yaml based template files. People compare Kubernetes to Docker swarm, but Kubernetes does way more than that. For example, it's container agnostic. You could use LXC with Kubernetes and it would work the same way you would use it with Docker. It provides a layer above managing a cluster of deployed services and applications. How? Let's take a quick look at the building blocks of Kubernetes.
 
-In Kubernetes you describe a desired state of the application and Kubernetes will do what it can to reach that state. States could be for example, deployed, paused, replicated 2 times and so and so forth.
+In Kubernetes you describe a desired state of the application and Kubernetes will do what it can to reach that state. States could be something like, deployed, paused, replicated 2 times and so and so forth.
 
-One of the basics of Kubernetes is that it uses Labels and Annotations for everything. Services, deployments, replicasets, everything is labeled. Don't remove or mess with these because, for example, if you have deployment that desires a replicates of 2 of an application and you remove the label from one of the containers, that container will get orphaned and the ReplicaSet will create a new one since now it only detects one as the desired capacity.
+One of the basics of Kubernetes is that it uses Labels and Annotations for all it's components. Services, Deployments, ReplicaSets, DaemonSets, everyhting is labelled. Consider the following scenario. In order to identify what pod belongs to what application a labeled is used called `app: myapp`. Lets assume you have to containers of this application deployed. If you would remove the label `app` from one of the containers, Kubernetes would only detect one and thus would launch a new instance of `myapp`.
 
 ### Kubernetes Cluster
 
-For Kuberenetes to work, a Kubernetes cluster needs to be present. Setting that up might be a bit painfully, but luckily help is there. Minikube sets up a cluster for us locally with one Node. And AWS has a beta service running in the form of a Kubernetes cluster where the only thing you need to do is request nodes and define your deployments. The Kubernetes cluster components are documented here: [Kubernetes Cluster Components](https://kubernetes.io/docs/concepts/overview/components/).
+For Kuberenetes to work, a Kubernetes cluster needs to be present. Setting that up one might be a bit painful, but luckily help is there. Minikube sets up a cluster for us locally with one Node. And AWS has a beta service running in the form of a Kubernetes cluster where the only thing you need to do is request nodes and define your deployments. The Kubernetes cluster components are documented here: [Kubernetes Cluster Components](https://kubernetes.io/docs/concepts/overview/components/).
 
 ### Nodes
 
-A Node is a worker machine. A node can be anything from a vm to a physical machine, including all sorts of cloud provided vms.
+A Node is a worker machine. It can be anything from a vm to a physical machine, including all sorts of cloud provided vms.
 
 ### Pods
 
-Pods are a logically grouped collection of containers. That means, one Pod can potentially house a multitude of containers. A Pod gets its own DNS and virtual IP address after it has been created so Kubernetes can load balancer traffic to it. You rarely have to deal with containers directly. Even when debugging, like looking at logs, you usually invoke something like `kubectl logs deployment/your-app -f` instead of looking at a specific container. Although it is possible. The `-f` does a tail on the log.
+Pods are a logically grouped collection of containers. That means, one Pod can potentially house a multitude of containers. A Pod gets its own DNS and virtual IP address after it has been created so Kubernetes can load balancer traffic to it. You rarely have to deal with containers directly. Even when debugging, like looking at logs, you usually invoke `kubectl logs deployment/your-app -f` instead of looking at a specific container. Although it is possible with `-c container_name`. The `-f` does a tail on the log.
 
 ### Deployments
 
-When creating any kind of resource in Kubernetes, it will use something called a Deployment in the background. A deployment describes a desired state of the current application. It's an object you can use to update some Pods or a Service to be in a different state. Do an update, or a rollout of some kind, or create another application or a service. For example you don't directly conrtol a ReplicaSet (described later) but control the deployment object which creates and manages a ReplicaSet.
+When creating any kind of resource in Kubernetes, it will use a Deployment in the background. A deployment describes a desired state of the current application. It's an object you can use to update Pods or a Service to be in a different state; do an update, or rollout new version of your app. You don't directly conrtol a ReplicaSet (described later) but control the deployment object which creates and manages a ReplicaSet.
 
 ### Services
 
-By default a Pod will get an IP address. However, since Pods are a volatile thing in Kubernetes you'll need something more permanent if you wish to have a running API for example. Things like services, for example: a queue, mysql, an internal API, a frontend; need to be long running and behind a static, unchanging IP or DNS record.
+By default a Pod will get an IP address. However, since Pods are a volatile thing in Kubernetes you'll need something more permanent. A queue, mysql, or an internal API, a frontend; these need to be long running and behind a static, unchanging IP or preferably a DNS record.
 
-For this purpose, Kubernetes has Services for which you can define modes of accessibility. For example, Load Balanced, simple IP or internal DNS.
+For this purpose, Kubernetes has Services for which you can define modes of accessibility. Load Balanced, simple IP or internal DNS.
 
-How does Kubernetes know if a service is running correctly? You can configure Health Checks and Availability Checks. A HealtCheck will check if a container is running but that doesn't mean that your service is successful. For that, you have the availability check which pings a different endpoint in your application.
+How does Kubernetes know if a service is running correctly? You can configure Health Checks and Availability Checks. A HealtCheck will check if a container is running but that doesn't mean that your service is running. For that, you have the availability check which pings a different endpoint in your application.
+
+Since Services are pretty important, I recommend that you read up on them later here: [Services](https://kubernetes.io/docs/concepts/services-networking/service/). Fair warning, this is quiet dense. 24 A4 pages of networking, services and discovery. It's also important to understand if you want to seriously use Kubernetes in production.
 
 ### DNS / Service Discovery
 
-If you create a service in the cluster that service will get a DNS record in Kubernetes provided by special Kubernetes deployments called kube-proxy and kube-dns. These two provide service discover inside a cluster. So if you have a mysql service running, than everyone in the cluster can reach that service by pinging `mysql.default.svc.cluster.local`. Where:
+If you create a service in the cluster that service will get a DNS record in Kubernetes provided by special Kubernetes deployments called kube-proxy and kube-dns. These two provid service discover inside a cluster. If you have a mysql service running and set `clusterIP: none`, than everyone in the cluster can reach that service by pinging `mysql.default.svc.cluster.local`. Where:
 
 * `mysql` -- is the name of the service
 * `default` -- is the namespace name
 * `svc` -- is services
 * `cluster.local` -- is a local cluster domain
 
-The domain can be changed by using a custom DNS definition. From the outside a DNS provider has to be used an Nginx for example to bind an IP address to a record. The public IP address of a service can be queried with the following commands:
+The domain can be changed by using a custom definition. To access a service outside the cluster, a DNS provider has to be used and Nginx (for example) to bind an IP address to a record. The public IP address of a service can be queried with the following commands:
 
 * NodePort -- `kubectl get -o jsonpath="{.spec.ports[0].nodePort}" services mysql`
 * LoadBalancer -- `kubectl get -o jsonpath="{.spec.ports[0].LoadBalancer}" services mysql`
@@ -233,13 +231,13 @@ This is a simple deployment where we do the following:
 
 ### ReplicaSet
 
-A ReplicaSet is a low level replication manager. It ensures that the correct number of replicates is running of a given Pod. However, Deployments are higher level and should always manage replicasets. You rarely have to use ReplicaSets directly. Unless you have a fringe case where you want to control the specifics of replication.
+A ReplicaSet is a low level replication manager. It ensures that the correct number of replicates are running for a application. However, Deployments are higher level and should always manage ReplicaSets. You rarely have to use ReplicaSets directly. Unless you have a fringe case where you want to control the specifics of replication.
 
 ### DaemonSet
 
-So remember how I said Kubernetes is using Labels all the time? A DaemonSet is a controller that ensures that at any given time a given daemonized application is always running for a configured Node.
+Remember how I said Kubernetes is using Labels all the time? A DaemonSet is a controller that ensures that at daemonized application is always running on a node with a certain label.
 
-For example, you want all the nodes labelled with `logger` or `mission_critical` to run an logger / auditing service daemon. Then you create a DaemonSet and give it a node selector called `logger` or `mission_critical`. That will make Kubernetes look for a node that has that given label and always ensure that if a node exists it will also have an instance of that daemon running on it. Thus everyone running on that node will have access to that daemon locally.
+For example, you want all the nodes labelled with `logger` or `mission_critical` to run an logger / auditing service daemon. Then you create a DaemonSet and give it a node selector called `logger` or `mission_critical`. Kubernetes will look for a node that has that label and always ensure that it will have an instance of that daemon running on it. Thus everyone running on that node will have access to that daemon locally.
 
 In case of my application the NSQ daemon could be a DaemonSet. I would ensure it's up on a node which has the receiver component running by labelling a node with `receiver` and specifying a DaemonSet with `receiver` application selector.
 
@@ -249,11 +247,13 @@ The DaemonSet has all the benefits of the ReplicaSet. It's scalable and Kubernet
 
 In Kubernetes it's trivial to scale. The ReplicaSets take care of the number of instances of a Pod to run. Like you saw in the nginx deployment with the setting `replicas:3`. It's up to us to write our application in a way that it allows Kubernetes to run multiple copies of it.
 
+Of course the settings are vast. You can specify that the replicates must run on different Nodes, or various waiting times on how long to wait for an instance to come up. You can read up more on this subject here: [Horizontal Scaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) and here: [Interactive Scaling with Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/scale-interactive/) and of course the details of a [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) which controls all the scaling made possible in Kubernetes.
+
 ### Conclusion for Kubernetes
 
 It's a convenient tool to handle container orchestration. Its unit of work are Pods and it has a layered architecture. The top level layer is Deployments through which you handle all other resources. It's highly configurable. It provides an API for all calls you make, so potentionally, instead of running `kubectl` you can also write your own logic to send information to the Kubernetes API.
 
-It provides support for all major cloud providers natively by now and it's completely open source. Feel free to contribute, check the code if you would like to have a deeper understanding of how it works here: [Kubernetes on Github](https://github.com/kubernetes/kubernetes).
+It provides support for all major cloud providers natively by now and it's completely open source. Feel free to contribute, check the code if you would like to have a deeper understanding on how it works: [Kubernetes on Github](https://github.com/kubernetes/kubernetes).
 
 ## Minikube
 
@@ -261,15 +261,19 @@ I'm going to use [Minikube](https://github.com/kubernetes/minikube/). Minikube i
 
 All the kube template files that I'll be using are located here: [Kube files](https://github.com/Skarlso/kube-cluster-sample/tree/master/kube_files).
 
-**NOTE** If, later on, you would like to play with scaling, but notice that the replicates are always in `Pending` state, remember, that minikube employs a single node only. It might not allow multiple replicas on the same node, or just plain ran out of resources to use.
+**NOTE** If, later on, you would like to play with scaling, but notice that the replicates are always in `Pending` state, remember, that minikube employs a single node only. It might not allow multiple replicas on the same node, or just plain ran out of resources to use. You can check available resources with the following command:
+
+~~~bash
+kubectl get nodes -o yaml
+~~~
 
 ## Building the containers
 
-Kubernetes supports most of the containers out there. I'm going to use Docker. For all the services I've built, there is a Dockerfile included in the repository. I encourage you to study them. Most of them are simple. For the go services I'm using a multi stage build that got recently introduced. The Go services are Alpine Linux based. The Face Recognition service is Python. NSQ and MySQL are using their own Containers.
+Kubernetes supports most of the containers out there. I'm going to use Docker. For all the services I've built, there is a Dockerfile included in the repository. I encourage you to study them. Most of them are simple. For the go services I'm using a multi stage build that got recently introduced. The Go services are Alpine Linux based. The Face Recognition service is Python. NSQ and MySQL are using their own containers.
 
 ## Context
 
-Kubernetes uses namespaces. If you don't specify any it will use the default namespace. I'm going to permanently set a context to avoid polluting the default namespace. You do that like this:
+Kubernetes uses namespaces. If you don't specify any it will use the `default` namespace. I'm going to permanently set a context to avoid polluting the default namespace. You do that like this:
 
 ~~~bash
 ❯ kubectl config set-context kube-face-cluster --namespace=face
@@ -289,15 +293,7 @@ After this, all `kubectl` commands will use the namespace `face`.
 
 The first Service I'm going to deploy is my database.
 
-I'm using the Kubernetes example located here [Kube MySQL](https://kubernetes.io/docs/tasks/run-application/run-single-instance-stateful-application/#deploy-mysql) which fits my needs. Note that this file is using a plain password for MYSQL_PASSWORD. Normally, you should use a vault, described here [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/). And than you'll use the env property like this:
-
-~~~yaml
-- name: SECRET_USERNAME
-  valueFrom:
-    secretKeyRef:
-      name: mysecret
-      key: username
-~~~
+I'm using the Kubernetes example located here [Kube MySQL](https://kubernetes.io/docs/tasks/run-application/run-single-instance-stateful-application/#deploy-mysql) which fits my needs. Note that this file is using a plain password for MYSQL_PASSWORD. I'm going to employ a vault described here [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/).
 
 I've created a secret locally as described in that document using a secret yaml:
 
@@ -309,6 +305,12 @@ metadata:
 type: Opaque
 data:
   mysql_password: base64codehere
+~~~
+
+The base64 code I created with the following commands:
+
+~~~bash
+echo -n "ubersecurepassword" | base64
 ~~~
 
 And this is what you'll see in my deployment yaml file:
@@ -323,7 +325,7 @@ And this is what you'll see in my deployment yaml file:
 ...
 ~~~
 
-There is one other thing it does. It uses a volume to persist the database. The volume definition looks like this:
+One other thing worth mentioning. It's using a volume to persist the database. The volume definition is as follows:
 
 ~~~yaml
 ...
@@ -338,7 +340,7 @@ There is one other thing it does. It uses a volume to persist the database. The 
 ...
 ~~~
 
-`presistentVolumeClain` is the key here. It tells Kubernetes that this resource requires a persistent volume. How it's provided is abstracted away from the user. You can be sure that Kubernetes will provide a volume that will always be there. Similar to Pods. To read up on the details check out this document: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes).
+`presistentVolumeClain` is the key here. This tells Kubernetes that this resource requires a persistent volume. How it's provided is abstracted away from the user. You can be sure that Kubernetes will provide a volume that will always be there. Similar to Pods. To read up on the details check out this document: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes).
 
 Deploying the mysql Service is done with the following command:
 
@@ -346,7 +348,9 @@ Deploying the mysql Service is done with the following command:
 kubectl apply -f mysql.yaml
 ~~~
 
-`apply` and `create`. Create will create the service if it doesn't exists. But throws an error if it's already there. Apply will apply the template to the system. Meaning if you change the template it will apply the change. In this case, the change is that the service is not present in the first place, thus apply works in that it creates the service. Generally, if in doubt, use `apply`.
+`apply` vs `create`. In short, `apply` is considered a declerative object configuration command while `create` is imperative. What that means for now is that create is usually for a one of task, like running something or creating a deployment. While, when using apply the user doesn't define the action to be taken. That will be defined by Kubernetes based on the current status of the cluster. Thus, when there is no service called `mysql` and I'm calling `apply -f mysql.yaml` it will create the service. When running again, Kubernetes won't do anything. But if I would run `create` again it would throw an error saying the service is already created.
+
+For more information checkout the following docs: [Kubernetes Object Management](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/overview/), [Imperative Configuration](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/imperative-config/), [Declarative Configuration](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/declarative-config/).
 
 To see how it goes, run:
 
@@ -377,7 +381,7 @@ NAME                     READY     STATUS    RESTARTS   AGE
 mysql-78dbbd9c49-k6sdv   1/1       Running   0          18s
 ~~~
 
-To test the instance run the following snippet:
+To test the instance, run the following snippet:
 
 ~~~bash
 kubectl run -it --rm --image=mysql:5.6 --restart=Never mysql-client -- mysql -h mysql -pyourpasswordhere
@@ -454,16 +458,28 @@ kubectl logs deployment/mysql -f
 
 ### NSQ Lookup
 
-The NSQ Lookup will run as an internal service. It doesn't need access from the outside so I'm setting `clusterIP: None` which will tell Kubernetes not to assign an IP to it that's accessible.
+The NSQ Lookup will run as an internal service. It doesn't need access from the outside so I'm setting `clusterIP: None` which will tell Kubernetes that this service is a headless service. This means that it won't be loadbalanced and it won't be a single ip service. The DNS will be based upon service selectors.
 
-Basically it's the same as MySQL just with slight modifications. As stated earlier, I'm using NSQ's own Docker Container called `nsqio/nsq`. It has everything it needs in one container. All the commands are there, so nsqd will also use this container just with a different `command`. For nsqlookupd the command is as follows:
+Our NSQ Lookup selector is:
+
+~~~yaml
+  selector:
+    matchLabels:
+      app: nsqlookup
+~~~
+
+Thus, the internal DNS will look like this: `nsqlookup.default.svc.cluster.local`.
+
+Headless services are described in detail here: [Headless Service](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services).
+
+Basically it's the same as MySQL just with slight modifications. As stated earlier, I'm using NSQ's own Docker Container called `nsqio/nsq`. It has everything it needs in one container. All the commands are there, so nsqd will also use this container just with a different command. For nsqlookupd the command is as follows:
 
 ~~~yaml
 command: ["/nsqlookupd"]
 args: ["--broadcast-address=nsqlookup.default.svc.cluster.local"]
 ~~~
 
-So what's happening here? What's the `--broadcast-address` for? By default, nsqlookup will use the `hostname` as broadcast address. Meaning, when the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image` which will not work of course. By setting the broadcast-addres to the internal DNS that callback will be `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
+What's the `--broadcast-address` for, you might ask? By default, nsqlookup will use the `hostname` as broadcast address. Meaning, when the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image` which will not work of course. By setting the broadcast-addres to the internal DNS that callback will be `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
 
 NSQ Lookup also requires two ports forwarded. One for broadcasting and one for nsqd daemon callback. These are exposed in the Dockerfile and then utilized in the kubernetes template like this:
 
@@ -492,7 +508,7 @@ spec:
     targetPort: 4161
 ~~~
 
-Names are required by kubernetes to distinguish between them. The full template file can be found here: [NSQLookupd Template](https://github.com/Skarlso/kube-cluster-sample/blob/master/kube_files/nsqlookup.yaml).
+Names are required by kubernetes to distinguish between them.
 
 To create this service I'm using the following command as before:
 
@@ -516,7 +532,7 @@ The first deployment it creates is it's own. The receiver container is `skarlso/
 
 #### Nsq Daemon
 
-The receiver starts an nsq daemon. Like said earlier, the receiver runs an nsq with it-self. It does that so talking to it can happen locally and not over the network. By making receiver do this, it will end up on the same node as the receiver and not on a different one.
+The receiver starts an nsq daemon. Like said earlier, the receiver runs an nsq with it-self. It does that so talking to it can happen locally and not over the network. By making receiver do this, it will end up on the same node as the receiver.
 
 NSQ daemon also needs some adjustments and parameters.
 
@@ -540,9 +556,11 @@ You can see the lookup-tcp-address and the broadcast-address are set. Lookup tcp
 
 #### Public facing
 
-Now, this is the first time I'm deploying a public facing interface. There are two options. I could use a LoadBalancer, because this API will be under heavy load. And if this would be deployed anywhere in production, than it should be a LoadBalancer. I'm doing this locally though so something called a `NodePort` is enough. A `NodePort` simply opens a forwarded port for a service. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the yaml. For now, I'm just leaving it at default.
+Now, this is the first time I'm deploying a public facing interface. There are two options. I could use a LoadBalancer, because this API will be under heavy load. And if this would be deployed anywhere in production, then it should be a LoadBalancer.
 
-For further information check out the node port documentation located here: [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport).
+I'm doing this locally though with one node so something called a `NodePort` is enough. A `NodePort` exposes a service on each node's IP at a static port. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the yaml. To reach this service I will have to use `<NodeIP>:<NodePort>`. If more than one node is configured a LoadBalancer can multiplex them to a single IP.
+
+For further information check out this document: [Publishing Services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types).
 
 Putting this all together, we'll get a receiver-service for which the template is as follows:
 
@@ -561,7 +579,7 @@ spec:
   type: NodePort
 ~~~
 
-For a fixed nodePort on 8000 for example, a definition of `nodePort` must be provided as follows:
+For a fixed nodePort on 8000 a definition of `nodePort` must be provided as follows:
 
 ~~~yaml
 apiVersion: v1
@@ -581,7 +599,7 @@ spec:
 
 ### Image processor
 
-The Image Processor is where I'm handling passing of images to be identified. This is not a public facing API but should have access to nsqlookupd, mysql and the gRPC endpoint of the face recognition service deployed later. This is actually a boring service. In fact, it's not a service at all. It doesn't expose anything and thus it's the first deployment only component. For brevity, here is the whole template:
+The Image Processor is where I'm handling passing off images to be identified. It should have access to nsqlookupd, mysql and the gRPC endpoint of the face recognition service deployed later. This is actually a boring service. In fact, it's not a service at all. It doesn't expose anything and thus it's the first deployment only component. For brevity, here is the whole template:
 
 ~~~yaml
 ---
@@ -611,7 +629,7 @@ spec:
               name: kube-face-secret
               key: mysql_userpassword
         - name: MYSQL_PORT
-          # TIL: If this is 3306 kubectl throws an error.
+          # TIL: If this is 3306 without " kubectl throws an error.
           value: "3306"
         - name: MYSQL_DBNAME
           value: kube
@@ -622,7 +640,7 @@ spec:
 
 ~~~
 
-The only interesting point in this file are the multitude of environment properties that are used to configure the application. Note the nsqlookupd address and the grpc address.
+The only interesting points in this file are the multitude of environment properties that are used to configure the application. Note the nsqlookupd address and the grpc address.
 
 To create this deployment, run:
 
@@ -649,17 +667,17 @@ spec:
   clusterIP: None
 ~~~
 
-The more interesting part is that it requires two volumes. The two volumes are `known_people` and `unknown_people`. Can you guess what they will contain? Yep, images. The `known_people` volume contains all the images associated to the known people in the database. The `unknown_people` volume will contain all the new images. And that's the path we will need to use when sending images from the receiver. That is, where ever the mount points to. Which in my case is `/unknown/people`. Basically the path needs to be one that the face recognition service can access.
+The more interesting part is that it requires two volumes. The two volumes are `known_people` and `unknown_people`. Can you guess what they will contain? Yep, images. The `known_people` volume contains all the images associated to the known people in the database. The `unknown_people` volume will contain all the new images. And that's the path we will need to use when sending images from the receiver. That is, where ever the mount points to. Which in my case is `/unknown_people`. Basically the path needs to be one that the face recognition service can access.
 
-Now, with Kubernetes and Docker this is easy. It could be a mounted S3 or some kind of nfs or a local mount. The possibilities are endless (around a dozen or so). I'm going to use a local one for the sake of simplicity.
+Now, with Kubernetes and Docker this is easy. It could be a mounted S3 or some kind of nfs or a local mount from host to guest. The possibilities are endless (around a dozen or so). I'm going to use a local mount for the sake of simplicity.
 
-Mounting a volume has two parts. First, the Dockerfile:
+Mounting a volume has two parts. First, the Dockerfile has to specify volumes:
 
 ~~~Dockerfile
 VOLUME [ "/unknown_people", "/known_people" ]
 ~~~
 
-Second, add it to the Kubernetes template config file as seen earlier with MySQL:
+Second, the Kubernetes template as seen earlier with MySQL; the difference being `hostPath` instead of a claimed volume:
 
 ~~~yaml
         volumeMounts:
@@ -678,7 +696,7 @@ Second, add it to the Kubernetes template config file as seen earlier with MySQL
           type: Directory
 ~~~
 
-We also have to set the known_people folder config setting for face recognition. This is done via an environment property of course:
+We also have to set the `known_people` folder config setting for face recognition. This is done via an environment property of course:
 
 ~~~yaml
         env:
@@ -703,13 +721,13 @@ Where `image_files_in_folder` is:
 
 Neat.
 
-Now, if the receiver receives a request similar to the one below...
+Now, if the receiver receives a request (and sends it off further the line) similar to the one below...
 
 ~~~bash
 curl -d '{"path":"/unknown_people/unknown220.jpg"}' http://192.168.99.100:30251/image/post
 ~~~
 
-...it will look for an image called unknown220.jpg under `/unknown_people`; locate an image in the known_folder that corresponds to the person on the unknown image and return an id of the person that matches that image name with an inner join select.
+...it will look for an image called unknown220.jpg under `/unknown_people`; locate an image in the known_folder that corresponds to the person on the unknown image and return the name of the image that matched.
 
 Looking at logs you should see something like this:
 
@@ -733,7 +751,7 @@ And that concludes all of the services that we need to deploy with Kubernetes to
 
 ### Frontend
 
-Last but not least, there is a small web-app which displays the information in the db for convenience. This is also a public facing service with the same parameters as the receiver's public facing service.
+Last but not least, there is a small web-app which displays the information in the db for convenience. This is also a public facing service with the same parameters as the receiver's service.
 
 It looks like this:
 
@@ -741,18 +759,18 @@ It looks like this:
 
 ### Recap
 
-So what is the situation so far? I deployed a bunch of services all over the place. A recap off the commands I executed:
+So what is the situation so far? I deployed a bunch of services all over the place. A recap off the commands I used:
 
 ~~~bash
-kubectl create -f mysql.yaml
-kubectl create -f nsqlookup.yaml
-kubectl create -f receiver.yaml
-kubectl create -f image_processor.yaml
-kubectl create -f face_recognition.yaml
-kubectl create -f frontend.yaml
+kubectl apply -f mysql.yaml
+kubectl apply -f nsqlookup.yaml
+kubectl apply -f receiver.yaml
+kubectl apply -f image_processor.yaml
+kubectl apply -f face_recognition.yaml
+kubectl apply -f frontend.yaml
 ~~~
 
-These could be in any order because my application does not allocate connections on start. The image processor's NSQ consumer re-connects and so does the daemon.
+These could be in any order because the application does not allocate connections on start except for image_processor's NSQ consumer. But that re-tries.
 
 Query-ing kube for running pods with `kubectl get pods` should show something like this:
 
@@ -785,17 +803,13 @@ Running `minikube service list`:
 |-------------|----------------------|-----------------------------|
 ~~~
 
-So, this is quiet boring because there are no nodes and only 1 replica is running for each service. Lets spice things up.
-
 ### Rolling update
 
-As it happens during software development, change is requested/needed to some parts of the application. What happens to our cluster if I would like to change one of it's components without breaking the other? And also whilest maintaining backwards compatibility and no disruption to user experience. Thankfully Kubernetes can help with that somewhat.
+As it happens during software development, change is requested/needed to some parts of the application. What happens to our cluster if I would like to change one of it's components without breaking the other? And also whilest maintaining backwards compatibility with no disruption to user experience. Thankfully Kubernetes can help with that.
 
-What I don't like right now is that the API only handles one image at a time. There is no option to bulk upload. Which, IMHO should be the default anyways.
+What I don't like right now is that the API only handles one image at a time. There is no option to bulk upload.
 
 #### Code
-
-Modifying the code to do a bulk upload is pretty easy.
 
 Right now, we have the following code segment dealing with a single image:
 
@@ -813,15 +827,15 @@ func main() {
 }
 ~~~
 
-We have two options. Add a new endpoint with `/images/post` and make the new client use that. Or modify the existing one. The new client code has the advantage that it could fall back to submitting the old way. The old client code though doesn't have this advantage so we can't change the way our code works right now. If we did that, imagine that you have a 90 servers. You do a slow paced rolling update. That will take our servers one step at a time doing an update on a server. If an update lasts around a minute, that will take around one and a half hours to complete.
+We have two options. Add a new endpoint with `/images/post` and make the client use that, or modify the existing one. The new client code has the advantage that it could fall back to submitting the old way if the new endpoint isn't available. The old client code though doesn't have this advantage so we can't change the way our code works right now. Consider this. You have 90 servers. You do a slow paced rolling update. That will take out servers one step at a time doing an update. If an update lasts around a minute, that will take around one and a half hours to complete (not counting any parallel updates).
 
-During that time, some of your servers will run the new code and some will run the old one. If an old code calls the end-point which is modified, it would fail and the application would stop working. But a new version would have the necessary fallback strategy implemented in case the new method doesn't exist.
+During that time, some of your servers will run the new code and some will run the old one. Calls are load balanced, thus you have no control over what server is hit. If a client is trying to do a call the new way but hits an old server the client would fail. The client could try a fallback, but since you eliminated the old version it will not succeed unless it, by chance, hits a server with the new code (assuming no sticky sessions are set).
 
-All the while we retire the old code by calling the new code in the background. Once we made sure the old code isn't used any longer, we just remove the end-point.
+Also, once all your servers are updated, an old client will not be able to use your service any longer at all.
+
+Now, you could argue that you don't want to keep around old versions of your code forever. And that is true in some sense. That's why, what we are going to do, is modify the old code, to simply call the new code with some slight augmentation. This way, old code is not kept around. Once all clients have been migrated, the code can simply be deleted without any trouble.
 
 #### New Endpoint
-
-Thus I decided to go with a new endpoint.
 
 This basically means that I'm adding a new route method:
 
@@ -840,7 +854,7 @@ func PostImage(w http.ResponseWriter, r *http.Request) {
     var p Path
     err := json.NewDecoder(r.Body).Decode(&p)
     if err != nil {
-      fmt.Fprintf(w, "got error: %s", err)
+      fmt.Fprintf(w, "got error while decoding body: %s", err)
       return
     }
     fmt.Fprintf(w, "got path: %+v\n", p)
@@ -849,11 +863,10 @@ func PostImage(w http.ResponseWriter, r *http.Request) {
     paths = append(paths, p)
     ps.Paths = paths
     var pathsJSON bytes.Buffer
-    json.NewEncoder(&pathsJSON).Encode(ps)
-    err = json.NewDecoder(r.Body).Decode(&p)
+    err = json.NewEncoder(&pathsJSON).Encode(ps)
     if err != nil {
-        fmt.Fprintf(w, "got error: %s", err)
-        return
+      fmt.Fprintf(w, "failed to encode paths: %s", err)
+      return
     }
     r.Body = ioutil.NopCloser(&pathsJSON)
     r.ContentLength = int64(pathsJSON.Len())
@@ -863,7 +876,7 @@ func PostImage(w http.ResponseWriter, r *http.Request) {
 
 Well, the naming could be better, but you should get the basic idea. I'm modifying the incoming single path by wrapping it into the new format and sending it over to the new end-point handler. And that's it. There are a few more modifications, to check them out take a look at this PR: [Rolling Update Bulk Image Path PR](https://github.com/Skarlso/kube-cluster-sample/pull/1).
 
-Now, we can call this new endpoint two ways:
+Now, we can call the receiver in two ways:
 
 ~~~bash
 # Single Path:
@@ -873,13 +886,13 @@ curl -d '{"path":"unknown4456.jpg"}' http://127.0.0.1:8000/image/post
 curl -d '{"paths":[{"path":"unknown4456.jpg"}]}' http://127.0.0.1:8000/images/post
 ~~~
 
-Here, the client is a curl call. Normally, if the client would be a service, I would modify it that in case the new end-point throws a 404 it would try the old one first.
+Here, the client is curl. Normally, if the client would be a service, I would modify it that in case the new end-point throws a 404 it would try the old one next.
 
-For brevity, I'm not modifying NSQ and the others to handle bulk image processing. They will still receive it one - by - one. I'll leave that up to you to play with. ;)
+For brevity, I'm not modifying NSQ and the others to handle bulk image processing. They will still receive it one - by - one. I'll leave that up to you as homework. ;)
 
 #### New Image
 
-To perform a rolling update, I must create a new image first from the receiver service. To do this, I'll create a new image with a new tag, denoting a version v1.1 for example.
+To perform a rolling update, I must create a new image first from the receiver service. To do this, I'll create a new image with a new tag, denoting a version v1.1.
 
 ~~~bash
 docker build -t skarlso/kube-receiver-alpine:v1.1 .
@@ -899,11 +912,6 @@ If, say, I was using a container version in my config file called `v1.0` than do
 kubectl rolling-update receiver --image:skarlso/kube-receiver-alpine:v1.1
 ~~~
 
-kubectl will output progress as it does the rolling update.
-
-~~~bash
-~~~
-
 If there is a problem during the rollout we can always rollback.
 
 ~~~bash
@@ -916,15 +924,11 @@ It will set back the previous version no fuss, no muss.
 
 The problem with by-hand updates is always that they aren't in source control. Something changed, a couple of servers got updated, but nobody witnessed it. A new person comes along and does a change to the template and applys the template to the cluster. All the servers are updated, but suddenly, there is a service outage.
 
-Long story sort, the servers which got updated are wacked over because the template didn't reflect what has been done by hand. That is bad.
+Long story sort, the servers which got updated are wacked over because the template didn't reflect what has been done by hand. That is bad. Don't do that.
 
-So the recommended way is to change the template to use the new version and than apply the template with the following command:
+The recommended way is to change the template to use the new version and than apply the template with the `apply` command.
 
-~~~bash
-kubectl apply -f ./receiver.yaml
-~~~
-
-Kubernetes recommends that the Deployment handles the rollout with ReplicaSets. This means however, that there must be at least two replicates present for a rolling update. Otherwise the update won't work. So I'm increasing the replica count in the yaml and I set the new image version for the receiver container.
+Kubernetes recommends that the Deployment handles the rollout with ReplicaSets. This means however, that there must be at least two replicates present for a rolling update. Otherwise the update won't work (unless `maxUnavailable` is set to 1). I'm increasing the replica count in the yaml and I set the new image version for the receiver container.
 
 ~~~yaml
   replicas: 2
@@ -953,13 +957,13 @@ You can add in additional configuration settings by specifying the `strategy` pa
       maxUnavailable: 0
 ~~~
 
-Additional information on all this can be found in these documents: [Deployment Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-back-a-deployment), [Updating a Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment), [Manage Deployments](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#updating-your-application-without-a-service-outage), [Rolling Update using ReplicaController](https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/).
+Additional information on rolling update can be found in these documents: [Deployment Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-back-a-deployment), [Updating a Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment), [Manage Deployments](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#updating-your-application-without-a-service-outage), [Rolling Update using ReplicaController](https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/).
 
-**NOTE MINIKUBE USERS**: Since we are doing this on a local machine with one node and 1 replica of an application, we have to set `maxUnavailable` to `1`. Otherwise, Kubernetes won't allow the update to happen and the new version will always be in `Pending` state.
+**NOTE MINIKUBE USERS**: Since we are doing this on a local machine with one node and 1 replica of an application, we have to set `maxUnavailable` to `1`. Otherwise, Kubernetes won't allow the update to happen and the new version will always be in `Pending` state since we aren't allowing that at any given point in time there is a situation where no containers are present for `receiver` app.
 
 ### Scaling
 
-Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically, just have to put a number into the template of the desired replicas to use. Of course the settings are vast. You can specify that the replicates must run on different Nodes, or various waiting times on how long to wait for an instance to come up. The documentation is pretty nice on this located here: [Horizontal Scaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/), [Interactive Scaling with Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/scale-interactive/) and of course the details of a [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) which controls all the scaling made possible in Kubernetes.
+Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically, just have to put a number into the template of the desired replicas to use.
 
 ### Cleanup
 
