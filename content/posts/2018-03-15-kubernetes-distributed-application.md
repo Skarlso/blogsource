@@ -13,7 +13,7 @@ categories:
 
 Alright folks. Settle in. This is going to be a long, but hopefully, fun ride.
 
-I'm going to deploy a distributed application with [Kubernetes](https://kubernetes.io/). I was trying to create an application which I thought resembles a real world app as close as possible. But obviously I cut some corners because of time and energy constraints.
+I'm going to deploy a distributed application with [Kubernetes](https://kubernetes.io/). I was trying to write an app which I thought is as close to real-world as possible. But obviously I cut some corners because of time and energy constraints.
 
 My focus will be on Kubernetes and deployment.
 
@@ -27,9 +27,9 @@ Shall we?
 
 The application itself consists of six parts. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
-It is a face recognition service which identifies images of people, comparing them to known individuals. A simple frontend displays a table of these images whom they belong to. This happens by sending a request to a [receiver](https://github.com/Skarlso/kube-cluster-sample/tree/master/receiver). The request contains a path to an image. The image could sit on an NFS somewhere. The receiver stores this path in the DB (MySQL) and sends a processing request to a queue. The queue uses [NSQ](http://nsq.io/). The request contains the ID of the saved image.
+It is a face recognition service which identifies images of people, comparing them to known individuals. A simple frontend displays a table of these images and whom they belong to. This happens by sending a request to a [receiver](https://github.com/Skarlso/kube-cluster-sample/tree/master/receiver). The request contains a path to an image. The image could be located anywhere. The receiver stores this path in the DB (MySQL) and sends a processing request to a queue. The queue uses [NSQ](http://nsq.io/). The request contains the ID of the saved image.
 
-An [Image Processing](https://github.com/Skarlso/kube-cluster-sample/tree/master/image_processor) service is constantly monitoring the queue for jobs to do. The processing consists of the following steps: taking the ID, loading in the image and finally, sending off the path to the image to a [face recognition](https://github.com/Skarlso/kube-cluster-sample/tree/master/face_recognition) backend written in Python via [gRPC](https://grpc.io/). If the identification was successful, the backend returns the name of the image corresponding to that person. The image_processor then updates the image record with the person id and marks the image as processed successfully. If identification is unsuccessful the image is left as pending. If there was a failure during identification the image is flagged as failed.
+An [Image Processing](https://github.com/Skarlso/kube-cluster-sample/tree/master/image_processor) service is constantly monitoring the queue for jobs to do. The processing consists of the following steps: taking the ID, loading in the image and sending off the path of the image to a [face recognition](https://github.com/Skarlso/kube-cluster-sample/tree/master/face_recognition) backend, written in Python, via [gRPC](https://grpc.io/). If the identification was successful, the backend returns the name of the image corresponding to that person. The image_processor then updates the image record with the person id and marks the image as processed successfully. If identification is unsuccessful the image is left as pending. If there was a failure during identification the image is flagged as failed.
 
 Failed images can be re-tried with a cron job, for example.
 
@@ -51,11 +51,11 @@ Here is where the fun begins. When Image Processor first runs it creates two Go 
 
 ### Consume
 
-This is an NSQ consumer. It has two jobs. First, it listens for messages on the queue. Second, when there is a message it appends the received ID to a thread safe slice of IDs that the second routine processes. Lastly it signals the second routine that there is work to do. It does that through [sync.Condition](https://golang.org/pkg/sync/#Cond).
+This is an NSQ consumer. It has three jobs. First, it listens for messages on the queue. Second, when there is a message it appends the received ID to a thread safe slice of IDs that the second routine processes. Lastly it signals the second routine that there is work to do. It does that through [sync.Condition](https://golang.org/pkg/sync/#Cond).
 
 ### ProcessImages
 
-This routine processes a slice of IDs until the slice is drained completely. Once the slice is drained the routine goes into suspend instead of sleep waiting on a channel. The processing of a single ID is through the following steps in order:
+This routine processes a slice of IDs until the slice is drained completely. Once the slice is drained the routine goes into suspend instead of sleep-waiting on a channel. The processing of a single ID is through the following steps in order:
 
 * Establish a gRPC connection to the Face Recognition service (explained under Face Recognition)
 * Retrieve the image record from the database
@@ -77,7 +77,7 @@ This is how it works:
 
 [!kube circuit](/img/kube_circuit1.png)
 
-As you can see, once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a Ping call to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it opens the circuit and allows traffic to proceed.
+Once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a health check to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it opens the circuit and allows traffic to proceed.
 
 ## Front-End
 
@@ -85,9 +85,9 @@ This is only a simplistic table view with Go's own html/template used to render 
 
 ## Face Recognition
 
-Here is where the identification magic is happening. I decided to make this a gRPC based service for a sole purpose of flexibility. I started writing it in Go, but decided that a Python implementation could be much sorter. In fact, not counting the gRPC code, the recognition part is about 7 lines of Python code. I'm using this fantastic library which has all the C bindings to OpenCV. [Face Recognition](https://github.com/ageitgey/face_recognition). Having an API contract here means that I can change the implementation anytime as long as it adheres to the contract.
+Here is where the identification magic is happening. I decided to make this a gRPC based service for the sole purpose of flexibility. I started writing it in Go, but decided that a Python implementation could be much sorter. In fact, not counting the gRPC code, the recognition part is about 7 lines of code. I'm using this fantastic library which has all the C bindings to OpenCV. [Face Recognition](https://github.com/ageitgey/face_recognition). Having an API contract here means that I can change the implementation anytime as long as it adheres to the contract.
 
-Note that there is a great Go library that I was about to use, but they have yet to write the C binding for that part of OpenCV. It's called [GoCV](https://gocv.io/). Go, check them out. They have some pretty amazing things, like real time camera feed processing with only a couple of lines of Go code.
+Note that there is a great Go library that I was about to use, but they have yet to write the needed C bindings. It's called [GoCV](https://gocv.io/). Go, check them out. They have some pretty amazing things, like real time camera feed processing with only a couple of lines of code.
 
 How the Python library works is simple in nature. Have a set of images about people you know and have a record for. In this case, I have a folder with a couple of images named, `hannibal_1.jpg, hannibal_2.jpg, gergely_1.jpg, john_doe.jpg`. In the database I have two tables named, `person, person_images`. They look like this:
 
@@ -107,7 +107,7 @@ How the Python library works is simple in nature. Have a set of images about peo
 +----+----------------+-----------+
 ~~~
 
-The face recognition library returns the name of the image the unknown image matches to. After that a simple joined query like this will return the person in question.
+The face recognition library returns the name of the image the unknown image matches to. After that, a simple joined query like this will return the person in question.
 
 ~~~sql
 select person.name, person.id from person inner join person_images as pi on person.id = pi.person_id where image_name = 'hannibal_2.jpg';
@@ -117,7 +117,7 @@ The gRPC call returns the id of the person which is than used to update the imag
 
 ## NSQ
 
-NSQ is a nice little Go based queue. It can be scaled and has a minimal footprint on the system. It has a lookup service which consumers use to receive messages and a daemon that senders use to send messages.
+NSQ is a little Go based queue. It can be scaled and has a minimal footprint on the system. It has a lookup service which consumers use to receive messages and a daemon that senders use to send messages.
 
 NSQ's philosophy is that the daemon should run with the sender application. That way, the sender sends to localhost only. But the daemon is connected to the lookup service and that's how they achieve a global queue.
 
@@ -288,7 +288,7 @@ After this, all `kubectl` commands will use the namespace `face`.
 
 ## Deploying the Application
 
-Overview of Pods and services:
+Overview of Pods and Services:
 
 [!kube deployed](/img/kube_deployed.png)
 
@@ -355,7 +355,7 @@ kubectl apply -f mysql.yaml
 
 For more information checkout the following docs: [Kubernetes Object Management](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/overview/), [Imperative Configuration](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/imperative-config/), [Declarative Configuration](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/declarative-config/).
 
-To see how it goes, run:
+To see progress information, run:
 
 ~~~bash
 # Describes the whole process
@@ -377,7 +377,7 @@ NewReplicaSet:   mysql-55cd6b9f47 (1/1 replicas created)
 ...
 ~~~
 
-Or in case of get pods:
+Or in case of `get pods`:
 
 ~~~bash
 NAME                     READY     STATUS    RESTARTS   AGE
@@ -475,14 +475,14 @@ Thus, the internal DNS will look like this: `nsqlookup.default.svc.cluster.local
 
 Headless services are described in detail here: [Headless Service](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services).
 
-Basically it's the same as MySQL just with slight modifications. As stated earlier, I'm using NSQ's own Docker Container called `nsqio/nsq`. It has everything it needs in one container. All the commands are there, so nsqd will also use this container just with a different command. For nsqlookupd the command is as follows:
+Basically it's the same as MySQL just with slight modifications. As stated earlier, I'm using NSQ's own Docker Image called `nsqio/nsq`. All nsq commands are there, so nsqd will also use this image just with a different command. For nsqlookupd the command is as follows:
 
 ~~~yaml
 command: ["/nsqlookupd"]
 args: ["--broadcast-address=nsqlookup.default.svc.cluster.local"]
 ~~~
 
-What's the `--broadcast-address` for, you might ask? By default, nsqlookup will use the `hostname` as broadcast address. Meaning, when the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image` which will not work of course. By setting the broadcast-addres to the internal DNS that callback will be `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
+What's the `--broadcast-address` for, you might ask? By default, nsqlookup will use the `hostname` as broadcast address. Meaning, when the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image` which will not work of course. By setting the broadcast-address to the internal DNS that callback will be `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
 
 NSQ Lookup also requires two ports forwarded. One for broadcasting and one for nsqd daemon callback. These are exposed in the Dockerfile and then utilized in the kubernetes template like this:
 
@@ -513,13 +513,13 @@ spec:
 
 Names are required by kubernetes to distinguish between them.
 
-To create this service I'm using the following command as before:
+To create this service, I'm using the following command as before:
 
 ~~~bash
 kubectl apply -f nsqlookup.yaml
 ~~~
 
-This concludes the nsqlookupd service. And with that, two of the major players are in the sack.
+This concludes nsqlookupd. Two of the major players are in the sack.
 
 ### Receiver
 
@@ -559,7 +559,7 @@ You can see the lookup-tcp-address and the broadcast-address are set. Lookup tcp
 
 #### Public facing
 
-Now, this is the first time I'm deploying a public facing interface. There are two options. I could use a LoadBalancer, because this API will be under heavy load. And if this would be deployed anywhere in production, then it should be a LoadBalancer.
+Now, this is the first time I'm deploying a public facing service. There are two options. I could use a LoadBalancer because this API will be under heavy load. And if this would be deployed anywhere in production, then it should be a LoadBalancer.
 
 I'm doing this locally though with one node so something called a `NodePort` is enough. A `NodePort` exposes a service on each node's IP at a static port. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the yaml. To reach this service I will have to use `<NodeIP>:<NodePort>`. If more than one node is configured a LoadBalancer can multiplex them to a single IP.
 
@@ -814,7 +814,7 @@ What happens during a rolling update?
 
 As it happens during software development, change is requested/needed to some parts of the application. What happens to our cluster if I would like to change one of it's components without breaking the other? And also whilest maintaining backwards compatibility with no disruption to user experience. Thankfully Kubernetes can help with that.
 
-What I don't like right now is that the API only handles one image at a time. There is no option to bulk upload.
+What I don't like is that the API only handles one image at a time. There is no option to bulk upload.
 
 #### Code
 
@@ -834,17 +834,19 @@ func main() {
 }
 ~~~
 
-We have two options. Add a new endpoint with `/images/post` and make the client use that, or modify the existing one. The new client code has the advantage that it could fall back to submitting the old way if the new endpoint isn't available. The old client code though doesn't have this advantage so we can't change the way our code works right now. Consider this. You have 90 servers. You do a slow paced rolling update. That will take out servers one step at a time doing an update. If an update lasts around a minute, that will take around one and a half hours to complete (not counting any parallel updates).
+We have two options. Add a new endpoint with `/images/post` and make the client use that, or modify the existing one.
+
+The new client code has the advantage that it could fall back to submitting the old way if the new endpoint isn't available. The old client code though doesn't have this advantage so we can't change the way our code works right now. Consider this. You have 90 servers. You do a slow paced rolling update. That will take out servers one step at a time doing an update. If an update lasts around a minute, that will take around one and a half hours to complete (not counting any parallel updates).
 
 During that time, some of your servers will run the new code and some will run the old one. Calls are load balanced, thus you have no control over what server is hit. If a client is trying to do a call the new way but hits an old server the client would fail. The client could try a fallback, but since you eliminated the old version it will not succeed unless it, by chance, hits a server with the new code (assuming no sticky sessions are set).
 
 Also, once all your servers are updated, an old client will not be able to use your service any longer at all.
 
-Now, you could argue that you don't want to keep around old versions of your code forever. And that is true in some sense. That's why, what we are going to do, is modify the old code, to simply call the new code with some slight augmentation. This way, old code is not kept around. Once all clients have been migrated, the code can simply be deleted without any trouble.
+Now, you could argue that you don't want to keep around old versions of your code forever. And that is true in some sense. That's why, what we are going to do, is modify the old code, to simply call the new code with some slight augmentations. This way, old code is not kept around. Once all clients have been migrated, the code can simply be deleted without any problems.
 
 #### New Endpoint
 
-This basically means that I'm adding a new route method:
+Let's add a new route method:
 
 ~~~go
 ...
@@ -929,7 +931,9 @@ It will set back the previous version no fuss, no muss.
 
 ##### Apply a new configuration file
 
-The problem with by-hand updates is always that they aren't in source control. Something changed, a couple of servers got updated, but nobody witnessed it. A new person comes along and does a change to the template and applys the template to the cluster. All the servers are updated, but suddenly, there is a service outage.
+The problem with by-hand updates is always that they aren't in source control.
+
+Consider this. Something changed, a couple of servers got updated, but nobody witnessed it. A new person comes along and does a change to the template and applys the template to the cluster. All the servers are updated, but suddenly, there is a service outage.
 
 Long story sort, the servers which got updated are wacked over because the template didn't reflect what has been done by hand. That is bad. Don't do that.
 
@@ -954,7 +958,7 @@ Looking at the progress you should see something like this:
 Waiting for rollout to finish: 1 out of 2 new replicas have been updated...
 ~~~
 
-You can add in additional configuration settings by specifying the `strategy` part of the template like this:
+You can add in additional rollout configuration settings by specifying the `strategy` part of the template like this:
 
 ~~~yaml
   strategy:
@@ -972,6 +976,8 @@ Additional information on rolling update can be found in these documents: [Deplo
 
 Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically, just have to put a number into the template of the desired replicas to use.
 
+This has been a great post so far but it's getting too long. I'm planning on writing a follow-up where I will be truly scaling things up on AWS with multiple nodes and replicas. Stay tuned.
+
 ### Cleanup
 
 ~~~bash
@@ -981,11 +987,11 @@ kubectl delete services -all
 
 # Final Words
 
-And that is it ladies and gentleman. We wrote, deployed, updated and scaled a distributed application with Kubernetes.
+And that is it ladies and gentleman. We wrote, deployed, updated and scaled (well, not yet really) a distributed application with Kubernetes.
 
-Any questions, please feel free to chat in the comments below, I'm happy to answer
+Any questions, please feel free to chat in the comments below, I'm happy to answer.
 
-I hope you enjoyed reading this. I know, it's quiet long and I was thinking of splitting it up, but having a cohesive, one long page guide is sometimes useful and makes it easy to find something.
+I hope you enjoyed reading this. I know, it's quiet long and I was thinking of splitting it up, but having a cohesive, one page guide is sometimes useful and makes it easy to find something or save it for later read or even print as PDF.
 
 Thank you for reading,
 Gergely.
