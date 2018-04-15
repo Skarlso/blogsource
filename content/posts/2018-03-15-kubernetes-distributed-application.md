@@ -23,7 +23,7 @@ Shall we?
 
 ## TL;DR
 
-[!kube overview](/img/kube_overview.png)
+![kube overview](/img/kube_overview.png)
 
 The application itself consists of six parts. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
@@ -75,7 +75,7 @@ In a system where replicating resources requires little to no effort, there stil
 
 This is how it works:
 
-[!kube circuit](/img/kube_circuit1.png)
+![kube circuit](/img/kube_circuit1.png)
 
 Once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a health check to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it opens the circuit and allows traffic to proceed.
 
@@ -290,7 +290,7 @@ After this, all `kubectl` commands will use the namespace `face`.
 
 Overview of Pods and Services:
 
-[!kube deployed](/img/kube_deployed.png)
+![kube deployed](/img/kube_deployed.png)
 
 ### MySQL
 
@@ -810,7 +810,7 @@ Running `minikube service list`:
 
 What happens during a rolling update?
 
-[!kube rotate](/img/kube_rotate.png)
+![kube rotate](/img/kube_rotate.png)
 
 As it happens during software development, change is requested/needed to some parts of the application. What happens to our cluster if I would like to change one of it's components without breaking the other? And also whilest maintaining backwards compatibility with no disruption to user experience. Thankfully Kubernetes can help with that.
 
