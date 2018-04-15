@@ -8,7 +8,6 @@ categories:
   - Go
   - Kubernetes
   - FaceRecognition
-draft: true
 ---
 # Intro
 
@@ -24,7 +23,7 @@ Shall we?
 
 ## TL;DR
 
-TODO: Insert gif here
+[!kube overview](/img/kube_overview.png)
 
 The application itself consists of six parts. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
@@ -76,7 +75,7 @@ In a system where replicating resources requires little to no effort, there stil
 
 This is how it works:
 
-TODO: Insert nice gif here.
+[!kube circuit](/img/kube_circuit1.png)
 
 As you can see, once there are 5 unsuccessful calls to the service the circute breaker activates and doesn't allow any more calls to go through. After a configured amount of time, it will send a Ping call to the service to see if it's back up. If that still errors out, it increases the timeout. If not, it opens the circuit and allows traffic to proceed.
 
@@ -119,8 +118,6 @@ The gRPC call returns the id of the person which is than used to update the imag
 ## NSQ
 
 NSQ is a nice little Go based queue. It can be scaled and has a minimal footprint on the system. It has a lookup service which consumers use to receive messages and a daemon that senders use to send messages.
-
-TODO: Insert gif here
 
 NSQ's philosophy is that the daemon should run with the sender application. That way, the sender sends to localhost only. But the daemon is connected to the lookup service and that's how they achieve a global queue.
 
@@ -288,6 +285,12 @@ Switched to context "kube-face-cluster".
 ~~~
 
 After this, all `kubectl` commands will use the namespace `face`.
+
+## Deploying the Application
+
+Overview of Pods and services:
+
+[!kube deployed](/img/kube_deployed.png)
 
 ### MySQL
 
@@ -804,6 +807,10 @@ Running `minikube service list`:
 ~~~
 
 ### Rolling update
+
+What happens during a rolling update?
+
+[!kube rotate](/img/kube_rotate.png)
 
 As it happens during software development, change is requested/needed to some parts of the application. What happens to our cluster if I would like to change one of it's components without breaking the other? And also whilest maintaining backwards compatibility with no disruption to user experience. Thankfully Kubernetes can help with that.
 
