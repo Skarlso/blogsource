@@ -1,3 +1,14 @@
+---
+title: Kubernetes distributed application deployment with sample Face Recognition App
+author: hannibal
+layout: post
+date: 2018-03-15T23:01:00+01:00
+url: /2018/03/15/kubernetes-distributed-application
+categories:
+  - Go
+  - Kubernetes
+  - FaceRecognition
+---
 # Intro
 
 Alright folks. Settle in and get comfortable. This is going to be a long, but hopefully, fun ride.
