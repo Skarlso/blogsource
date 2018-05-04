@@ -23,7 +23,7 @@ Shall we delve right in?
 
 ## TL;DR
 
-TODO: Insert gif here
+![kube overview](/img/kube_overview.png)
 
 The application itself consists of six parts. The repository can be found here: [Kube Cluster Sample](https://github.com/Skarlso/kube-cluster-sample).
 
@@ -75,7 +75,7 @@ A  system in which replicating resources requires little to no effort, there sti
 
 This is how it works:
 
-TODO: Insert nice gif here.
+![kube circuit](/img/kube_circuit1.png)
 
 As you can see, once there are 5 unsuccessful calls to the service, the circuit breaker activates, not allowing any more calls to go through. After a configured amount of time, it will send a Ping call to the service to see if it's back up. If that still errors out, it will increase the timeout. If not, it opens the circuit, allowing traffic to proceed.
 
@@ -118,8 +118,6 @@ The gRPC call returns the ID of the person which is then used to update the imag
 ## NSQ
 
 NSQ is a nice little Go based queue. It can be scaled and has a minimal footprint on the system. It also has a lookup service that consumers use to receive messages, and a daemon that senders use when sending messages.
-
-TODO: Insert gif here
 
 NSQ's philosophy is that the daemon should run with the sender application. That way, the sender will send to the localhost only. But the daemon is connected to the lookup service, and that's how they achieve a global queue.
 
