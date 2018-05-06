@@ -18,7 +18,7 @@ Today, I would like demonstrate how to use [Ansible](https://www.ansible.com/) i
 
 ## TL;DR
 
-![playbook](/img/playbook.svg)
+![playbook](/img/ansible.svg)
 
 ## What you will need
 
