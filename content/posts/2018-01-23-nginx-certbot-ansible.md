@@ -16,6 +16,10 @@ Hi folks.
 
 Today, I would like demonstrate how to use [Ansible](https://www.ansible.com/) in order to construct a server hosting multiple HTTPS domains with [Nginx](https://www.nginx.com/) and [LetsEncrypt](https://letsencrypt.org/). Are you ready? Let's dive in.
 
+## TL;DR
+
+![playbook](/img/playbook.svg)
+
 ## What you will need
 
 There is really only one thing you need in order for this to work and that is Ansible. If you would like to run local tests without a remote server, than you will need [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). But those two are optional.
@@ -408,6 +412,6 @@ want one of them fail and stop the process entirely. Rather have a few fail but 
 That's it folks. Have fun setting up servers all over the place and enjoy the power of nginx and letsencrypt and not having to
 worry about adding another server into the bunch.
 
-Thank you for reading,    
+Thank you for reading,
 Gergely.
 
