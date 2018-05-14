@@ -32,11 +32,11 @@
                         Buy me a coffee
                     </a>
                 </li>
-                <li class="nav-item">
+                <div style="overflow-y: scroll; height:400px;">
                     {{ range .Data.Pages }}
-                        <a class="pure-button" href="{{ .Permalink }}"><i class="fa fa-twitter"></i>{{ .Title }}</a></br>
+                        <a href="{{ .Permalink }}">{{ .Title }}</a></br>
                     {{ end }}
-                </li>
+                </div>
             </ul>
         </nav>
     </div>
