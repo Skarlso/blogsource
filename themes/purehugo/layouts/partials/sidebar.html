@@ -32,6 +32,12 @@
                         Buy me a coffee
                     </a>
                 </li>
+                <li>
+                    <!-- Renders the li.html content view for each content/post/*.md -->
+                        {{ range .Data.Pages }}
+                            {{ .Render "li"}}
+                        {{ end }}
+                </li>
             </ul>
         </nav>
     </div>
