@@ -33,10 +33,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <!-- Renders the li.html content view for each content/post/*.md -->
-                        {{ range .Data.Pages }}
-                            {{ .Render "li"}}
-                        {{ end }}
+                    {{ range .Data.Pages }}
+                    <a class="pure-button" href="{{ .Permalink }}"><i class="fa fa-twitter"></i>{{ .Title }}</a>
+                    {{ end }}
                 </li>
             </ul>
         </nav>
