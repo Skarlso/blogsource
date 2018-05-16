@@ -2,7 +2,7 @@ box: golang
 build:
     steps:
         - arjen/hugo-build:
-            theme: purehugo
+            theme: hugo-future-imperfect
             # version: "0.14"
 deploy:
     steps:
