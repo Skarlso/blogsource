@@ -474,16 +474,16 @@ Thus, the internal DNS will look like this: `nsqlookup.default.svc.cluster.local
 
 Headless services are described in detail here: [Headless Service](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services).
 
-Basically it's the same as MySQL just with slight modifications. As stated earlier, I'm using NSQ's own Docker Image called `nsqio/nsq`. All nsq commands are there, so nsqd will also use this image just with a different command. For nsqlookupd the command is:
+Basically it's the same as MySQL, just with slight modifications. As stated earlier, I'm using NSQ's own Docker Image called `nsqio/nsq`. All nsq commands are there, so nsqd will also use this image just with a different command. For nsqlookupd, the command is:
 
 ~~~yaml
 command: ["/nsqlookupd"]
 args: ["--broadcast-address=nsqlookup.default.svc.cluster.local"]
 ~~~
 
-What's the `--broadcast-address` for, you might ask? By default, nsqlookup will use the `hostname` as broadcast address. When the consumer runs a callback it will try to connect to something like `http://nsqlookup-234kf-asdf:4161/lookup?topics=image`. Note that `nsqlookup-234kf-asdf` is the hostname of the container. By setting the broadcast-address to the internal DNS that callback will be: `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
+What's the `--broadcast-address` for, you might ask? By default, nsqlookup will use the `hostname` as broadcast address. When the consumer runs a callback it will try to connect to something like: `http://nsqlookup-234kf-asdf:4161/lookup?topics=image`. Please note that `nsqlookup-234kf-asdf` is the hostname of the container. By setting the broadcast-address to the internal DNS, the callback will be: `http://nsqlookup.default.svc.cluster.local:4161/lookup?topic=images`. Which will work as expected.
 
-NSQ Lookup also requires two ports forwarded. One for broadcasting and one for nsqd callback. These are exposed in the Dockerfile and then utilized in the Kubernetes template like this:
+NSQ Lookup also requires two ports forwarded: One for broadcasting and one for nsqd callback. These are exposed in the Dockerfile, and then utilized in the Kubernetes template. Like this:
 
 In the container template:
 
@@ -518,23 +518,23 @@ To create this service, I'm using the same command as before:
 kubectl apply -f nsqlookup.yaml
 ~~~
 
-This concludes nsqlookupd. Two of the major players are in the sack.
+This concludes nsqlookupd. Two of the major players are in the sack!
 
 ### Receiver
 
-This is a more complex one. The receiver will do three things.
+This is a more complex one. The receiver will do three things:
 
-* Create some deployments
-* Create the nsq daemon
-* Expose the service to the public
+* Create some deployments;
+* Create the nsq daemon;
+* Expose the service to the public.
 
 #### Deployments
 
-The first deployment it creates is it's own. The receiver’s container is `skarlso/kube-receiver-alpine`.
+The first deployment it creates is its own. The receiver’s container is `skarlso/kube-receiver-alpine`.
 
 #### Nsq Daemon
 
-The receiver starts an nsq daemon. Like stated earlier, the receiver runs an nsqd with it-self. It does that so talking to it can happen locally and not over the network. By making receiver do this, they will end up on the same node.
+The receiver starts an nsq daemon. As stated earlier, the receiver runs an nsqd with it-self. It does this so talking to it can happen locally and not over the network. By making the receiver do this, they will end up on the same node.
 
 NSQ daemon also needs some adjustments and parameters.
 
@@ -554,17 +554,17 @@ NSQ daemon also needs some adjustments and parameters.
 
 ~~~
 
-You can see that the lookup-tcp-address and the broadcast-address are set. Lookup tcp address is the DNS for the nsqlookupd service. And the broadcast address is necessary just like with nsqlookupd so the callbacks are working properly.
+You can see that the lookup-tcp-address and the broadcast-address are set. Lookup tcp address is the DNS for the nsqlookupd service. And the broadcast address is necessary, just like with nsqlookupd, so the callbacks are working properly.
 
 #### Public facing
 
-Now, this is the first time I'm deploying a public facing service. There are two options. I could use a LoadBalancer because this API will be under heavy load. And if this would be deployed anywhere in production, then it should be using one.
+Now, this is the first time I'm deploying a public facing service. There are two options. I could use a LoadBalancer since this API will be under heavy load. And if this would be deployed anywhere in production, then it should be using one.
 
-I'm doing this locally though- with one node- so something called a `NodePort` is enough. A `NodePort` exposes a service on each node's IP at a static port. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the template file. To reach this service, use `<NodeIP>:<NodePort>`. If more than one node is configured a LoadBalancer can multiplex them to a single IP.
+I'm doing this locally though- with one node- so something called a `NodePort` is enough. A `NodePort` exposes a service on each node's IP at a static port. If not specified, it will assign a random port on the host between 30000-32767. But it can also be configured to be a specific port, using `nodePort` in the template file. To reach this service, use `<NodeIP>:<NodePort>`. If more than one node is configured, a LoadBalancer can multiplex them to a single IP.
 
-For further information check out this document: [Publishing Services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types).
+For further information, check out this document: [Publishing Services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types).
 
-Putting this all together, we'll get a receiver-service for which the template is as follows:
+Putting this all together, we'll get a receiver-service for which the template for is as follows:
 
 ~~~yaml
 apiVersion: v1
@@ -601,7 +601,7 @@ spec:
 
 ### Image processor
 
-The Image Processor is where I'm handling passing off images to be identified. It should have access to nsqlookupd, mysql and the gRPC endpoint of the face recognition service. This is actually a boring service. In fact, it's not a service at all. It doesn't expose anything and thus it's the first deployment only component. For brevity, here is the whole template:
+The Image Processor is where I'm handling passing off images to be identified. It should have access to nsqlookupd, mysql and the gRPC endpoint of the face recognition service. This is actually quite a boring service. In fact, it's not even a service at all. It doesn't expose anything, and thus it's the first deployment only component. For brevity, here is the whole template:
 
 ~~~yaml
 ---
@@ -652,7 +652,7 @@ kubectl apply -f image_processor.yaml
 
 ### Face - Recognition
 
-The face recognition service does have a service. It's a simple one, only needed by image-processor. It's template is as follows:
+The face recognition service does have a service. It's a simple one. Only needed by image-processor. It's template is as follows:
 
 ~~~yaml
 apiVersion: v1
@@ -669,17 +669,17 @@ spec:
   clusterIP: None
 ~~~
 
-The more interesting part is that it requires two volumes. The two volumes are `known_people` and `unknown_people`. Can you guess what they will contain? Yep, images. The `known_people` volume contains all the images associated to the known people in the database. The `unknown_people` volume will contain all the new images. And that's the path we will need to use when sending images from the receiver. That is, wherever the mount point points too. Which in my case is `/unknown_people`. Basically the path needs to be one that the face recognition service can access.
+The more interesting part is that it requires two volumes. The two volumes are `known_people` and `unknown_people`. Can you guess what they will contain? Yep, images. The `known_people` volume contains all the images associated to the known people in the database. The `unknown_people` volume will contain all new images. And that's the path we will need to use when sending images from the receiver; that is wherever the mount point points too, which in my case is `/unknown_people`. Basically, the path needs to be one that the face recognition service can access.
 
-Now, with Kubernetes and Docker this is easy. It could be a mounted S3 or some kind of nfs or a local mount from host to guest. The possibilities are endless (around a dozen or so). I'm going to use a local mount for the sake of simplicity.
+Now, with Kubernetes and Docker, this is easy. It can be a mounted S3 or some kind of nfs or a local mount from host to guest. The possibilities are endless (around a dozen or so). I'm going to use a local mount for the sake of simplicity.
 
-Mounting a volume has two parts. First, the Dockerfile has to specify volumes:
+Mounting a volume is done in two parts. Firstly, the Dockerfile has to specify volumes:
 
 ~~~Dockerfile
 VOLUME [ "/unknown_people", "/known_people" ]
 ~~~
 
-Second, the Kubernetes template needs add `volumeMounts` as seen in the MySQL service; the difference being `hostPath` instead of a claimed volume:
+Secondly, the Kubernetes template needs add `volumeMounts` as seen in the MySQL service; the difference being `hostPath` instead of claimed volume:
 
 ~~~yaml
         volumeMounts:
@@ -698,7 +698,7 @@ Second, the Kubernetes template needs add `volumeMounts` as seen in the MySQL se
           type: Directory
 ~~~
 
-We also have to set the `known_people` folder config setting for face recognition. This is done via an environment property:
+We also need to set the `known_people` folder config setting for the face recognition service. This is done via an environment property:
 
 ~~~yaml
         env:
@@ -706,7 +706,7 @@ We also have to set the `known_people` folder config setting for face recognitio
           value: "/known_people"
 ~~~
 
-Then the Python code will look up images like this:
+Then the Python code will look up images, like this:
 
 ~~~python
         known_people = os.getenv('KNOWN_PEOPLE', 'known_people')
@@ -723,15 +723,15 @@ Where `image_files_in_folder` is:
 
 Neat.
 
-Now, if the receiver receives a request (and sends it off further the line) similar to the one below...
+Now, if the receiver receives a request (and sends it off further down the line) similar to the one below...
 
 ~~~bash
 curl -d '{"path":"/unknown_people/unknown220.jpg"}' http://192.168.99.100:30251/image/post
 ~~~
 
-...it will look for an image called unknown220.jpg under `/unknown_people`, locate an image in the known_folder that corresponds to the person on the unknown image and return the name of the image that matched.
+...it will look for an image called unknown220.jpg under `/unknown_people`, locate an image in the known_folder that corresponds to the person in the unknown image and return the name of the image that matches.
 
-Looking at logs you should see something like this:
+Looking at logs, you should see something like this:
 
 ~~~bash
 # Receiver
@@ -753,7 +753,7 @@ And that concludes all of the services that we need to deploy.
 
 ### Frontend
 
-Last, there is a small web-app which displays the information in the db for convenience. This is also a public facing service with the same parameters as the receiver.
+Lastly, there is a small web-app which displays the information in the db for convenience. This is also a public facing service with the same parameters as the receiver.
 
 It looks like this:
 
@@ -761,7 +761,7 @@ It looks like this:
 
 ### Recap
 
-So what is the situation so far? I deployed a bunch of services all over the place. A recap off the commands I used:
+We are now at the point in which I’ve deployed a bunch of services. A recap off the commands I’ve used so far:
 
 ~~~bash
 kubectl apply -f mysql.yaml
@@ -772,9 +772,9 @@ kubectl apply -f face_recognition.yaml
 kubectl apply -f frontend.yaml
 ~~~
 
-These could be in any order because the application does not allocate connections on start. Except for image_processor's NSQ consumer. But that re-tries.
+These could be in any order since the application does not allocate connections on start. (Except for image_processor's NSQ consumer. But that re-tries.)
 
-Query-ing kube for running pods with `kubectl get pods` should show something like this:
+Query-ing kube for running pods with `kubectl get pods` should show something like this if there were no errors:
 
 ~~~bash
 ❯ kubectl get pods
@@ -811,13 +811,13 @@ What happens during a rolling update?
 
 ![kube rotate](/img/kube_rotate.png)
 
-As it happens during software development, change is requested/needed to some parts of the system. What happens to our cluster if I would like to change one of its components without breaking the others? And also whilst maintaining backwards compatibility with no disruption to user experience. Thankfully Kubernetes can help with that.
+As it happens during software development, change is requested/needed to some parts of the system. So what happens to our cluster if I change one of its components without breaking the others whilst also maintaining backwards compatibility with no disruption to user experience? Thankfully Kubernetes can help with that.
 
-What I don't like is that the API only handles one image at a time. There is no option to bulk upload.
+What I don't like is that the API only handles one image at a time. Unfortunately there is no bulk upload option.
 
 #### Code
 
-Right now, we have the following code segment dealing with a single image:
+Currently, we have the following code segment dealing with a single image:
 
 ~~~go
 // PostImage handles a post of an image. Saves it to the database
@@ -833,15 +833,15 @@ func main() {
 }
 ~~~
 
-We have two options. Add a new endpoint with `/images/post` and make the client use that, or modify the existing one.
+We have two options: Add a new endpoint with `/images/post` and make the client use that, or modify the existing one.
 
-The new client code has the advantage that it could fall back to submitting the old way if the new endpoint isn't available. The old client code though doesn't have this advantage so we can't change the way our code works right now. Consider this. You have 90 servers. You do a slow paced rolling update that will take out servers one step at a time doing an update. If an update lasts around a minute, the whole process will take around one and a half hours to complete (not counting any parallel updates).
+The new client code has the advantage in that it can fall back to submitting the old way if the new endpoint isn't available. The old client code, however, doesn't have this advantage so we can't change the way our code works right now. Consider this: You have 90 servers and you do a slow paced rolling update that will take out servers one step at a time whilst doing an update. If an update lasts around a minute, the whole process will take around one and a half hours to complete, (not counting any parallel updates).
 
-During that time, some of your servers will run the new code and some will run the old one. Calls are load balanced, thus you have no control over what server is hit. If a client is trying to do a call the new way but hits an old server the client would fail. The client could try a fallback, but since you eliminated the old version it will not succeed unless it, by chance, hits a server with the new code (assuming no sticky sessions are set).
+During this time, some of your servers will run the new code and some will run the old one. Calls are load balanced, thus you have no control over which servers will be hit. If a client is trying to do a call the new way but hits an old server, the client will fail. The client can try and fallback, but since you eliminated the old version it will not succeed unless it, by mere chance, hits a server with the new code (assuming no sticky sessions are set).
 
-Also, once all your servers are updated, an old client will not be able to use your service any longer at all.
+Also, once all your servers are updated, an old client will not be able to use your service any longer.
 
-Now, you could argue that you don't want to keep old versions of your code forever. And that is true in some sense. That's why what we are going to do is modify the old code to simply call the new one with some slight augmentations. This way once all clients have been migrated, the code can simply be deleted without any problems.
+Now, you can argue that you don't want to keep old versions of your code forever. And that’s true in a sense. That's why we are going to modify the old code to simply call the new one with some slight augmentations. This way, once all clients have been migrated, the code can simply be deleted without any problems.
 
 #### New Endpoint
 
@@ -853,7 +853,7 @@ router.HandleFunc("/images/post", PostImages).Methods("POST")
 ...
 ~~~
 
-And updating the old one to call the new one with a modified body like this:
+Updating the old one to call the new one with a modified body looks like this:
 
 ~~~go
 // PostImage handles a post of an image. Saves it to the database
@@ -882,9 +882,9 @@ func PostImage(w http.ResponseWriter, r *http.Request) {
 }
 ~~~
 
-Well, the naming could be better, but you should get the basic idea. I'm modifying the incoming single path by wrapping it into the new format and sending it over to the new endpoint handler. And that's it. There are a few more modifications, to check them out take a look at this PR: [Rolling Update Bulk Image Path PR](https://github.com/Skarlso/kube-cluster-sample/pull/1).
+Well, the naming could be better, but you should get the basic idea. I'm modifying the incoming single path by wrapping it into the new format and sending it over to the new endpoint handler. And that's it! There are a few more modifications. To check them out, take a look at this PR: [Rolling Update Bulk Image Path PR](https://github.com/Skarlso/kube-cluster-sample/pull/1).
 
-Now, we can call the receiver in two ways:
+Now, the receiver can be called in two ways:
 
 ~~~bash
 # Single Path:
@@ -894,9 +894,9 @@ curl -d '{"path":"unknown4456.jpg"}' http://127.0.0.1:8000/image/post
 curl -d '{"paths":[{"path":"unknown4456.jpg"}]}' http://127.0.0.1:8000/images/post
 ~~~
 
-Here, the client is curl. Normally, if the client would be a service, I would modify it that in case the new end-point throws a 404 it would try the old one next.
+Here, the client is curl. Normally, if the client is a service, I would modify it that in case the new end-point throws a 404 it would try the old one next.
 
-For brevity, I'm not modifying NSQ and the others to handle bulk image processing. They will still receive it one - by - one. I'll leave that up to you as homework. ;)
+For brevity, I'm not modifying NSQ and the others to handle bulk image processing; they will still receive it one by one. I'll leave that up to you as homework ;)
 
 #### New Image
 
@@ -910,11 +910,11 @@ Once this is complete, we can begin rolling out the change.
 
 #### Rolling update
 
-In Kubernetes, you can configure your rolling update in multiple ways.
+In Kubernetes, you can configure your rolling update in multiple ways:
 
 ##### Manual Update
 
-If, say, I was using a container version in my config file called `v1.0` than doing an update is simply calling:
+If I was using a container version in my config file called `v1.0`, then doing an update is simply calling:
 
 ~~~bash
 kubectl rolling-update receiver --image:skarlso/kube-receiver-alpine:v1.1
@@ -926,19 +926,19 @@ If there is a problem during the rollout we can always rollback.
 kubectl rolling-update receiver --rollback
 ~~~
 
-It will set back the previous version no fuss, no muss.
+It will set back the previous version. No fuss, no muss.
 
 ##### Apply a new configuration file
 
-The problem with by-hand updates is always that they aren't in source control.
+The problem with by-hand updates is that they aren't in source control.
 
-Consider this. Something changed, a couple of servers got updated by hand to do a quick “patch fix”, but nobody witnessed it and it wasn’t documented. A new person comes along and does a change to the template and applies the template to the cluster. All the servers are updated, but suddenly, there is a service outage.
+Consider this: Something has changed, A couple of servers got updated by hand to do a quick “patch fix”, but nobody witnessed it and it wasn’t documented. A new person comes along and does a change to the template and applies the template to the cluster. All the servers are updated, and then all of a sudden there is a service outage.
 
-Long story short, the servers which got updated are whacked over because the template didn't reflect what has been done by hand. That is bad. Don't do that.
+Long story short, the servers which got updated are written over because the template doesn’t  reflect what has been done manually.
 
-The recommended way is to change the template to use the new version and than apply the template with the `apply` command.
+The recommended way is to change the template in order to use the new version, and than apply the template with the `apply` command.
 
-Kubernetes recommends that the Deployment handles the rollout with ReplicaSets. This means however, that there must be at least two replicates present for a rolling update. Otherwise the update won't work (unless `maxUnavailable` is set to 1). I'm increasing the replica count in the yaml and I set the new image version for the receiver container.
+Kubernetes recommends that a Deployment with ReplicaSets should handle a rollout. This means there must be at least two replicates present for a rolling update. If less than two replicates are present then the update won't work (unless `maxUnavailable` is set to 1). I increase the replica count in yaml. I also set the new image version for the receiver container.
 
 ~~~yaml
   replicas: 2
@@ -950,7 +950,7 @@ Kubernetes recommends that the Deployment handles the rollout with ReplicaSets. 
 ...
 ~~~
 
-Looking at the progress you should see something like this:
+Looking at the progress, this is what you should see :
 
 ~~~bash
 ❯ kubectl rollout status deployment/receiver-deployment
@@ -967,15 +967,15 @@ You can add in additional rollout configuration settings by specifying the `stra
       maxUnavailable: 0
 ~~~
 
-Additional information on rolling update can be found in these documents: [Deployment Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-back-a-deployment), [Updating a Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment), [Manage Deployments](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#updating-your-application-without-a-service-outage), [Rolling Update using ReplicaController](https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/).
+Additional information on rolling update can be found in the below documents: [Deployment Rolling Update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-back-a-deployment), [Updating a Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#updating-a-deployment), [Manage Deployments](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#updating-your-application-without-a-service-outage), [Rolling Update using ReplicaController](https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller/).
 
-**NOTE MINIKUBE USERS**: Since we are doing this on a local machine with one node and 1 replica of an application, we have to set `maxUnavailable` to `1`. Otherwise, Kubernetes won't allow the update to happen and the new version will always be in `Pending` state since we aren't allowing that at any given point in time there is a situation where no containers are present for `receiver` app.
+**NOTE MINIKUBE USERS**: Since we are doing this on a local machine with one node and 1 replica of an application, we have to set `maxUnavailable` to `1`; otherwise Kubernetes won't allow the update to happen, and the new version will remain in `Pending` state. That’s because we aren’t allowing for a services to exist with no running containers; which basically means service outage.
 
 ### Scaling
 
-Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically, just have to put a number into the template of the desired replicas to use.
+Scaling is dead easy with Kubernetes. Since it's managing the whole cluster, you basically just need to put a number into the template of the desired replicas to use.
 
-This has been a great post so far but it's getting too long. I'm planning on writing a follow-up where I will be truly scaling things up on AWS with multiple nodes and replicas. Stay tuned.
+This has been a great post so far, but it's getting too long. I'm planning on writing a follow-up where I will be truly scaling things up on AWS with multiple nodes and replicas; plus deploying a Kubernetes cluster with [Kops](https://github.com/kubernetes/kops). So stay tuned!
 
 ### Cleanup
 
@@ -986,11 +986,11 @@ kubectl delete services -all
 
 # Final Words
 
-And that is it ladies and gentleman. We wrote, deployed, updated and scaled (well, not yet really) a distributed application with Kubernetes.
+And that’s it ladies and gentlemen. We wrote, deployed, updated and scaled (well, not yet really) a distributed application with Kubernetes.
 
-Any questions, please feel free to chat in the comments below, I'm happy to answer.
+If you have any questions, please feel free to chat in the comments below. I'm happy to answer.
 
-I hope you enjoyed reading this. I know, it's quiet long and I was thinking of splitting it up, but having a cohesive, one page guide is sometimes useful and makes it easy to find something or save it for later read or even print as PDF.
+I hope you’ve enjoyed reading this. I know it's quite long; I was thinking of splitting it up multiple posts, but having a cohesive, one page guide is useful and makes it easy to find, save, and print.
 
 Thank you for reading,
 Gergely.
