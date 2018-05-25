@@ -992,5 +992,6 @@ If you have any questions, please feel free to chat in the comments below. I'm h
 
 I hope you’ve enjoyed reading this. I know it's quite long; I was thinking of splitting it up multiple posts, but having a cohesive, one page guide is useful and makes it easy to find, save, and print.
 
-Thank you for reading,
-Gergely.
+Thank you for reading,    
+Gergely.    
+
