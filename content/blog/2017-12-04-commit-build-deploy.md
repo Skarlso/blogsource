@@ -5,7 +5,6 @@ date = "2017-12-04T22:34:00+01:00"
 type = "post"
 title = "Commit-Build-Deploy With AWS CodeBuild and Lambda"
 url = "/2017/12/04/commit-build-deploy"
-
 +++
 
 # Intro

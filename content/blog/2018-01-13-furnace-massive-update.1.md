@@ -5,7 +5,6 @@ date = "2018-01-13T22:34:00+01:00"
 type = "post"
 title = "Huge Furnace Update"
 url = "/2018/01/13/furnace-massive-update"
-
 +++
 
 # Intro
