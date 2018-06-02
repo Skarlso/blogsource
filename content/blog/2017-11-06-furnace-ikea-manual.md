@@ -5,7 +5,11 @@ date = "2017-11-06T20:34:00+01:00"
 type = "post"
 title = "Furnace Ikea Manual"
 url = "/2017/11/06/furnace-ikea-manual"
-
+description = ""
+featured = ""
+featuredalt = ""
+featuredpath = ""
+linktitle = ""
 +++
 
 Hi there folks.

@@ -5,6 +5,11 @@ date = "2017-05-28T19:23:00+01:00"
 type = "post"
 title = "Replacing Eval with Object.send and a self written Parser"
 url = "/2017/05/28/replace-eval-with-object-send-and-a-parser"
+description = ""
+featured = ""
+featuredalt = ""
+featuredpath = ""
+linktitle = ""
 
 +++
 
