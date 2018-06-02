@@ -5,6 +5,11 @@ date = "2018-01-13T22:34:00+01:00"
 type = "post"
 title = "Huge Furnace Update"
 url = "/2018/01/13/furnace-massive-update"
+description = ""
+featured = ""
+featuredalt = ""
+featuredpath = ""
+linktitle = ""
 +++
 
 # Intro
@@ -157,12 +162,12 @@ The intelligent part is, that this file could be placed anywhere in the project 
 
 Consider the following directory tree:
 
-├── docs   
-│   ├── `furnace-aws status mydatabase`   
-├── stacks   
-│   ├── mystack.template   
-│   └── mystack.yaml   
-└── .mydatabase.furnace   
+├── docs
+│   ├── `furnace-aws status mydatabase`
+├── stacks
+│   ├── mystack.template
+│   └── mystack.yaml
+└── .mydatabase.furnace
 
 You are currently in your `docs` directory and would like to ask for the status of your database. You don't have to move to the location of the setting file, just simply run the command from where you are. This only works if you are above the location of the file. If you would be below, furnace would say it can't find the file. Because it only traverses upwards.
 
