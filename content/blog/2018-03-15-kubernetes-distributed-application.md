@@ -5,7 +5,11 @@ date = "2018-03-15T23:01:00+01:00"
 type = "post"
 title = "Kubernetes distributed application deployment with sample Face Recognition App"
 url = "/2018/03/15/kubernetes-distributed-application"
-
+description = ""
+featured = ""
+featuredalt = ""
+featuredpath = ""
+linktitle = ""
 +++
 
 # Intro
@@ -138,7 +142,7 @@ What **is** Kubernetes?
 
 I'm going to cover some of the basics here. I won't go too much into detail-  that would require a whole book like this one: [Kubernetes Up And Running](http://shop.oreilly.com/product/0636920043874.do). Also, if you’re daring enough, you can have a look through this documentation: [Kubernetes Documentation](https://kubernetes.io/docs/).
 
-Kubernetes is a containerized service and application manager. It scales easily, employs a swarm of containers, and most importantly, it's highly configurable via yaml based template files. People often compare Kubernetes to Docker swarm, but Kubernetes does way more than that! For example: it's container agnostic. You could use LXC with Kubernetes and it would work the same way as you using it with Docker. It provides a layer above managing a cluster of deployed services and applications. How? Let's take a quick look at the building blocks of Kubernetes. 
+Kubernetes is a containerized service and application manager. It scales easily, employs a swarm of containers, and most importantly, it's highly configurable via yaml based template files. People often compare Kubernetes to Docker swarm, but Kubernetes does way more than that! For example: it's container agnostic. You could use LXC with Kubernetes and it would work the same way as you using it with Docker. It provides a layer above managing a cluster of deployed services and applications. How? Let's take a quick look at the building blocks of Kubernetes.
 
 In Kubernetes, you’ll describe a desired state of the application and Kubernetes will do what it can to reach that state. States could be something such as deployed; paused; replicated twice; and so on and so forth.
 
@@ -992,6 +996,6 @@ If you have any questions, please feel free to chat in the comments below. I'm h
 
 I hope you’ve enjoyed reading this. I know it's quite long; I was thinking of splitting it up multiple posts, but having a cohesive, one page guide is useful and makes it easy to find, save, and print.
 
-Thank you for reading,    
-Gergely.    
+Thank you for reading,
+Gergely.
 
