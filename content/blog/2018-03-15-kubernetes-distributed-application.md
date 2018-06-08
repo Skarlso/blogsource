@@ -6,9 +6,9 @@ type = "post"
 title = "Kubernetes distributed application deployment with sample Face Recognition App"
 url = "/2018/03/15/kubernetes-distributed-application"
 description = ""
-featured = ""
-featuredalt = ""
-featuredpath = ""
+featured = "kube_overview.png"
+featuredalt = "Kubernetes Overview"
+featuredpath = "date"
 linktitle = ""
 +++
 

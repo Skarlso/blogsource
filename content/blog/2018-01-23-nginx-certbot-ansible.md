@@ -5,7 +5,11 @@ date = "2018-01-23T22:34:00+01:00"
 type = "post"
 title = "Ansible + Nginx + LetsEncrypt + Wiki + Nagios"
 url = "/2018/01/23/nginx-certbot-ansible"
-
+description = ""
+featured = "ansible.svg"
+featuredalt = "Ansible"
+featuredpath = "date"
+linktitle = ""
 +++
 
 # Intro

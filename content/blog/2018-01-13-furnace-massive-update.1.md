@@ -6,9 +6,9 @@ type = "post"
 title = "Huge Furnace Update"
 url = "/2018/01/13/furnace-massive-update"
 description = ""
-featured = ""
-featuredalt = ""
-featuredpath = ""
+featured = "furnace.png"
+featuredalt = "Furnace"
+featuredpath = "date"
 linktitle = ""
 +++
 
