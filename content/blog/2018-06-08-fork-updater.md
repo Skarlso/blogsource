@@ -6,9 +6,9 @@ type = "post"
 title = "Keep your git forks updated all the time"
 url = "/2018/06/08/fork-updater"
 description = "Keep your git forks updated"
-featured = "Octokit"
+featured = "git_updater.png"
 featuredalt = "Octokit"
-featuredpath = "/img/git_updater.png"
+featuredpath = "date"
 linktitle = ""
 +++
 
