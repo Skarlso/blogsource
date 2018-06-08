@@ -8,7 +8,7 @@ url = "/2018/06/08/fork-updater"
 description = "Keep your git forks updated"
 featured = "Octokit"
 featuredalt = "Octokit"
-featuredpath = "git_updater.png"
+featuredpath = "/img/git_updater.png"
 linktitle = ""
 +++
 
