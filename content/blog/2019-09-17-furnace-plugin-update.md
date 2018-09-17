@@ -1,7 +1,7 @@
 +++
 author = "hannibal"
 categories = ["Golang", "Furnace"]
-date = "2018-09-17T19:01:00+01:00"
+date = "2018-09-17T07:01:00+01:00"
 type = "post"
 title = "Furnace with a new Plugin System"
 url = "/2018/09/17/furnace-plugin-update"
