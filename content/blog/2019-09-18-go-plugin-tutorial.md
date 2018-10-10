@@ -71,32 +71,13 @@ We'll come back to this later. Sufice to say, that the framework will pick this 
 
 #### NewClient
 
-~~~go
-	// We're a host! Start by launching the plugin process.
-	client := plugin.NewClient(&plugin.ClientConfig{
-		HandshakeConfig: handshakeConfig,
-		Plugins:         pluginMap,
-		Cmd:             exec.Command("./plugin/greeter"),
-		Logger:          logger,
-	})
-	defer client.Kill()
-~~~
+![newclient](/img/go-plugin/new_client.png)
 
 What is happening here? Let's see one by one.
 
 `HandshakeConfig: handshakeConfig,`: This part is the handshake configuration of the plugin. This part of the code has a nice comment as well.
 
-~~~go
-// handshakeConfigs are used to just do a basic handshake between
-// a plugin and host. If the handshake fails, a user friendly error is shown.
-// This prevents users from executing bad plugins or executing a plugin
-// directory. It is a UX feature, not a security feature.
-var handshakeConfig = plugin.HandshakeConfig{
-	ProtocolVersion:  1,
-	MagicCookieKey:   "BASIC_PLUGIN",
-	MagicCookieValue: "hello",
-}
-~~~
+![handshake](/img/go-plugin/handshake.png)
 
 The `ProtocolVersion` here is used in order to maintain compatibility with your current plugin versions. It's basically like an API version. If you increase this, you have two options. Don't accept lower protocol versions or switch on the version number and use a different client implementation for a lower version than for a higher version.
 
@@ -108,36 +89,19 @@ The `Cmd` here is the key. Basically how plugins work is, that they boil down to
 
 And last but not least is the `Plugins` map. This map is used in order to identify a plugin to call by dispense. This map is globally available and must stay consistent in order for all the plugins to work. This map will be used like this:
 
-~~~go
-// pluginMap is the map of plugins we can dispense.
-var pluginMap = map[string]plugin.Plugin{
-	"greeter": &example.GreeterPlugin{},
-}
-~~~
+![pluginmap](/img/go-plugin/plugin_map.png)
 
 You can see that the key is the name of the plugin and the value is the plugin.
 
 We then proceed to create an RPC client.
 
-~~~go
-// Connect via RPC
-rpcClient, err := client.Client()
-if err != nil {
-    log.Fatal(err)
-}
-~~~
+![rpcclient](/img/go-plugin/rpc_client.png)
 
 Nothing fancy about this one...
 
 Now comes the interesting part.
 
-~~~go
-// Request the plugin
-raw, err := rpcClient.Dispense("greeter")
-if err != nil {
-    log.Fatal(err)
-}
-~~~
+![dispense](/img/go-plugin/dispense.png)
 
 What's happening here? Dispense will look in the above created map and search for the plugin. If it cannot find it it will throw and error at us. If it does find it, it will cast this plugin to an RPC or a GRPC type plugin. Then proceeds to create an RPC or a GRPC client out of it.
 
@@ -145,12 +109,7 @@ There is no call yet. This is just creating a client and parsing it to a respect
 
 Now comes the magic:
 
-~~~go
-// We should have a Greeter now! This feels like a normal interface
-// implementation but is in fact over an RPC connection.
-greeter := raw.(example.Greeter)
-fmt.Println(greeter.Greet())
-~~~
+![rawtypeassert](/img/go-plugin/raw_type_assert.png)
 
 Here, we are type asserting our raw GRPC client into our own plugin type. This is so we can call the respective function on the plugin! Once that's done we will have a {client,struct,implementation} that can be called like a simple function.
 
