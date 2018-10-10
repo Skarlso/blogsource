@@ -120,11 +120,11 @@ You can see that the key is the name of the plugin and the value is the plugin.
 We then proceed to create an RPC client.
 
 ~~~go
-	// Connect via RPC
-	rpcClient, err := client.Client()
-	if err != nil {
-		log.Fatal(err)
-    }
+// Connect via RPC
+rpcClient, err := client.Client()
+if err != nil {
+    log.Fatal(err)
+}
 ~~~
 
 Nothing fancy about this one...
@@ -132,11 +132,11 @@ Nothing fancy about this one...
 Now comes the interesting part.
 
 ~~~go
-	// Request the plugin
-	raw, err := rpcClient.Dispense("greeter")
-	if err != nil {
-		log.Fatal(err)
-    }
+// Request the plugin
+raw, err := rpcClient.Dispense("greeter")
+if err != nil {
+    log.Fatal(err)
+}
 ~~~
 
 What's happening here? Dispense will look in the above created map and search for the plugin. If it cannot find it it will throw and error at us. If it does find it, it will cast this plugin to an RPC or a GRPC type plugin. Then proceeds to create an RPC or a GRPC client out of it.
@@ -146,12 +146,14 @@ There is no call yet. This is just creating a client and parsing it to a respect
 Now comes the magic:
 
 ~~~go
-	// We should have a Greeter now! This feels like a normal interface
-	// implementation but is in fact over an RPC connection.
-	greeter := raw.(example.Greeter)
-    fmt.Println(greeter.Greet())
+// We should have a Greeter now! This feels like a normal interface
+// implementation but is in fact over an RPC connection.
+greeter := raw.(example.Greeter)
+fmt.Println(greeter.Greet())
 ~~~
 
 Here, we are type asserting our raw GRPC client into our own plugin type. This is so we can call the respective function on the plugin! Once that's done we will have a {client,struct,implementation} that can be called like a simple function.
 
-The implementation itself will come from protoc generated code.
+The implementation right now comes from greeter_impl.go, but that will change once protoc makes the scene.
+
+This concludes main.go for now.
