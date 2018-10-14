@@ -116,3 +116,180 @@ Here, we are type asserting our raw GRPC client into our own plugin type. This i
 The implementation right now comes from greeter_impl.go, but that will change once protoc makes the scene.
 
 This concludes main.go for now.
+
+### The Interface
+
+Okay, now lets investigate the Interface. The interface is used to provide calling details. This interface will be what defines our plugins capabilities. How does our `Greeter` look like?
+
+~~~go
+// Greeter is the interface that we're exposing as a plugin.
+type Greeter interface {
+	Greet() string
+}
+~~~
+
+This is pretty simple. It defines a function which will return a string typed value.
+
+Now, we need a couple of things for this to work. First, we need something which defines the RPC workings. go-plugin is working with `net/http` inside. Also, uses something called Yamux for connection multiplexing, but we need not worry about this detail.
+
+Implementing the RPC details looks like this:
+
+~~~go
+// Here is an implementation that talks over RPC
+type GreeterRPC struct {
+    client *rpc.Client
+}
+
+func (g *GreeterRPC) Greet() string {
+	var resp string
+	err := g.client.Call("Plugin.Greet", new(interface{}), &resp)
+	if err != nil {
+		// You usually want your interfaces to return errors. If they don't,
+		// there isn't much other choice here.
+		panic(err)
+	}
+
+	return resp
+}
+~~~
+
+Here, the GreeterRPC struct is an RPC specific implementation that will handle communication over RPC. This is the Client in this setup.
+
+In case of gRPC this would look something like this:
+
+~~~go
+// GRPCClient is an implementation of KV that talks over RPC.
+type GreeterGRPC struct{ client proto.GreeterClient }
+
+func (m *GreeterGRPC) Greet() (string, error) {
+    s, err := m.client.Greet(context.Background(), &proto.Empty{})
+	return s, err
+}
+~~~
+
+What is happening here? What's proto and what's GreeterClient? GRPC uses Google's protoc library to serialize and unserialize data. `proto.GreeterClient` is generated Go code, by protoc. This code is a skeleton for which implementation detail will be replaced on run time. Well, the actual result will be used, not replaced as such.
+
+Back to our example though. The RPC client calls a specific Plugin function called Greet, for which the implentation will be provided by a Server that will be streamed back over the RPC protocol.
+
+The server is pretty easy to follow:
+
+~~~go
+// Here is the RPC server that GreeterRPC talks to, conforming to
+// the requirements of net/rpc
+type GreeterRPCServer struct {
+	// This is the real implementation
+	Impl Greeter
+}
+~~~
+
+Impl is the concrete implementation that will be called in the Server's implementation of the Greet plugin. Meanwhile we need to call the implementations concrete implementation for which the result will be returned. This looks like this:
+
+~~~go
+func (s *GreeterRPCServer) Greet(args interface{}, resp *string) error {
+	*resp = s.Impl.Greet()
+	return nil
+}
+~~~
+
+This is all still boilerplate for the RPC works. Now comes the plugin. For this the comment is actually quiet good too:
+
+~~~go
+// This is the implementation of plugin.Plugin so we can serve/consume this
+//
+// This has two methods: Server must return an RPC server for this plugin
+// type. We construct a GreeterRPCServer for this.
+//
+// Client must return an implementation of our interface that communicates
+// over an RPC client. We return GreeterRPC for this.
+//
+// Ignore MuxBroker. That is used to create more multiplexed streams on our
+// plugin connection and is a more advanced use case.
+type GreeterPlugin struct {
+	// Impl Injection
+	Impl Greeter
+}
+
+func (p *GreeterPlugin) Server(*plugin.MuxBroker) (interface{}, error) {
+	return &GreeterRPCServer{Impl: p.Impl}, nil
+}
+
+func (GreeterPlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
+	return &GreeterRPC{client: c}, nil
+}
+~~~
+
+What does this mean? So, remember, `GreeterRPCServer` is the one calling the actual implementation. While Client is receiving the result of that call. The `GreeterPlugin` has the `Greeter` interface embeded just like the `RPCServer`. We will use the `GreeterPlugin` as a struct in the plugin map. This is our plugin that we will actually use.
+
+This is all still common stuff. These thing will need to be visible for both. The plugin's implementation which will use the interface to see what it needs to implement? What's required for it to be called? And the caller code, which needs these details in order to see what to call and what API is available? Like, `Greet`.
+
+How does the implenentation look like after this?
+
+### The Implementation
+
+In a completely separate package, but which still has access to the interface definition this plugin could be something like this:
+
+~~~go
+// Here is a real implementation of Greeter
+type GreeterHello struct {
+	logger hclog.Logger
+}
+
+func (g *GreeterHello) Greet() string {
+	g.logger.Debug("message from GreeterHello.Greet")
+	return "Hello!"
+}
+~~~
+
+We create a struct and then add the function to it which is defined by the plugin's interface. This interface, since it's required by both parties, could well sit in a common package outside of both programs. Something like an SDK. Both code could import it and use it as a common dependency. This way, we have separated the interface from the plugin **and** the calling client.
+
+The `main` function could look something like this:
+
+~~~go
+logger := hclog.New(&hclog.LoggerOptions{
+    Level:      hclog.Trace,
+    Output:     os.Stderr,
+    JSONFormat: true,
+})
+
+greeter := &GreeterHello{
+    logger: logger,
+}
+// pluginMap is the map of plugins we can dispense.
+var pluginMap = map[string]plugin.Plugin{
+    "greeter": &example.GreeterPlugin{Impl: greeter},
+}
+
+logger.Debug("message from plugin", "foo", "bar")
+
+plugin.Serve(&plugin.ServeConfig{
+    HandshakeConfig: handshakeConfig,
+    Plugins:         pluginMap,
+})
+~~~
+
+Notice two thing that we need. One, is the `handshakeConfig`. You either define it here, with the same cookie details as you defined in the client code, or you also extract the handshake information into the SDK. That's up to you.
+
+Then the next interesting thing is the `plugin.Serve` method. This is where the magic happens. The plugins open up an RPC communication socket and over a hijacked `stdout` broadcasts it's availability to the calling Client in this format:
+
+~~~bash
+CORE-PROTOCOL-VERSION | APP-PROTOCOL-VERSION | NETWORK-TYPE | NETWORK-ADDR | PROTOCOL
+~~~
+
+For Go plugins, you don't have to concern yourself with this. `go-plugin` takes care of all of this. For non-go versions we'll have to take this into account though. And before calling server we need to output this information to `stdout`.
+
+For example a Python plugin must deal with this himself, something like this:
+
+~~~python
+# Output information
+print("1|1|tcp|127.0.0.1:1234|grpc")
+sys.stdout.flush()
+~~~
+
+For GRPC plugins it's also mandatory to implement a HealthChecker.
+
+How would all this look like with GRPC though?
+
+It gets slightly more complicated but not much. We need to use `protoc` to create a protocol description for our implementaion and then call that. Let's look at this now by converting the basic greeter example into GRPC.
+
+# GRPC Basic plugin
+
