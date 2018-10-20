@@ -293,3 +293,220 @@ It gets slightly more complicated but not much. We need to use `protoc` to creat
 
 # GRPC Basic plugin
 
+The example that's under GRPC is quiet elaborate and perhaps you don't need the Python part. I will try to focus on GRPCfying the basic example. That should be less of a problem.
+
+## The API
+
+First and formost, you will need to define an API to implement with `protoc`. For our basic example, the protoc file could look something like this:
+
+~~~proto3
+syntax = "proto3";
+package proto;
+
+message GreetResponse {
+    string message = 1;
+}
+
+message Empty {}
+
+service GreeterService {
+    rpc Greet(Empty) returns (GreetResponse);
+}
+~~~
+
+The syntax is quiet simple and readable. What this defines is a message, which is a response, that will contain a `message` with the type `string`. The `service` defines a service which has a method called `Greet`. The service definition is basically an interface for which we will be providing the concrete implementation through the plugin.
+
+To read more about protoc visit this page: [Google Protocol Buffer](https://developers.google.com/protocol-buffers/).
+
+## Generate the code
+
+Now, with the protoc definition in hand, we need to generate the stubs that the local client implemention can call. That client call will then through remote prodecure call, call the right function on the server which will have the concrete implementation at the read, run it, and return the result in the specified format. Becuase the stub needs to be available by both parties, the client AND the server, this needs to live in a shared location.
+
+Why? Because the client is calling the stub, the server is implementing the stub. Both need it in order to know what to call/implement.
+
+To generate the code, run this command:
+
+~~~bash
+protoc -I proto/ proto/greeter.proto --go_out=plugins=grpc:proto
+~~~
+
+I encourage you to read the generated code. Much of it will make little sense at first. It will have a bunch of structs and defined things that the GRPC package will use in order to server the function. The interesting bits and pieces are:
+
+~~~go
+func (m *GreetResponse) GetMessage() string {
+	if m != nil {
+		return m.Message
+	}
+	return ""
+}
+~~~
+
+Which will get use the message inside the response.
+
+~~~go
+type GreeterServiceClient interface {
+	Greet(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GreetResponse, error)
+}
+~~~
+
+The Service client which will use for the Client. The `Greet` function which we will call.
+
+And lastly this guy:
+
+~~~go
+func RegisterGreeterServiceServer(s *grpc.Server, srv GreeterServiceServer) {
+	s.RegisterService(&_GreeterService_serviceDesc, srv)
+}
+~~~
+
+Which we will need in order to register our implementation for the server. We can ignore the rest.
+
+## The interface
+
+Much like for RPC we will need to define an interface for the client and server to use. This must be in a shared place as both the server and the client need to know about it. You could put this into an SDK and your peers could just get the SDK and implement some function you define and done. The interface definition in the GRPC land could look something like this:
+
+~~~go
+// Greeter is the interface that we're exposing as a plugin.
+type Greeter interface {
+	Greet() string
+}
+
+// This is the implementation of plugin.GRPCPlugin so we can serve/consume this.
+type GreeterGRPCPlugin struct {
+	// GRPCPlugin must still implement the Plugin interface
+	plugin.Plugin
+	// Concrete implementation, written in Go. This is only used for plugins
+	// that are written in Go.
+	Impl Greeter
+}
+
+func (p *GreeterGRPCPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+	proto.RegisterGreeterServer(s, &GRPCServer{Impl: p.Impl})
+	return nil
+}
+
+func (p *GreeterGRPCPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	return &GRPCClient{client: proto.NewGreeterClient(c)}, nil
+}
+~~~
+
+With this, we have the Plugin's implementation for hashicorp what needed to be done. The plugin will call the underlying implementation and server / consume the plugin. We can now write the GRPC part of it.
+
+Note that `proto` is a shared library from where the protocol stubs reside. That needs to be somewhere on the path or in a separate SDK of some sort but it needs to be visible.
+
+## Writing the GRPC Client
+
+Firstly we define the grpc client struct.
+
+~~~go
+// GRPCClient is an implementation of Greeter that talks over RPC.
+type GRPCClient struct{ client proto.GreeterClient }
+~~~
+
+Then we define how the client will call the remote function.
+
+~~~go
+func (m *GRPCClient) Greet() string {
+	ret, _ := m.client.Greet(context.Background(), &proto.Empty{})
+	return ret.Message
+}
+~~~
+
+This will take the `client` in the `GRPCClient` and call the method on it. Once that's done we return the result's `Message` property which will be `Hello!`. `proto.Empty` is an empty struct. We use this if there is no parameter for a defined method or no return value. We can't just leave it blank. `protoc` needs to be told explicitly that there is no parameter or return value.
+
+## Writing the GRPC Server
+
+The server implementation will also be similar. We call `Impl` here which will have our concrete plugin implementation.
+
+~~~go
+// Here is the gRPC server that GRPCClient talks to.
+type GRPCServer struct {
+	// This is the real implementation
+	Impl Greeter
+}
+
+func (m *GRPCServer) Greet(
+	ctx context.Context,
+	req *proto.Empty) *proto.GreeterResponse {
+	v := m.Impl.Greet()
+	return &proto.GreeterResponse{Message: v}
+}
+~~~
+
+And we use the `protoc` defined message response. `v` will have the response from `Greet` here which will be `Hello!` provided by the concrete plugin's implementation. We then tranform that into a protoc type by setting the `Message` property on the `GreeterResponse` struct provided by the automatically generated protoc stub code.
+
+Easy, eh?
+
+## Writing the plugin itself
+
+The whole thing looks much like the RPC implementation with a few small modifications and changes. This thing can sit completely outside of everything or even been provided by a thrid party implementor.
+
+~~~go
+// Here is a real implementation of KV that writes to a local file with
+// the key name and the contents are the value of the key.
+type Greeter struct{}
+
+func (Greeter) Greet() error {
+	return "Hello!"
+}
+
+func main() {
+	plugin.Serve(&plugin.ServeConfig{
+		HandshakeConfig: shared.Handshake,
+		Plugins: map[string]plugin.Plugin{
+			"greeter": &shared.GreeterGRPCPlugin{Impl: &Greeter{}},
+		},
+
+		// A non-nil value here enables gRPC serving for this plugin...
+		GRPCServer: plugin.DefaultGRPCServer,
+	})
+}
+~~~
+
+## Calling it all in the main
+
+Once all that is done, the `main` function looks the same as RPC's main, but with some small modifications.
+
+~~~go
+	// We're a host. Start by launching the plugin process.
+	client := plugin.NewClient(&plugin.ClientConfig{
+		HandshakeConfig: shared.Handshake,
+		Plugins:         shared.PluginMap,
+		Cmd:             exec.Command("./plugin/greeter"),
+		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
+	})
+~~~
+
+The `NewClient` now defines `AllowedProtocols` to be `ProtocolGRPC`. The rest is the same as before calling `Dispense` and value hinting the plugin to the correct type then calling `Greet()`.
+
+# Conclusion
+
+And this is it. We made it. Now our plugin works over GRPC with a defined API by protoc. The plugin's implementation can live where ever we want, but it needs some shared data. These are:
+
+
+* The generated code by `protoc`
+* The defined plugin interface
+* The GRPC Server and Client
+
+These need to be visible by both the Client and the Server. The Server here is the plugin. If you are planning on making people be able to extend your application with go-plugin, you should make these available as a separate SDK. So people won't have to include your whole project just to implement an interface and use protoc. In fact, you could also extract the `protoc` definition into a separate repository so that your SDK can also pull it in.
+
+You'd have three repositories.
+
+
+* Your application
+* The SDK providing the interface and the GRPC Server and Client implementation
+* The protoc definition file and generated skeleton ( for Go based plugins )
+
+Other languages would have to generate their on protoc code and include it into the plugin. Like the Python implementation example location hered: [Go-plugin Python Example](https://github.com/hashicorp/go-plugin/tree/master/examples/grpc/plugin-python). Also, read this documentation carefully, [non-go go-plugin](https://github.com/hashicorp/go-plugin/blob/master/docs/guide-plugin-write-non-go.md). This also will clarify what `1|1|tcp|127.0.0.1:1234|grpc` this meant and will clear some confusion around how plugins work.
+
+Lastely, if you would like to have an in-depth explanation about how go-plugin came to be, watch this video by Mitchell:
+
+[go-plugin explanation video](https://www.youtube.com/watch?v=SRvm3zQQc1Q).
+
+I must warn you though it's an hour long. But worth the watch!
+
+That's it. I hope this helped somewhat to clear the confusion around how to use go-plugin.
+
+Happy plugging.
+
+Gergely.
