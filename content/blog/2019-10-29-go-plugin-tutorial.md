@@ -1,3 +1,18 @@
++++
+author = "hannibal"
+categories = ["Golang", "go-plugin"]
+date = "2018-10-29T07:01:00+01:00"
+type = "post"
+title = "Extensive tutorial on go-plugin."
+url = "/2018/10/29/go-plugin-tutorial"
+description = "go-plugin tutorial"
+featured = "go-plugin-tutorial.png"
+featuredalt = "go-plugin"
+featuredpath = "date"
+linktitle = ""
+draft = false
++++
+
 # Intro
 
 If you don't know what go-plugin is, don't worry, here is a small introduction on the subject matter:
