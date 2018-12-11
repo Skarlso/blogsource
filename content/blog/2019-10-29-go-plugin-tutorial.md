@@ -9,8 +9,7 @@ description = "go-plugin tutorial"
 featured = "go-plugin-tutorial.png"
 featuredalt = "go-plugin"
 featuredpath = "date"
-linktitle = ""
-draft = false
+linktitle = "go-plugin tutorial"
 +++
 
 # Intro
