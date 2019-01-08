@@ -2,7 +2,7 @@ language: go
 
 install:
     - go get github.com/gohugoio/hugo
-    - apt-get install -y git wget
+    - sudo apt-get install -y git wget
 
 script:
     - .travis/build.sh
