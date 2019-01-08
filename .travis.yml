@@ -8,5 +8,4 @@ script:
     - .travis/build.sh
 
 after_success:
-    - cd ${TRAVIS_BUILD_DIR}
-    - .travis/publish.sh
+    - cd ${TRAVIS_BUILD_DIR} && .travis/push.sh
