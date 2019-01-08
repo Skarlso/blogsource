@@ -1,0 +1,11 @@
+language: go
+
+install:
+    - go get github.com/gohugoio/hugo
+    - apt-get install -y git wget
+
+script:
+    - .travis/build.sh
+
+after_success:
+    - .travis/publish.sh
