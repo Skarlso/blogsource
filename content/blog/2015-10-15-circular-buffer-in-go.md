@@ -8,70 +8,63 @@ url = "/2015/10/15/circular-buffer-in-go/"
 
 +++
 
-I&#8217;m proud of this one too. No peaking. I like how go let&#8217;s you do this kind of stuff in a very nice way.
+I'm proud of this one too. No peaking. I like how go let's you do this kind of stuff in a very nice way.
 
-<div class="wp_syntax">
-  <table>
-    <tr>
-      <td class="code">
-        <pre class="go" style="font-family:monospace;"><span style="color: #b1b100; font-weight: bold;">package</span> circular
-&nbsp;
-<span style="color: #b1b100; font-weight: bold;">import</span> <span style="color: #cc66cc;">"fmt"</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//TestVersion testVersion</span>
-<span style="color: #b1b100; font-weight: bold;">const</span> TestVersion <span style="color: #339933;">=</span> <span style="color: #cc66cc;">1</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//Buffer buffer type</span>
-<span style="color: #b1b100; font-weight: bold;">type</span> Buffer <span style="color: #993333;">struct</span> <span style="color: #339933;">{</span>
-    buffer <span style="color: #339933;">[]</span><span style="color: #993333;">byte</span>
-    full   <span style="color: #993333;">int</span>
-    size   <span style="color: #993333;">int</span>
-    s<span style="color: #339933;">,</span> e   <span style="color: #993333;">int</span>
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//NewBuffer creates a new Buffer</span>
-<span style="color: #993333;">func</span> NewBuffer<span style="color: #339933;">(</span>size <span style="color: #993333;">int</span><span style="color: #339933;">)</span> <span style="color: #339933;">*</span>Buffer <span style="color: #339933;">{</span>
-    <span style="color: #b1b100; font-weight: bold;">return</span> &Buffer<span style="color: #339933;">{</span>buffer<span style="color: #339933;">:</span> <span style="color: #000066;">make</span><span style="color: #339933;">([]</span><span style="color: #993333;">byte</span><span style="color: #339933;">,</span> size<span style="color: #339933;">),</span> s<span style="color: #339933;">:</span> <span style="color: #cc66cc;"></span><span style="color: #339933;">,</span> e<span style="color: #339933;">:</span> <span style="color: #cc66cc;"></span><span style="color: #339933;">,</span> size<span style="color: #339933;">:</span> size<span style="color: #339933;">,</span> full<span style="color: #339933;">:</span> <span style="color: #cc66cc;"></span><span style="color: #339933;">}</span>
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//ReadByte reads a byte from b Buffer</span>
-<span style="color: #993333;">func</span> <span style="color: #339933;">(</span>b <span style="color: #339933;">*</span>Buffer<span style="color: #339933;">)</span> ReadByte<span style="color: #339933;">()</span> <span style="color: #339933;">(</span><span style="color: #993333;">byte</span><span style="color: #339933;">,</span> error<span style="color: #339933;">)</span> <span style="color: #339933;">{</span>
-    <span style="color: #b1b100; font-weight: bold;">if</span> b<span style="color: #339933;">.</span>full <span style="color: #339933;">==</span> <span style="color: #cc66cc;"></span> <span style="color: #339933;">{</span>
-        <span style="color: #b1b100; font-weight: bold;">return</span> <span style="color: #cc66cc;"></span><span style="color: #339933;">,</span> fmt<span style="color: #339933;">.</span>Errorf<span style="color: #339933;">(</span><span style="color: #cc66cc;">"Danger Will Robinson: %s"</span><span style="color: #339933;">,</span> b<span style="color: #339933;">)</span>
-    <span style="color: #339933;">}</span>
-    readByte <span style="color: #339933;">:=</span> b<span style="color: #339933;">.</span>buffer<span style="color: #339933;">[</span>b<span style="color: #339933;">.</span>s<span style="color: #339933;">]</span>
-    b<span style="color: #339933;">.</span>s <span style="color: #339933;">=</span> <span style="color: #339933;">(</span>b<span style="color: #339933;">.</span>s <span style="color: #339933;">+</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">)</span> <span style="color: #339933;">%</span> b<span style="color: #339933;">.</span>size
-    b<span style="color: #339933;">.</span>full<span style="color: #339933;">--</span>
-    <span style="color: #b1b100; font-weight: bold;">return</span> readByte<span style="color: #339933;">,</span> <span style="color: #000000; font-weight: bold;">nil</span>
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//WriteByte writes c byte to the buffer</span>
-<span style="color: #993333;">func</span> <span style="color: #339933;">(</span>b <span style="color: #339933;">*</span>Buffer<span style="color: #339933;">)</span> WriteByte<span style="color: #339933;">(</span>c <span style="color: #993333;">byte</span><span style="color: #339933;">)</span> error <span style="color: #339933;">{</span>
-    <span style="color: #b1b100; font-weight: bold;">if</span> b<span style="color: #339933;">.</span>full<span style="color: #339933;">+</span><span style="color: #cc66cc;">1</span> &gt; b<span style="color: #339933;">.</span>size <span style="color: #339933;">{</span>
-        <span style="color: #b1b100; font-weight: bold;">return</span> fmt<span style="color: #339933;">.</span>Errorf<span style="color: #339933;">(</span><span style="color: #cc66cc;">"Danger Will Robinson: %s"</span><span style="color: #339933;">,</span> b<span style="color: #339933;">)</span>
-    <span style="color: #339933;">}</span>
-    b<span style="color: #339933;">.</span>buffer<span style="color: #339933;">[</span>b<span style="color: #339933;">.</span>e<span style="color: #339933;">]</span> <span style="color: #339933;">=</span> c
-    b<span style="color: #339933;">.</span>e <span style="color: #339933;">=</span> <span style="color: #339933;">(</span>b<span style="color: #339933;">.</span>e <span style="color: #339933;">+</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">)</span> <span style="color: #339933;">%</span> b<span style="color: #339933;">.</span>size
-    b<span style="color: #339933;">.</span>full<span style="color: #339933;">++</span>
-    <span style="color: #b1b100; font-weight: bold;">return</span> <span style="color: #000000; font-weight: bold;">nil</span>
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//Overwrite overwrites the oldest byte in Buffer</span>
-<span style="color: #993333;">func</span> <span style="color: #339933;">(</span>b <span style="color: #339933;">*</span>Buffer<span style="color: #339933;">)</span> Overwrite<span style="color: #339933;">(</span>c <span style="color: #993333;">byte</span><span style="color: #339933;">)</span> <span style="color: #339933;">{</span>
-    b<span style="color: #339933;">.</span>buffer<span style="color: #339933;">[</span>b<span style="color: #339933;">.</span>s<span style="color: #339933;">]</span> <span style="color: #339933;">=</span> c
-    b<span style="color: #339933;">.</span>s <span style="color: #339933;">=</span> <span style="color: #339933;">(</span>b<span style="color: #339933;">.</span>s <span style="color: #339933;">+</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">)</span> <span style="color: #339933;">%</span> b<span style="color: #339933;">.</span>size
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//Reset resets the buffer</span>
-<span style="color: #993333;">func</span> <span style="color: #339933;">(</span>b <span style="color: #339933;">*</span>Buffer<span style="color: #339933;">)</span> Reset<span style="color: #339933;">()</span> <span style="color: #339933;">{</span>
-    <span style="color: #339933;">*</span>b <span style="color: #339933;">=</span> <span style="color: #339933;">*</span>NewBuffer<span style="color: #339933;">(</span>b<span style="color: #339933;">.</span>size<span style="color: #339933;">)</span>
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #666666; font-style: italic;">//String for a string representation of Buffer</span>
-<span style="color: #993333;">func</span> <span style="color: #339933;">(</span>b <span style="color: #339933;">*</span>Buffer<span style="color: #339933;">)</span> String<span style="color: #339933;">()</span> <span style="color: #993333;">string</span> <span style="color: #339933;">{</span>
-    <span style="color: #b1b100; font-weight: bold;">return</span> fmt<span style="color: #339933;">.</span>Sprintf<span style="color: #339933;">(</span><span style="color: #cc66cc;">"Buffer: %d, %d, %d, %d"</span><span style="color: #339933;">,</span> b<span style="color: #339933;">.</span><span style="">buffer</span><span style="color: #339933;">,</span> b<span style="color: #339933;">.</span><span style="">s</span><span style="color: #339933;">,</span> b<span style="color: #339933;">.</span><span style="">e</span><span style="color: #339933;">,</span> b<span style="color: #339933;">.</span><span style="">size</span><span style="color: #339933;">)</span>
-<span style="color: #339933;">}</span></pre>
-      </td>
-    </tr>
-  </table>
-</div>
+~~~go
+package circular
+
+import "fmt"
+
+//TestVersion testVersion
+const TestVersion = 1
+
+//Buffer buffer type
+type Buffer struct {
+	buffer []byte
+	full   int
+	size   int
+	s, e   int
+}
+
+//NewBuffer creates a new Buffer
+func NewBuffer(size int) *Buffer {
+	return &Buffer{buffer: make([]byte, size), s: 0, e: 0, size: size, full: 0}
+}
+
+//ReadByte reads a byte from b Buffer
+func (b *Buffer) ReadByte() (byte, error) {
+	if b.full == 0 {
+		return 0, fmt.Errorf("Danger Will Robinson: %s", b)
+	}
+	readByte := b.buffer[b.s]
+	b.s = (b.s + 1) % b.size
+	b.full--
+	return readByte, nil
+}
+
+//WriteByte writes c byte to the buffer
+func (b *Buffer) WriteByte(c byte) error {
+	if b.full+1 > b.size {
+		return fmt.Errorf("Danger Will Robinson: %s", b)
+	}
+	b.buffer[b.e] = c
+	b.e = (b.e + 1) % b.size
+	b.full++
+	return nil
+}
+
+//Overwrite overwrites the oldest byte in Buffer
+func (b *Buffer) Overwrite(c byte) {
+	b.buffer[b.s] = c
+	b.s = (b.s + 1) % b.size
+}
+
+//Reset resets the buffer
+func (b *Buffer) Reset() {
+	*b = *NewBuffer(b.size)
+}
+
+func (b *Buffer) String() string {
+	return fmt.Sprintf("Buffer: %d, %d, %d, %d", b.buffer, b.s, b.e, b.size)
+}
+~~~
