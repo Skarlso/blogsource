@@ -7,7 +7,7 @@ setup_git() {
   git config --global user.name "Travis CI"
   git init
   git remote add origin https://${GITHUB_TOKEN}@github.com/Skarlso/skarlso.github.io.git > /dev/null 2>&1
-  git fetch origin
+  git pull
 }
 
 commit_website_files() {
