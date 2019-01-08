@@ -19,7 +19,8 @@ upload_files() {
   git push --quiet --set-upstream origin master
 }
 
-cd /opt/blog
+mkdir /opt/publish && cd /opt/publish
 setup_git
+cp -R /opt/blog/* .
 commit_website_files
 upload_files
