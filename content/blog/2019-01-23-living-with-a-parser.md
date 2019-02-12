@@ -66,4 +66,12 @@ Since first the string needed to be an Integer more videly a Number.
 
 # Supporting regexes
 
-Next, came supported operations. The parser at first only supported these operators `<>=`. Eval, supported all of them of course. But what else is there you might ask? `=~` for example.
+Next, came supported operations. The parser only supported the basic operators: `<>=`. It was missing `=~` from this. Which meant people who would use regexes to filter JSON would no longer be able to do so. This was only a tiny modification actually:
+
+First, the operator filter needed to be aware...
+~~~ruby
+- elsif t = scanner.scan(/(\s+)?[<>=][=<>]?(\s+)?/)
++ elsif t = scanner.scan(/(\s+)?[<>=][=~]?(\s+)?/)
+~~~
+
+With that done, we just `.to_regexp` it with the power of ruby and `send` would automatically pick it up. And of course test coverage.
