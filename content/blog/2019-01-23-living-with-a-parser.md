@@ -75,3 +75,19 @@ First, the operator filter needed to be aware...
 ~~~
 
 With that done, we just `.to_regexp` it with the power of ruby and `send` would automatically pick it up. And of course test coverage.
+
+# Regression
+
+Once the parser was introduced I knew that it would create problems. Since eval did many things that the parser could not handle. And they started to arrive slowly. One-by-one.
+
+## Boolean
+
+Aka, the story of how `true == 'true'` doesn't work...
+
+## Syntax
+
+## Number formatting
+
+# Groups
+
+And finally, the biggest one... Tihs one was.
