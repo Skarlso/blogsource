@@ -3,8 +3,7 @@ layoutdir = "layouts"
 publishdir = "public"
 baseurl = "https://skarlso.github.io/"
 title = "Ramblings of a cloud engineer"
-theme = "terminal"
-contentTypeName = "blog"
+theme = "hugo-future-imperfect"
 canonifyurls = true
 disqusShortname = "hannibalDisqus"
 Paginate = 10
@@ -18,7 +17,6 @@ googleAnalytics = "UA-69463020-2"
     tag = "tags"
 
 [params]
-    themeColor = "green"
     # Sets the meta tag description
     description          = "Ramblings of a Cloud Engineer"
     # Sets the navbarTitle that appears in the top left of the navigation bar

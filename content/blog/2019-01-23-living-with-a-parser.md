@@ -147,6 +147,31 @@ The parser doesn't just return a bool value and call it a day. It also returns i
 $..book[(@.length-5)]
 ~~~
 
-Returns the length-5th book.
+Returns the length-5-th book.
 
-# 
+# Outstanding issues
+
+Right now there are two outstanding issues. The one mentioned above, where you can't nest indexes and true/false notations. And the other is a submitted issue in which it is described that it's not possible to use something like this:
+
+~~~
+$.phoneNumbers[?(@[0].type == 'home')]
+~~~
+
+Which basically boils down to the fact that Jsonpath can't handle nested lists like these:
+
+~~~json
+{
+  "phoneNumbers": [
+    [{
+      "type"  : "iPhone",
+      "number": "0123-4567-8888"
+    }],
+    [{
+      "type"  : "home",
+      "number": "0123-4567-8910"
+    }]
+  ]
+}
+~~~
+
+But that isn't actually the problem of the parser, but Jsonpath itself.
