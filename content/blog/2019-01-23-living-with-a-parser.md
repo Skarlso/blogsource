@@ -219,3 +219,11 @@ Which basically boils down to the fact that Jsonpath can't handle nested lists l
 ~~~
 
 That isn't actually the problem of the parser, but Jsonpath itself.
+
+# Conclusion
+
+Like a good marriage, living with a Parser is a lot of compromise and ironing out edges and working on making it better for both parties involved. I have no doubt that there are more bugs in this code, but I'm trying to keep it concise and clear to read as much as possible.
+
+I hope this was as fun to read as it was to write.
+Thank you for reading,
+Gergely.
