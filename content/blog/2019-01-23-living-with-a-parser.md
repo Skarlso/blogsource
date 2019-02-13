@@ -90,4 +90,45 @@ Aka, the story of how `true == 'true'` doesn't work...
 
 # Groups
 
-And finally, the biggest one... Tihs one was.
+And finally, the biggest one... Groups in conditions. A query like this one for example:
+
+~~~
+$..book[?((@['author'] == 'Evelyn Waugh' || @['author'] == 'Herman Melville' && (@['price'] == 33 || @['price'] == 9))]
+~~~
+
+Something like this was never parsed correctly. Since the parser didn't understand groupping and order of evaluation. Let's break it down. How do we get from a monstrum like that one above to something that can be handled? We take it one group at a time.
+
+## Parentheses
+
+As a first step, we make sure that the parentheses match. It's possible that someone didn't pay attention and left out a closing parentheses. Now, there are a couple of way of doing that in Ruby, but I went for the most plain blatant one.
+
+~~~ruby
+    def check_parenthesis_count(exp)
+      return true unless exp.include?("(")
+      depth = 0
+      exp.chars.each do |c|
+        if c == '('
+          depth += 1
+        elsif c == ')'
+          depth -= 1
+        end
+      end
+      depth == 0
+    end
+~~~
+
+A basic depth counter. We do this first, to avoid parsing an invalid query.
+
+## Breaking it down
+
+Next we break down this complex thing into a query that makes more sense to the parser. To do that, we take each group and extract the operation in them and replace it with the value they provide. Meaning a query like the one above essentially should looke like this:
+
+~~~
+((false || false) && (false || true))
+~~~
+
+Neat. We can handle that.
+
+## Return Value
+
+The tricky part is that the parser doesn't just return a bool value and call it a day. It also returns indexes. Indexes in cases when there is a query that returns the location of an item in the node and not if the node contains something or matches an item.
