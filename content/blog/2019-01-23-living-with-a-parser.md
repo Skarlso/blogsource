@@ -80,15 +80,59 @@ With that done, we just `.to_regexp` it with the power of ruby and `send` would 
 
 Once the parser was introduced I knew that it would create problems. Since eval did many things that the parser could not handle. And they started to arrive slowly. One-by-one.
 
-## Boolean
+## Booleans
 
-Aka, the story of how `true == 'true'` doesn't work...
+Aka, the story of `true == 'true'`... Inherently working with strings here makes it difficult to detect when the type boolean is meant or a string which happens to say `true`. This one was easy to solve:
+
+~~~ruby
+operand = if t == 'true'
+            true
+        elsif t == 'false'
+            false
+        else
+            operator.to_s.strip == '=~' ? t.to_regexp : t.gsub(%r{^'|'$}, '').strip
+        end
+~~~
+
+Ignoring the regex part, this was all it needed.
 
 ## Syntax
 
+Some smaller tid-bits here and there also started to crop up. Things that eval did not mind at all, but my poor Parser couldn't handle. The regex started out tightly tied. This meant that certain characters weren't properly detected. Characters like the underscore, or `@` or `/`... All these weren't picked up by my tight regexp. I had to widen it a bit.
+
 ## Number formatting
 
-# Groups
+Formatting and comparing numbers gave me a lot of headache. I had to detect whether I'm dealing with a number or a string parsed as a number or a number but that was converted into string or a string that happened to be a number. Geez...
+
+I ended up making it simple like this:
+
+~~~ruby
+el = Float(el) rescue el
+operand = Float(operand) rescue operand
+~~~
+
+Basically everything is a number. Doesn't matter where it came from, what it was in the past... It's a number if it can be converted. This, of course, also means that a test like this one fails:
+
+~~~ruby
+  def test_number_match
+    json = {
+      channels:[
+        {
+          elem: 1,
+        },
+        {
+          elem: '1'
+        }
+      ]
+    }.to_json
+
+    assert_equal [{ 'elem' => 1 }], JsonPath.on(json, "$..channels[?(@.elem == 1)]")
+  end
+~~~
+
+Both will match... Even though you'd expect it only to match one. Luckily though... this is exactly how http://jsonpath.com/ works as well. An AST would detect that it's a number type... But since I'm parsing strings here, that would be almost impossible a feat to accomplish in a nice manner.
+
+## Groups
 
 And finally, the biggest one... Groups in conditions. A query like this one for example:
 
@@ -98,7 +142,7 @@ $..book[?((@['author'] == 'Evelyn Waugh' || @['author'] == 'Herman Melville' && 
 
 Something like this was never parsed correctly. Since the parser didn't understand groupping and order of evaluation. Let's break it down. How do we get from a monstrum like that one above to something that can be handled? We take it one group at a time.
 
-## Parentheses
+### Parentheses
 
 As a first step, we make sure that the parentheses match. It's possible that someone didn't pay attention and left out a closing parentheses. Now, there are a couple of way of doing that in Ruby, but I went for the most plain blatant one.
 
@@ -119,7 +163,7 @@ As a first step, we make sure that the parentheses match. It's possible that som
 
 A basic depth counter. We do this first, to avoid parsing an invalid query.
 
-## Breaking it down
+### Breaking it down
 
 Next we break down this complex thing into a query that makes more sense to the parser. To do that, we take each group and extract the operation in them and replace it with the value they provide. Meaning a query like the one above essentially should looke like this:
 
@@ -139,7 +183,7 @@ $..book[?(@.length-5 && @.type == 'asdf')]
 
 This would fail horribly. Which means, asking for a specific index in a json in a groupped expression is not supported at the moment.
 
-## Return Value
+### Return Value
 
 The parser doesn't just return a bool value and call it a day. It also returns indexes like you read above. Indexes in cases when there is a query that returns the location of an item in the node and not if the node contains something or matches some data. For example:
 
@@ -174,4 +218,4 @@ Which basically boils down to the fact that Jsonpath can't handle nested lists l
 }
 ~~~
 
-But that isn't actually the problem of the parser, but Jsonpath itself.
+That isn't actually the problem of the parser, but Jsonpath itself.
