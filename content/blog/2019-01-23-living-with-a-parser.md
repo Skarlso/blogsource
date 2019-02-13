@@ -127,8 +127,26 @@ Next we break down this complex thing into a query that makes more sense to the 
 ((false || false) && (false || true))
 ~~~
 
-Neat. We can handle that.
+Neat. This is handled by this code segment: [Parser](https://github.com/joshbuddy/jsonpath/blob/b2525b8e8c596ddf1c8b40982529300b5a98132b/lib/jsonpath/parser.rb#L112).
+
+The parsing function is called over and over again until there are no parentheses left in the expression. Aka, a single true or false or number remains.
+
+Now, who can spot an issue with that? The function `bool_or_exp` is there to return a float or a boolean value. If it returns a float, we still &&= -it together with the result... Thus, if there is a query like this one for example:
+
+~~~
+$..book[?(@.length-5 && @.type == 'asdf')]
+~~~
+
+This would fail horribly. Which means, asking for a specific index in a json in a groupped expression is not supported at the moment.
 
 ## Return Value
 
-The tricky part is that the parser doesn't just return a bool value and call it a day. It also returns indexes. Indexes in cases when there is a query that returns the location of an item in the node and not if the node contains something or matches an item.
+The parser doesn't just return a bool value and call it a day. It also returns indexes like you read above. Indexes in cases when there is a query that returns the location of an item in the node and not if the node contains something or matches some data. For example:
+
+~~~
+$..book[(@.length-5)]
+~~~
+
+Returns the length-5th book.
+
+# 
