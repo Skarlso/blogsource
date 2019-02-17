@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -e
+set -x
 
 mkdir /opt/blog
 git clone https://github.com/Skarlso/blogsource.git /opt/app

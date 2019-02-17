@@ -9,7 +9,7 @@ description = "Go SSH with Host Key Verification"
 featured = "ssh.png"
 featuredalt = "ssh"
 featuredpath = "date"
-linktitle = ""
+linktitle = "Go SSH with host key verification"
 +++
 
 Hi folks.
