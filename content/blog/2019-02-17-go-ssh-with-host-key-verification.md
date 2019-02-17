@@ -10,7 +10,6 @@ featured = "ssh.png"
 featuredalt = "ssh"
 featuredpath = "date"
 linktitle = ""
-draft = false
 +++
 
 Hi folks.
