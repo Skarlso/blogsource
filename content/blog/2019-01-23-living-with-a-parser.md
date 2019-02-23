@@ -15,27 +15,27 @@ draft = true
 
 Hi folks!
 
-Today's post is a retrospective of some kind. I would like to gather some thoughts about living with the new parser that I wrote previously here: ...
+Today's post is a retrospective of some kind. I would like to gather some thoughts about living with the new parser that I wrote for [JsonPath](https://github.com/joshbuddy/jsonpath/).
 
-Now, after little over a year, some interesting problems surfaced that I thought I'd share for people who also would like to endevour on this path. Let's begin.
+After a little over a year, some interesting problems surfaced that I thought I'd share for people who also would like to endevour on this path. Let's begin.
 
 # Previously
 
-About, almost two years ago, I took over managing / fixing / improving this ruby gem: [Json Parser](https://github.com/joshbuddy/jsonpath). It's a json parser in ruby. It was really poorly managed and maintained but the worst part of it was that it used `eval` in the background. It was a security rist to use this gem to it's full extent. Something had to be done about it.
+About, two years ago, I took over managing / fixing / improving this ruby gem: [Json Parser](https://github.com/joshbuddy/jsonpath). It's a json parser in ruby. Amongst other problems, it used `eval` in the background to evaluate expressions. It was a security risk to use this gem to it's full extent. Something had to be done about that.
 
-I proceeded to write a semi-language parser which replaced eval which can be found here: [Parser](https://github.com/joshbuddy/jsonpath/blob/master/lib/jsonpath/parser.rb). The basic intention was to replace the basics of the eval behaviour, thus it was lacking some serious logic. That got put into it as time went by.
+I proceeded to write a semi-language parser which replaced eval that can be found here: [Parser](https://github.com/joshbuddy/jsonpath/blob/master/lib/jsonpath/parser.rb). The basic intention was to replace the bare minimum of the eval behaviour, thus it was lacking some serious logic. That got put into it as time went by.
 
-This is a one year retrospect on living with a self-written parser. Enjoy some of the quirks I faced while writing it.
+This is a one year retrospective on living with a self-written parser. Enjoy some of the quirks I faced while writing it.
 
 # AST
 
-AST is short for [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree). It's a datastructure that is ideal for representing and parsing language syntax. All major lexers use some kind of AST in the background like this old Ruby language parser gem: [Whitequark Parser](https://github.com/whitequark/parser). This parser is used by projects like Rubocop and line coverage reports and various others. It's applicate is not trivial right out of the box. But as you move along you get a firm grasp of it's power.
+AST is short for [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree). It's a datastructure that is ideal for representing and parsing language syntax. All major lexers use some kind of AST in the background like this old Ruby language parser gem: [Whitequark Parser](https://github.com/whitequark/parser). This parser is used by projects like Rubocop and line coverage reports. It's usage is not trivial right out of the box. But as you move along you get a firm grasp of it's power.
 
-I decided to not use that parser a year ago mainly because I thought it's too much for what I'm trying to replace. Maybe I was right, maybe not. I tried to apply an AST with Parser recently. Maybe the next post will be how to apply it to a complex parser where there needs to be an evaluation output.
+I decided to not use that parser a year ago mainly because I thought it's too much for what I'm trying to accomplish. Maybe I was right, maybe not. I tried to play with Parser recently but it's none trivial nature and lack of documentation makes it cumbersome to use.
 
 # The first problems
 
-What was then the first trouble that arrose after I replaced eval? The parser back then was dumbed down a lot. The very first problem I faced was a simple infinite loop. The parser works like a simple lexer. It identifies tokens of certain type and tries to parse them into variables. This lexing had an error.
+What was then the first trouble that arrose after I replaced eval? The parser back then was dumbed down a lot. The very first problem I faced was a simple infinite loop. The parser works like a lexer. It identifies tokens of certain type and tries to parse them into variables. This lexing had an error.
 
 ~~~ruby
 -        elsif t = scanner.scan(/(\s+)?'?(\w+)?[.,]?(\w+)?'?(\s+)?/) # @TODO: At this point I should trim somewhere...
@@ -54,7 +54,7 @@ Eval would have no problem but the parser is using strict regex-s. This is where
 
 # Numbers
 
-The second problem was the fact that the parser is using strings. Who would have thought that the string `2.0` in fact does not equal to string `2`? In Ruby the simplest way of making sure a variable is a Float is by casting the variable to Float. In case it's not a Float we rescue and move on.
+The second problem was the fact that the parser is using strings. Who would have thought that the string `2.0` in fact does not equal to string `2`? In Ruby the simplest way of making sure a variable is a Number is by casting the variable to Number or Float. In case it's not a Number we rescue and move on.
 
 ~~~ruby
 el = Float(el) rescue el
@@ -62,7 +62,7 @@ el = Float(el) rescue el
 
 Incidentally this also solved the problem where the json path contained a number but since everything is a string this, also did not equal: `'1' == 1`.
 
-Since first the string needed to be an Integer more videly a Number.
+Since first the string needed to be a Number.
 
 # Supporting regexes
 
@@ -78,7 +78,7 @@ With that done, we just `.to_regexp` it with the power of ruby and `send` would 
 
 # Regression
 
-Once the parser was introduced I knew that it would create problems. Since eval did many things that the parser could not handle. And they started to arrive slowly. One-by-one.
+Once the parser was introduced I knew that it would create problems, since eval did many things that the parser could not handle. And they started to arrive slowly. One-by-one.
 
 ## Booleans
 
@@ -90,7 +90,7 @@ operand = if t == 'true'
         elsif t == 'false'
             false
         else
-            operator.to_s.strip == '=~' ? t.to_regexp : t.gsub(%r{^'|'$}, '').strip
+            operator.to_s.strip == '=~' ? t.to_regexp : t.gsub(%r{^'|'$}, '').strip # We also handle regexp here.
         end
 ~~~
 
@@ -195,7 +195,7 @@ Returns the length-5-th book.
 
 # Outstanding issues
 
-Right now there are two outstanding issues. The one mentioned above, where you can't nest indexes and true/false notations. And the other is a submitted issue in which it is described that it's not possible to use something like this:
+Right now there are two outstanding issues. The one mentioned above, where you can't nest indexes and true/false notations. And the other is a submitted issue in which it's described that it's not possible to use something like this:
 
 ~~~
 $.phoneNumbers[?(@[0].type == 'home')]
