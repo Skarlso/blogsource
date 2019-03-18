@@ -1,65 +1,52 @@
-contentdir = "content"
-layoutdir = "layouts"
-publishdir = "public"
-baseurl = "https://skarlso.github.io/"
+baseURL = "https://skarlso.github.io/"
+languageCode = "en-us"
+defaultContentLanguage = "en"
 title = "Ramblings of a cloud engineer"
-theme = "hugo-future-imperfect"
-canonifyurls = true
-disqusShortname = "hannibalDisqus"
-Paginate = 10
-preserveTaxonomyNames = true
-enableRobotsTXT = true
-pluralizeListTitles = false
+theme = "hermit"
+# enableGitInfo = true
+pygmentsCodefences  = true
+pygmentsUseClasses  = true
+# hasCJKLanguage = true  # If Chinese/Japanese/Korean is your main content language, enable this to make wordCount works right.
+rssLimit = 10  # Maximum number of items in the RSS feed.
 googleAnalytics = "UA-69463020-2"
+disqusShortname = "hannibalDisqus"
+
+[author]
+  name = "Gergely Brautigam"
 
 [taxonomies]
-    category = "categories"
-    tag = "tags"
+  category = "categories"
+  tag = "tags"
 
 [params]
-    # Sets the meta tag description
-    description          = "Ramblings of a Cloud Engineer"
-    # Sets the navbarTitle that appears in the top left of the navigation bar
-    navbarTitle          = "Hello, Clarice!"
-    # Sets where "View More Posts" links
-    viewMorePostLink     = "/blog/"
-    dynamicTitles        = true
-    socialAppearAtBottom = true
-    socialShare          = true
-    socialShareTwitter   = true
-    socialShareGoogleplus = true
-    socialShareFacebook  = true
-    socialShareReddit    = true
-    socialShareLinkedin  = true
-    disable_highlight = false # set to true to disable Highlight
-    highlightjsVersion = "9.11.0"
-    highlightjsCDN = "//cdn.bootcss.com"
-    highlightjsLang = ["json", "yaml", "css", "go", "bash"]
-    highlightjsTheme = "github"
+  dateform        = "Jan 2, 2006"
+  dateformShort   = "Jan 2"
+  dateformNum     = "2006-01-02"
+  dateformNumTime = "2006-01-02 15:04 -0700"
 
-[social]
-    github = "Skarlso"
-    linkedin = "brautigamgergely"
-    twitter = "Skarlso"
+  # Metadata mostly used in document's head
+  # description = ""
+  # images = [""]
+  themeColor = "#494f5c"
 
-[params.postAmount]
-# Sets the number of recent posts to show in the sidebar. The default value is 5.
-    sidebar = 5
+  homeSubtitle = "Ramblings of a cloud engineer."
+  footerCopyright = ' &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>'
+  # bgImg = ""  # Homepage background-image URL
 
-[[menu.main]]
-    name = "Home"
-    url = "/"
-    identifier = "fa fa-home"
-    weight = 1
+  # Toggling this option needs to rebuild SCSS, requires Hugo extended version
+  justifyContent = false  # Set "text-align: justify" to `.content`.
 
-[[menu.main]]
-    name = "Blog"
-    url = "/blog/"
-    identifier = "fa fa-newspaper-o"
-    weight = 2
+  [[params.social]]
+    name = "twitter"
+    url = "https://twitter.com/skarlso"
 
-[[menu.main]]
-    name = "Categories"
-    url = "/categories/"
-    identifier = "fa fa-sitemap"
-    weight = 3
+  [[params.social]]
+    name = "github"
+    url = "https://github.com/Skarlso"
+
+[menu]
+
+  [[menu.main]]
+    name = "blog"
+    url = "blog/"
+    weight = 10
