@@ -5,7 +5,11 @@ date = "2019-03-18T21:01:00+01:00"
 type = "post"
 title = "Deploy a Hugo Blog with Travis on Git Push"
 url = "/2019/03/18/hugo-blog-with-travis-deployment"
+
 +++
+
+# Intro
+
 Hi folks.
 
 I've been using the Hugo build for wercker for a long time now. Recent problems occurred though where I did not understand at first
