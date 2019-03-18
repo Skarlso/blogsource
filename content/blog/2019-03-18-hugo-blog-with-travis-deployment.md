@@ -126,7 +126,7 @@ upload_files() {
 }
 ~~~
 
-The script in it's entirety here: [push.sh](#push.sh)
+The script in it's entirety here: [push.sh](#push-sh)
 
 And that's it. The site is changed and updated. This can be executed in any environment and the only requirement is hugo and git being present. If you still prefer the branch method of Github pages, this is easily altered to checkout the right branch and push the changes from there.
 
