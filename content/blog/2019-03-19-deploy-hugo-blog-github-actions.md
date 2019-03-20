@@ -106,6 +106,8 @@ The interesting parts here are `GITHUB_WORKSPACE` and `GITHUB_REPOSITORY`. The w
 
 This is the place where we will copy our built blog files. Since this is a mount basically on the local build machine the next action which comes along will see the folder `.blog`. This is how we pass artifacts between actions.
 
+This action can be found here: [Hugo Blog Builder Action](https://github.com/Skarlso/blog-builder).
+
 ## Pusher
 
 Once the building finishes successfully we can push it to the new location.
@@ -200,6 +202,8 @@ exit 0
 Now this is a lot more involved. I'm leaving as many echos in here as possible for esae of debugging.
 
 The interesting part in here is the `repo=$1`. This is why we need CMD specified. But this is what makes this Action a bit more flexible too. It can push anywhere it has access to.
+
+This action can be found here: [Hugo Blog Builder Action](https://github.com/Skarlso/blog-publisher).
 
 ## The Workflow file
 
