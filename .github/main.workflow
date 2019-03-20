@@ -3,12 +3,12 @@ workflow "Publish Blog" {
   resolves = ["blog-publisher"]
 }
 
-action "build_it" {
+action "blog-builder" {
   uses = "skarlso/blog-builder@master"
   secrets = ["GITHUB_TOKEN"]
 }
 
-action "publish_it" {
+action "blog-publisher" {
   uses = "skarlso/blog-publisher@master"
   needs = ["build_it"]
   secrets = ["GITHUB_TOKEN"]
