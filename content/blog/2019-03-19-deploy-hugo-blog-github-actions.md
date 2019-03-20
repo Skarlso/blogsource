@@ -1,10 +1,10 @@
 +++
 author = "hannibal"
 categories = ["hugo", "github", "actions"]
-date = "2019-03-20T07:01:00+01:00"
+date = "2019-03-19T07:01:00+01:00"
 type = "post"
 title = "Deploy a Hugo Blog Github Actions"
-url = "/2019/03/20/deploy-hugo-blog-github-actions"
+url = "/2019/03/19/deploy-hugo-blog-github-actions"
 
 +++
 
