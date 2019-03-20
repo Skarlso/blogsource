@@ -1,15 +1,15 @@
 workflow "Publish Blog" {
   on = "push"
-  resolves = ["publish_it"]
+  resolves = ["blog-publisher"]
 }
 
 action "build_it" {
-  uses = "./.github/actions/build_it@master"
+  uses = "skarlso/blog-builder@master"
   secrets = ["GITHUB_TOKEN"]
 }
 
 action "publish_it" {
-  uses = "./.github/actions/publish_it@master"
+  uses = "skarlso/blog-publisher@master"
   needs = ["build_it"]
   secrets = ["GITHUB_TOKEN"]
 }
