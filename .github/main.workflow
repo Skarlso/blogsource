@@ -1,6 +1,6 @@
 workflow "Publish Blog" {
   on = "push"
-  resolves = ["publish_it"]
+  resolves = ["build_it"]
 }
 
 action "build_it" {
