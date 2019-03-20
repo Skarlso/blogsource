@@ -11,5 +11,5 @@ action "blog-builder" {
 action "blog-publisher" {
   uses = "skarlso/blog-publisher@master"
   needs = ["blog-builder"]
-  secrets = ["GITHUB_TOKEN"]
+  secrets = ["GITHUB_TOKEN", "PUSH_TOKEN"]
 }
