@@ -6,6 +6,7 @@ workflow "Publish Blog" {
 action "build_it" {
   uses = "./.github/actions/build_it@master"
   secrets = ["GITHUB_TOKEN"]
+  resolves = ["publish_it"]
 }
 
 action "publish_it" {
