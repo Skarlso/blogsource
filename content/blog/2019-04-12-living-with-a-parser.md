@@ -1,10 +1,10 @@
 +++
 author = "hannibal"
 categories = ["ruby", "parser"]
-date = "2019-04-13T08:01:00+01:00"
+date = "2019-04-12T08:01:00+01:00"
 type = "post"
 title = "Living with a new Parser for a year"
-url = "/2019/04/13/living-with-a-parser"
+url = "/2019/04/12/living-with-a-parser"
 description = "Living with a Parser"
 featured = "parser.png"
 featuredalt = "parser"
