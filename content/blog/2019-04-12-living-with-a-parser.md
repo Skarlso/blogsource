@@ -111,7 +111,7 @@ Ignoring the regex part, this was all it needed.
 
 ## Syntax
 
-![bouncer2](/img/parser/bouncer2.jpg)
+![bouncer3](/img/parser/bouncer3.jpg)
 
 Some smaller tid-bits here and there also started to crop up. Things that eval did not mind at all, but my poor Parser couldn't handle. The regex started out tightly tied. This meant that certain characters weren't properly detected. Characters like the underscore, or `@` or `/`... All these weren't picked up by my tight regexp. I had to widen it a bit using .* at certain places.
 
@@ -149,7 +149,7 @@ Both will match… Even though you’d expect it only to match one. Luckily thou
 
 ## Groups
 
-![bouncer3](/img/parser/bouncer3.jpg)
+![bouncer2](/img/parser/bouncer2.jpg)
 
 And finally, the biggest one… Groups in conditions. A query like this one for example:
 
