@@ -11,6 +11,7 @@ featuredalt = "parser"
 featuredpath = "date"
 linktitle = ""
 draft = false
+comments = true
 +++
 
 Hi folks!
