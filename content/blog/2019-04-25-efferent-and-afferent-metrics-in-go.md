@@ -25,7 +25,9 @@ The metrics I mean are [Efferent](https://en.wikipedia.org/wiki/Software_package
 
 These metrics used together will indicate the stability / instability of each package in a project.
 
-# Implementation
+# Metric Description
+
+# Appliance in Go ecosystem
 
 # Tool
 
