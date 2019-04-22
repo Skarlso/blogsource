@@ -58,7 +58,7 @@ Let's see with a real example on using the tool and what to do with the metrics 
 
 I have a project called [Furnace](https://github.com/go-furnace/go-furnace). Running the tool on it I get the following stats:
 
-![furnace-before-tool](img/effrit/effrit1.png).
+![furnace-before-tool](/img/effrit/effrit1.png).
 
 What do these means?
 
