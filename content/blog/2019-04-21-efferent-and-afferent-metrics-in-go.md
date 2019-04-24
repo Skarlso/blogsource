@@ -66,7 +66,7 @@ It means, that hopefully, `command` packages have a high coverage and that `conf
 
 `coverage: 74.7% of statements`
 
-That is pretty good. I this it's is covered well enough for now.
+That is pretty good. I think it's covered well enough for now.
 
 On to the `config` package. This is the whole file:
 
@@ -135,7 +135,7 @@ func Fatal(s string, err error) {
 }
 ~~~
 
-Basic. Logic to take care of errors in Furnace. Last time I changed this file was... a year ago. Yeah, I think it's doing fine.
+Basic logic to take care of errors in Furnace. Last time I changed this file was... a year ago. Yeah, I think it's doing fine.
 
 # Conclusion
 
