@@ -134,14 +134,108 @@ There are two things we will need though to set up for our cluster before we eve
 
 Now, you have the option of installing cert-manager via helm, or via the provided kube config yaml file. I **STRONGLY** recommend using the config yaml file because the upgrading process with helm is a hell of a lot dirtier / failure prone than simply applying a new yaml file with a different version in it.
 
+Either way, to install cert-manager follow this simple guide: [Cert-manager Install Manual](https://docs.cert-manager.io/en/latest/getting-started/install/kubernetes.html#installing-with-regular-manifests).
 
+# Ingress
+
+An Ingress is a must. This is the component which manages external access to the services which we will define. Like a proxy before your http server. This component will handle the hostname based routing between our services.
+
+I'm using nginx ingress, although there are a couple of implementations out there.
+
+To install nginx ingress, follow their guide here: [Installing Nginx-Ingress](https://kubernetes.github.io/ingress-nginx/deploy/).
 
 # From Easy to Complicated
 
-I'll start with the easiest of them all, my web site, and then will progress towards the more complicated ones, like Gitea and Athens which require a lot more fiddling and have more moving parts.
+Alright. Now that we have the prereqs out of the way, let's get our hands dirty. I'll start with the easiest of them all, my web site, and then will progress towards the more complicated ones, like Gitea and Athens, which require a lot more fiddling and have more moving parts.
 
-# My Website
+## My Website
 
 The site, located here: [Gergely's Domain](gergelybrautigam.com); is a really simple, static, [Hugo](https://gohugo.io) based website. It contains nothing fancy, no real Javascript magic, has a simple list of things I've done and who I am.
 
-It's powered / served by an nginx instance running on port 9090.
+It's powered / served by an nginx instance running on port 9090 define by a very simple Dockerfile:
+
+```Dockerfile
+FROM golang:latest as builder
+RUN apt-get update && apt install -y git make vim hugo
+RUN mkdir -p /opt/website
+RUN git clone https://github.com/Skarlso/gergelybrautigam /opt/website
+WORKDIR /opt/website
+RUN make
+
+FROM nginx:latest
+RUN mkdir -p /var/www/html/gergelybrautigam
+WORKDIR /var/www/html/gergelybrautigam
+COPY --from=builder /opt/website/public .
+COPY 01_gergelybrautigam /etc/nginx/sites-available/
+RUN mkdir -p /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/01_gergelybrautigam /etc/nginx/sites-enabled/01_gergelybrautigam
+```
+
+Easy as goblin pie. Nginx has a command set like this `CMD ["nginx", "-g", "daemon off;"]` and exposes port 80.
+
+### The deployment
+
+In order to deploy this in the cluster, I created a deployment as follows:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gb-deployment
+  namespace: gergely-brautigam
+  labels:
+    app: gergelybrautigam
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '9090'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gergelybrautigam
+  template:
+    metadata:
+      labels:
+        app: gergelybrautigam
+      annotations:
+          prometheus.io/scrape: 'true'
+          prometheus.io/port:   '9090'
+    spec:
+      containers:
+      - name: gergelybrautigam
+        image: skarlso/gergelybrautigam:v0.0.26
+        ports:
+        - containerPort: 9090
+```
+
+What is going on here? Really simple. The metadata section defines information about the deployment. It's name is gb-deployment. The namespace in which this sits is called gergely-brautigam and it has some labels to it so our routing can find it later on.
+
+It's running a single replica, has a bunch of more metadata and template settings, and finally the container spec which defines the image, and the exposed container port on which the application is running.
+
+Now we need a service to expose this deployment.
+
+### The service
+
+The service is also simple. It looks like this:
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: gergely-brautigam
+  name: gb-service
+spec:
+  selector:
+    app: gergelybrautigam
+  ports:
+  - port: 80
+    targetPort: 9090
+```
+
+Again, nothing fancy here, just a simple service exposing a port to a different port on the front-end side. This service will be picked up by our previously created routing facility.
+
+@TODO: Insert image here on the architecture.
+
+### Ingress
+
+Now that we have the service we need to expose it to the domain. I have the domain gergelybrautigam.com and I already pointed it at the LoadBalancer's IP which was created by the nginx ingress controller.
