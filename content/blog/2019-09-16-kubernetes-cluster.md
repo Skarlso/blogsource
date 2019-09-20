@@ -239,3 +239,5 @@ Again, nothing fancy here, just a simple service exposing a port to a different 
 ### Ingress
 
 Now that we have the service we need to expose it to the domain. I have the domain gergelybrautigam.com and I already pointed it at the LoadBalancer's IP which was created by the nginx ingress controller.
+
+We only want one LoadBalancer, but we have multiple hostnames. We can achieve that by creating an Ingress resource in the namespace our service is in like this:
