@@ -46,8 +46,6 @@ My cluster is deployed at DigitalOcean using two droplets each 1vCPU and 2GB RAM
 
 This isn't going to be a production grade cluster. What I don't include in here:
 
-@TODO: Danger Zone sign
-
 ## RBAC for various services and users
 
 Since I'm the only user of my cluster I didn't create any kind of access limits / users or such. You are free to create them though. The only role based auth that's going on is for Prometheus.
@@ -283,7 +281,7 @@ If there is a problem, just describe the cert resource and look for the generate
 
 That wasn't too bad, right? Let's do something a bit more complex this time. We are going to deploy [The lounge](https://github.com/thelounge/thelounge) irc bouncer.
 
-It's actually quite easy to do but can be dounting to look at at first.
+It's actually quite easy to do but can be daunting to look at at first.
 
 ![easy](/img/the-climb.png)
 
@@ -291,7 +289,7 @@ It's actually quite easy to do but can be dounting to look at at first.
 
 Lucky for us, the bouncer already provides a container located here: [The Lounge Docker Hub](https://hub.docker.com/r/thelounge/thelounge/).
 
-We just need two things. To expose the port 9000 and to give it something called a PersistentVolume. What's a persitent volume? Well, look it up here: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
+We just need two things. To expose the port 9000 and to give it something called a PersistentVolume. What's a persistent volume? Well, look it up here: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
 TL;DR: We need to preserve data. Containers are ephemeral in nature. Meaning if there is a problem we usually just delete the pod. Which means that all data will be lost. But we need persistence in this case because we'll have user data and user information which we would like to persist between pods. That's what a volume is for.
 
@@ -388,7 +386,7 @@ spec:
 
 Again, very boring stuff. Boring is good. Boring is predictable. We expose port 9000 to the named targetPort called irc-http which we defined in the above deployment.
 
-Now, I have a domain in which these things are running, let's call it `powerhouse.com` (because I'm tired of example.com). And I have multiple services in this namespace too, so I'll call the namespace here, powerhouse and put this irc service in there. This also means that the ingress resource for this namespace will contain a couple more routings, because my powerhouse namespace will also contain my gitea and athens proxy installation.
+Now, I have a domain in which these things are running, let's call it `powerhouse.com` (because I'm tired of example.com). And I have multiple services in this namespace too, so I'll call the namespace here, powerhouse and put this irc service in there. This also means that the ingress resource for this namespace will contain a couple more routings, because my powerhouse namespace will also contain my gitea and Athens proxy installation.
 
 We can, however, take a peak the ingress resource here and now too... because I hate suspense.
 
@@ -484,3 +482,512 @@ In k9s you would simply select the right namespace, select the pod, hit `d` for 
 ## Gitea
 
 Now, we have IRC running. Let's try deploying [Gitea](https://gitea.io/en-us/). This takes a tiny bit more fiddling though.
+
+### Requirements
+
+Gitea requires the following things to be present:
+
+- The gitea app configuration file (this can be done via environment properties though)
+- A DB
+- A PersistentVolume
+- SSH Port for SSH based git clones instead of simple https
+
+#### DB
+
+We shall begin with the simplest of them, the DB. At this point we could go with the DigitalOcean managed Postgres installation, but I didn't want to put that on the bill as well. So I choose to simply put my DB into a container and deploy it within the cluster.
+
+This is actually quite simple. The DB will be a separate deployment / application in the same namespace as the Gitea app. It will also contain a network policy, since the DB doesn't need internet access and the internet shouldn't be able to access it.
+
+In fact the only thing that should be able to access the DB is the Gitea application itself which we will be able to restrict via the usage of... Labels!
+
+##### Deployment
+
+But first, take a look at the deployment of a Postgres 11 pod:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: powerhouse
+  name: gitea-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea-db
+  template:
+    metadata:
+      name: gitea-db
+      labels:
+        app: gitea-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:11
+        env:
+          - name: POSTGRES_USER
+            value: gitea
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: gitea-db-password
+                key: password
+          - name: POSTGRES_DB
+            value: gitea
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          subPath: data # important so it gets mounted properly
+          name: git-db-data
+      volumes:
+        - name: git-db-data
+          persistentVolumeClaim:
+            claimName: do-storage-gitea-db
+```
+
+Okay, there are a lot of things going on here, but the three things we need to note are the following:
+
+```yaml
+      labels:
+        app: gitea-db
+```
+
+Our network policy will look for this label to identify the pods which fell under its rule.
+
+```yaml
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: gitea-db-password
+                key: password
+```
+
+The database password will come from a secret.
+
+```yaml
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          subPath: data # important so it gets mounted properly
+          name: git-db-data
+      volumes:
+        - name: git-db-data
+          persistentVolumeClaim:
+            claimName: do-storage-gitea-db
+```
+
+We also need a persistent volume otherwise the data will be lost on each pod restart.
+
+```yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: powerhouse
+  name: do-storage-gitea-db
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: do-block-storage
+```
+
+##### Service
+
+We also need a Service so Gitea will be able to reach it. This isn't public though so a NodePort is enough with no clusterIP.
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: powerhouse
+  name: gitea-db-service
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: gitea-db
+  clusterIP: None
+```
+
+In order to reach this DB we can use a URL like this now from the Gitea app: `gitea-db-service.powerhouse.svc.cluster.local:5432`.
+
+##### NetworkPolicy
+
+We want the Gitea app to be able to reach it. Which means in-out to the Gitea app and nothing else.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gitea-db-network-policy
+  namespace: powehouse
+spec:
+  podSelector:
+    matchLabels:
+      app: gitea-db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: gitea
+    ports:
+    - protocol: TCP
+      port: 5432
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: gitea
+    ports:
+    - protocol: TCP
+      port: 5432
+```
+
+We can test this now by exec-ing into the Pod of the DB deployment and trying to ping google.com for example. It should be denied. Yet later, when we deploy our Gitea app, that should be able to talk to the DB instance.
+
+##### Secret
+
+Finally, we have a Secret which contains our db password base64 encoded.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: cronohub
+  name: gitea-db-password
+type: Opaque
+data:
+  password: Z2l0ZWE=
+```
+
+That says password123. To get it, you can run something like `echo -n "password123" | base64`.
+
+#### Gitea App ini
+
+Huh, with that done, we can go on with the application ini file. This can be configured via environment properties but once you get over a dozen configuration entries, it's just easier to use an app.ini. My app ini is large, so I won't post it here. I could mount it in as a file, but that proved to be difficult or not work at all properly because Gitea is running under a different user than root. Also, once the mount happened the fact the gitea was trying to write into it caused problems. Mounting as a different user didn't work out either, so I'm using an [InitContainer](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) to do the job. They are there for that reason. And it was actually a hell of a lot simpler than doing file mounting.
+
+The app.ini is defined as a ConfigMap like this:
+
+```
+kubectl create configmap gitea-app-ini --from-file=app.ini --namespace powerhouse
+```
+
+This was done from the folder where my app.ini was residing.
+
+#### Deployment
+
+Now comes the big gun. The Gitea deployment file. This is how it looks like in all its glory:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cronohub
+  name: gitea-app
+  labels:
+    app: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+        app.kubernetes.io/name: gitea
+        app.kubernetes.io/instance: gitea
+    spec:
+      initContainers:
+      - name: init-disk
+        image: busybox:latest
+        command:
+        - /bin/chown
+        - 1000:1000 # we set the gid and uid of the user for gitea.
+        - /data
+        volumeMounts:
+        - name: git-data
+          mountPath: "/data"
+          readOnly: false
+      - name: init-app-ini
+        image: busybox:latest
+        command: ['sh', '-c', 'mkdir -p /data/gitea/conf/; cp /data/app.ini /data/gitea/conf']
+        volumeMounts:
+        - name: git-data
+          mountPath: "/data"
+          readOnly: false
+        - name: gitea-app-ini-conf
+          mountPath: /data/app.ini
+          subPath: app.ini
+          readOnly: false
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.9.2
+        env:
+          - name: DB_PASSWD
+            valueFrom:
+              secretKeyRef:
+                name: gitea-db-password
+                key: password
+          - name: DB_TYPE
+            valueFrom:
+              configMapKeyRef:
+                name: gitea-config-map
+                key: DB_TYPE
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: gitea-config-map
+                key: DB_HOST
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: gitea-config-map
+                key: DB_NAME
+          - name: DB_USER
+            valueFrom:
+              configMapKeyRef:
+                name: gitea-config-map
+                key: DB_USER
+        ports:
+        - containerPort: 3000
+          name: gitea-http
+        - containerPort: 22
+          name: gitea-ssh
+        volumeMounts:
+        - mountPath: /data
+          name: git-data
+          readOnly: false
+      volumes:
+        - name: git-data
+          persistentVolumeClaim:
+            claimName: do-storage-gitea
+        - name: gitea-app-ini-conf
+          configMap:
+            name: gitea-app-ini
+
+```
+
+The important bit is the initContainer section. What's happening here? We mount the app.ini file to the init container under /data. The awesome part about the initContainer is that the real container will have access to the file system the init container created.
+
+So we take that file, fix the permissions on it and copy it to the right location under `/data/gitea/conf` for the Gitea app to work with.
+
+Done!
+
+And the configMap is simple:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: powerhouse
+  name: gitea-config-map
+data:
+  APP_COLOR: blue
+  APP_MOD: prod
+  DB_TYPE: postgres
+  DB_HOST: "gitea-db-service.cronohub.svc.cluster.local:5432"
+  DB_NAME: gitea
+  DB_USER: gitea
+```
+
+#### SSH
+
+Normally, Ingress only allows HTTP based traffic control. But what would an ingress be without also regular TCP based routing?
+
+But it's not trivial. Nginx Ingress provides a documentation for this here: [Exposing TCP and UDP services](https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/). What does that mean in practice?
+
+You see we are also exposing port 22 on the container:
+
+```yaml
+        - containerPort: 22
+          name: gitea-ssh
+```
+
+I choose to differentiate my SSH port for Gitea from port 22 because that's just cumbersome to get done right. Gitea provides an explanation on how to do port 22 forwarding in a docker container with a custom git command which forwards commands to the container itself. This is all just plain too much to worry about.
+
+I have this in the app.ini:
+
+```ini
+SSH_PORT         = <port of my choosing>
+```
+
+And then this in the Service definition:
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: powerhouse
+  name: gitea
+  labels:
+    app: gitea
+    app.kubernetes.io/name: gitea
+    app.kubernetes.io/instance: gitea
+spec:
+  selector:
+    app: gitea
+    app.kubernetes.io/name: gitea
+    app.kubernetes.io/instance: gitea
+  ports:
+  - name: http
+    port: 3000
+    targetPort: gitea-http
+  - name: ssh
+    port: <port of my choosing>
+    targetPort: gitea-ssh
+    protocol: TCP
+```
+
+And then, we edit the nginx-controller deployment like this:
+
+```
+kubectl edit deployment.apps/nginx-ingress-controller
+```
+
+And add this line `--tcp-services-configmap=cronohub/gitea-ssh-service` to the container's args field:
+
+```yaml
+      containers:
+      - args:
+        - /nginx-ingress-controller
+        - --default-backend-service=default/nginx-ingress-default-backend
+        - --election-id=ingress-controller-leader
+        - --ingress-class=nginx
+        - --configmap=default/nginx-ingress-controller
+        - --tcp-services-configmap=powerhouse/gitea-ssh-service
+```
+
+One more thing is that we have to open that port on the load balancer as well to get traffic to it. To that end, edit the nginx ingress service as well:
+
+```
+kubectl edit services/nginx-ingress-controller
+```
+
+And add the exposed port:
+
+```yaml
+  - name: ssh
+    port: <port of my choosing>
+    protocol: TCP
+    targetPort: <port of my choosing>
+```
+
+There will probably be a nodePort section in there on the other ports. Ignore that for your change.
+
+Also, if you are doing the nginx installation by hand, just add this or save the yaml file from those deployments like this:
+
+```
+kubectl get service/nginx-ingress-controller -o yaml > nginx-ingress-controller.yaml
+```
+
+So you can deploy / modify it later on.
+
+#### Finished Gitea
+
+And with that, visit `gitea.powerhouse.com` and it should work including HTTPS and SSH!
+
+You can now clone repositories like this: `git clone ssh://git@gitea.powerhouse.com:1234/user/awesome_project.git`.
+
+It is important to note that we don't use `latest` anywhere. It's just not good if you are trying to update a service later on. We could set ImagePolicy to AlwaysPull but that's just not a good thing to do if you have a 2 gig image. Always use version and policy `imagePullPolicy: IfNotPresent` to save yourself some bandwidth.
+
+## Idle Checker
+
+Let's create a last resource, then we'll call it a day.
+
+The idle RPG is a cool little game that you play by... not playing. At all. If you play, you get penalties. Here is a cool resource to start: [Idle RPG](https://idlerpg.lolhosting.net). This looks something like this:
+
+```
+21:56 <@IdleBot> Verily I say unto thee, the Heavens have burst forth, and the blessed hand of God carried ganome 0 days, 03:52:11 toward level 45.
+21:56 <@IdleBot> ganome reaches next level in 0 days, 01:49:16.
+22:02 <@IdleBot> himuraken, the level 77 Mage Of BitFlips, is now online from nickname himuraken. Next level in 11 days, 10:35:53.
+22:14 <@IdleBot> Nechayev, Sundance, and simple [2011/2347] have team battled HeavyPodda, Sixbierehomme, and L [1417/2717] and won! 0 days, 06:14:54 is removed from their clocks.
+22:18 <@IdleBot> canton7 saw an episode of Ally McBeal. This terrible calamity has slowed them 0 days, 05:10:53 from level 85.
+22:18 <@IdleBot> canton7 reaches next level in 2 days, 00:21:36.
+22:26 <@IdleBot> Tor [4/1142] has challenged Brainiac [232/817] in combat and lost! 3 days, 23:06:05 is added to Tor's clock.
+22:26 <@IdleBot> Tor reaches next level in 39 days, 23:39:35.
+```
+
+It could happen that by some misfortune the bouncer gets restarted and it doesn't log back in. Or you simply just lose connection and you don't re-connect. That is unacceptable because the point is to be present. Otherwise you don't play. So you need an early warning in case you are offline. Luckily, IdleRPG provides an XML based endpoint to get which contains your status.
+
+From there, I'm using mailgun with a registered domain to send me an email in case my status is offline. For that, here is a small Go program [IdleRPG Checker Go Code](https://gist.github.com/Skarlso/318ddd6f8d71dbda8fbbd1a908fdb159).
+
+To put that into a Docker container, here is a Dockerfile:
+
+```Dockerfile
+FROM golang:latest as build
+RUN go get -v github.com/sirupsen/logrus && \
+    go get -v github.com/mailgun/mailgun-go
+COPY ./main.go /code/
+WORKDIR /code
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /idlerpg-checker .
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=build /idlerpg-checker /idlerpg-checker
+RUN echo "v0.0.1" >> .version
+ENTRYPOINT ["/idlerpg-checker"]
+```
+
+And the corresponding cronjob resource definition:
+
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: idle-checker
+  namespace: idle-checker
+spec:
+  schedule: "*/20 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: idle-checker
+            image: skarlso/idle-checker
+            imagePullPolicy: IfNotPresent
+            env:
+              - name:  MG_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name:  idle-rpg-secret
+                    key:  MG_API_KEY
+              - name:  MG_DOMAIN
+                valueFrom:
+                  secretKeyRef:
+                    name:  idle-rpg-secret
+                    key:  MG_DOMAIN
+            args: ['-username', 'username', '-email', 'user@powerhouse.com']
+          restartPolicy: OnFailure
+```
+
+Aaaand, the secret for the API key:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: idle-checker
+  name: idle-rpg-secret
+type: Opaque
+data:
+  MG_API_KEY: asdf=
+  MG_DOMAIN: asdf==
+
+```
+
+Done. Huh. This will run every 20 minutes and check if the user with username `username` is online. If not, it will send an email to the given email address. Your levels are safe.
+
+# Closing words
+
+Phew. This has been quite the ride. The post is now really long, so I will split the rest out into a Part 2. That is, Athens and Monitoring.
+
+Thank you for reading this far!
+
+Cheers,
+Gergely.
