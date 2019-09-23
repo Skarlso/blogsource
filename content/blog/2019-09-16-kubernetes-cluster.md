@@ -21,9 +21,9 @@ Let's get to it.
 
 # What
 
-What services am I running exactly? Here is the exact list of services I'm running at the time of writing:
+![kube-architecture](/img/hosting/kube-architecture.png)
 
-@TODO: Insert graphic here, about the deployment of various services with their respective logos.
+What services am I running exactly? Here is the exact list of services I'm running at the time of writing:
 
 - Athens Go Proxy
 - Gitea
@@ -40,7 +40,7 @@ And it's really simple to add more.
 
 My cluster is deployed at DigitalOcean using two droplets each 1vCPU and 2GB RAM.
 
-@TODO: Small image of DO + Kube
+![kube-on-digitalocean](/img/hosting/kube-on-digitalocean.png)
 
 # What Not
 
@@ -78,7 +78,7 @@ As a driver, I'm going to use Docker. Kubernetes can use anything that's OCI com
 
 ## Example
 
-@TODO: Insert a cool little drawing about the fork updater.
+![fork-updater](/img/fork-updater.png)
 
 To show you what I mean... I have a cronjob which is running every month. It gathers all my forks on github and updates them with the latest from their parents. This a small ruby script located here: [Fork Updater](https://gist.github.com/Skarlso/fd5bd5971a78a5fa9760b31683de690e). How do we run this? It requires two things. First, a token. We pass that currently as an environment property. It could be in a file in a vault or a secret mounted in as a file it doesn't matter. Currently, it's an environment property. The second thing is more subtle.
 
@@ -234,10 +234,253 @@ spec:
 
 Again, nothing fancy here, just a simple service exposing a port to a different port on the front-end side. This service will be picked up by our previously created routing facility.
 
-@TODO: Insert image here on the architecture.
-
 ### Ingress
 
 Now that we have the service we need to expose it to the domain. I have the domain gergelybrautigam.com and I already pointed it at the LoadBalancer's IP which was created by the nginx ingress controller.
 
 We only want one LoadBalancer, but we have multiple hostnames. We can achieve that by creating an Ingress resource in the namespace our service is in like this:
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: gergely-brautigam
+  name: gergely-brautigam-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-prod"
+    certmanager.k8s.io/acme-challenge-type: http01
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - gergelybrautigam.com
+    secretName: gergelybrautigam-tls
+  rules:
+  - host: gergelybrautigam.com
+    http:
+      paths:
+      - backend:
+          serviceName: gb-service
+          servicePort: 80
+```
+
+Remember, we already have the nginx ingress resource in the default namespace when we installed the controller previously. That is the main entrypoint. We are taking advantage of the rewrite-target annotation. That is our key to success `nginx.ingress.kubernetes.io/rewrite-target: /`. The rest is basic routing. We'll have something like this in the other namespace to.
+
+And with that, our website is done and it should be working under HTTPS. Cert-manager should have picked it up and generated a certificate for it. Let's check.
+
+Running `k get certs -n gergely-brautigam` you should see something like this:
+
+```
+ $ k get certs -n gergely-brautigam
+NAME                   READY   SECRET                 AGE
+gergelybrautigam-tls   True    gergelybrautigam-tls   86d
+```
+
+If there is a problem, just describe the cert resource and look for the generated challenge and if it was successful or not. The challenge contains mostly good error messages.
+
+## IRC bouncer
+
+That wasn't too bad, right? Let's do something a bit more complex this time. We are going to deploy [The lounge](https://github.com/thelounge/thelounge) irc bouncer.
+
+It's actually quite easy to do but can be dounting to look at at first.
+
+![easy](/img/the-climb.png)
+
+### The container
+
+Lucky for us, the bouncer already provides a container located here: [The Lounge Docker Hub](https://hub.docker.com/r/thelounge/thelounge/).
+
+We just need two things. To expose the port 9000 and to give it something called a PersistentVolume. What's a persitent volume? Well, look it up here: [Kubernetes Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
+
+TL;DR: We need to preserve data. Containers are ephemeral in nature. Meaning if there is a problem we usually just delete the pod. Which means that all data will be lost. But we need persistence in this case because we'll have user data and user information which we would like to persist between pods. That's what a volume is for.
+
+It will be mounted into the pod so we can point the bouncer to use that location for data management.
+
+### PVC
+
+With that, this is how our PersistentVolumeClaim will look like:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: powerhouse
+  name: do-storage-irc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage
+```
+
+DigitalOcean provides a block storage implementation for this claim so we use that storage class `do-block-storage`.
+
+### Deployment
+
+With that, this is how the deployment will look like:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: powerhouse
+  name: irc-app
+  labels:
+    app: irc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: irc
+  template:
+    metadata:
+      labels:
+        app: irc
+        app.kubernetes.io/name: irc
+        app.kubernetes.io/instance: irc
+    spec:
+      containers:
+      - name: irc
+        image: thelounge/thelounge:3.1.1
+        ports:
+        - containerPort: 9000
+          name: irc-http
+        volumeMounts:
+        - mountPath: /var/opt/thelounge
+          subPath: thelounge
+          name: irc-data
+          readOnly: false
+      volumes:
+        - name: irc-data
+          persistentVolumeClaim:
+            claimName: do-storage-irc
+```
+
+Short and sweet. The important bits are the labels, those are used by cert-manager and ingress to find the right deployment, and the `volumeMounts`. We mount into the /var/opt/thelounge folder because that's the main configuration location. The subPath is important for a correct mounting.
+
+### The service
+
+Alright, with the deployment in place, let's take a look at the service.
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: powerhouse
+  name: irc
+  labels:
+    app: irc
+    app.kubernetes.io/name: irc
+    app.kubernetes.io/instance: irc
+spec:
+  selector:
+    app: irc
+    app.kubernetes.io/name: irc
+    app.kubernetes.io/instance: irc
+  ports:
+  - name: http
+    port: 9000
+    targetPort: irc-http
+```
+
+Again, very boring stuff. Boring is good. Boring is predictable. We expose port 9000 to the named targetPort called irc-http which we defined in the above deployment.
+
+Now, I have a domain in which these things are running, let's call it `powerhouse.com` (because I'm tired of example.com). And I have multiple services in this namespace too, so I'll call the namespace here, powerhouse and put this irc service in there. This also means that the ingress resource for this namespace will contain a couple more routings, because my powerhouse namespace will also contain my gitea and athens proxy installation.
+
+We can, however, take a peak the ingress resource here and now too... because I hate suspense.
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: powerhouse
+  name: powerhouse-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-prod"
+    certmanager.k8s.io/acme-challenge-type: http01
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - irc.powerhouse.com
+    secretName: irc-powerhouse-tls
+  - hosts:
+    - gitea.powerhouse.com
+    secretName: gitea-powerhouse-tls
+  - hosts:
+    - athens.powerhouse.com
+    secretName: athens-powerhouse-tls
+  rules:
+  - host: irc.powerhouse.com
+    http:
+      paths:
+      - backend:
+          serviceName: irc
+          servicePort: 9000
+        path: /
+  - host: gitea.powerhouse.com
+    http:
+      paths:
+      - backend:
+          serviceName: gitea
+          servicePort: 3000
+        path: /
+  - host: athens.powerhouse.com
+    http:
+      paths:
+      - backend:
+          serviceName: athens-service
+          servicePort: 80
+        path: /
+```
+
+Here, we can see that we have multiple paths pointing to three different subdomains with different ports. These ports will be routed to by nginx ingress. Meaning you **DO NOT OPEN THESE ON YOUR LOADBALANCER**. These will all be accessible from 443/HTTPS. Expect for gitea's SSH port, now that will be a doozy.
+
+With these in place, cert-manager should pick it up and provide a certificate for it.
+
+### Side track -- debugging
+
+If there is a problem and we can't reach TheLounge we need to debug. I use the following tool to access Kubernetes resources: [K9S](https://github.com/derailed/k9s). It's a neat CLI tool to look at kube resources in an interactive way and not having to type in a bunch of commands. Never the less, I will also paste those in here.
+
+To look at the pods that should have been created, type:
+
+```
+k get pods -n powerhouse
+```
+
+Should see something like this:
+
+```
+NAME                          READY   STATUS    RESTARTS   AGE
+athens-app-857749c59c-lmjnb   1/1     Running   0          6d3h
+gitea-app-6974fb995b-pn2vv    1/1     Running   0          9d
+gitea-db-59758fbcd9-4562c     1/1     Running   0          9d
+irc-app-5f87688f98-dqsvb      1/1     Running   0          9d
+```
+
+You can see that my other services are running fine. And there is IRC as well. Now if there would be any kind of problem we could access the Pods information be describing the pod with:
+
+```
+k describe pod/irc-app-5f87688f98-dqsvb -n powerhouse
+```
+
+Which will provide a bunch of information about the pod. But the pod could be absolutely fine, yet our service could be down. (We didn't define any liveliness or readiness probs after all).
+
+We can verify that by taking a peak in the container (also, check if our mounting was successful). Since this is just a container, exec works similar to docker exec.
+
+```
+ $ k exec -it irc-app-5f87688f98-dqsvb -n powerhouse /bin/bash
+root@irc-app-5f87688f98-dqsvb:/#
+```
+
+Should give us a prompt. We can now look at logs, check out the configuration folder etc.
+
+In k9s you would simply select the right namespace, select the pod, hit `d` for describe or `s` for shell. Done.
+
+## Gitea
+
+Now, we have IRC running. Let's try deploying [Gitea](https://gitea.io/en-us/). This takes a tiny bit more fiddling though.
