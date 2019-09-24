@@ -1,10 +1,10 @@
 +++
 author = "hannibal"
 categories = ["kubernetes"]
-date = "2019-09-16T21:01:00+01:00"
+date = "2019-09-21T21:01:00+01:00"
 type = "post"
 title = "Using a Kubernetes based Cluster for Various Services with auto HTTPS"
-url = "/2019/09/16/kubernetes-cluster"
+url = "/2019/09/21/kubernetes-cluster"
 comments = true
 +++
 
