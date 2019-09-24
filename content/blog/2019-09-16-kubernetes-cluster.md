@@ -5,7 +5,6 @@ date = "2019-09-16T21:01:00+01:00"
 type = "post"
 title = "Using a Kubernetes based Cluster for Various Services with auto HTTPS"
 url = "/2019/09/16/kubernetes-cluster"
-draft = true
 comments = true
 +++
 
@@ -23,7 +22,7 @@ Let's get to it.
 
 ![kube-architecture](/img/hosting/kube-architecture.png)
 
-What services am I running exactly? Here is the exact list of services I'm running at the time of writing:
+What services am I running exactly? Here is a list I'm running at the time of this writing:
 
 - Athens Go Proxy
 - Gitea
@@ -58,7 +57,7 @@ I'm the sole user of my things. I'm not really scaling my gitea up or down based
 
 - Resource limits
 - Nodes with certain capabilities
-- Affinities and Taints -- everything can run everywhere
+- Affinities and Taints -- which means, everything can run anywhere
 
 # How
 
@@ -68,7 +67,7 @@ Okay, with that out of the way, let's get into the hows of things...
 
 The most important thing that you need to do in order to use Kubernetes is Containerizing all the things.
 
-@TODO: Drawing -- Container in all the things, like cats, dogs... etc.
+![containers](/img/containers.png)
 
 Since Kubernetes is a container orchestration tool, without containers it's pretty useless.
 
@@ -80,7 +79,7 @@ As a driver, I'm going to use Docker. Kubernetes can use anything that's OCI com
 
 To show you what I mean... I have a cronjob which is running every month. It gathers all my forks on github and updates them with the latest from their parents. This a small ruby script located here: [Fork Updater](https://gist.github.com/Skarlso/fd5bd5971a78a5fa9760b31683de690e). How do we run this? It requires two things. First, a token. We pass that currently as an environment property. It could be in a file in a vault or a secret mounted in as a file it doesn't matter. Currently, it's an environment property. The second thing is more subtle.
 
-I'm pushing the changes back into my remote forks. I'm doing this via SSH. So, we need a key in there too. How we'll get that in there, I'll talk about later when we are talking about how to set this cron job up. For now though, the container needs to look for a key in a specific location. Because we don't want to over-mount `/root/.ssh/` and we also don't want to use an initContainer to copy over an SSH key (because it's mounted in as a symlink (but that's a different issue all together)).
+I'm pushing the changes back into my remote forks. I'm doing this via SSH. So, we need a key in there too. How we'll get that in there, I'll talk about later when we are talking about how to set this cron job up. For now though, the container needs to look for a key in a specific location because we don't want to over-mount `/root/.ssh/` and we also don't want to use an initContainer to copy over an SSH key (because it's mounted in as a symlink (but that's a different issue all together)). Also, we certianly do NOT want to have a key in the container.
 
 To achieve this, we simply set up a `config` file for SSH like this one:
 
@@ -122,7 +121,11 @@ COPY ./fork_updater.rb .
 CMD ["ruby", "/data/fork_updater.rb"]
 ```
 
-That's it. Now our updater is containerized and ready to be deployed as a cronjob on a kube cluster.
+That's it. Now our updater is containerized and ready to be deployed as a cronjob on a kube cluster. Oh, and we also need to create the SSH key like this:
+
+```
+kubectl create secret generic ssh-key-secret --from-file=ssh-privatekey=/path/to/.ssh/id_rsa
+```
 
 # Before we Begin
 
@@ -896,6 +899,8 @@ You can now clone repositories like this: `git clone ssh://git@gitea.powerhouse.
 It is important to note that we don't use `latest` anywhere. It's just not good if you are trying to update a service later on. We could set ImagePolicy to AlwaysPull but that's just not a good thing to do if you have a 2 gig image. Always use version and policy `imagePullPolicy: IfNotPresent` to save yourself some bandwidth.
 
 ## Idle Checker
+
+![idle-checker](/img/idle-checker.png)
 
 Let's create a last resource, then we'll call it a day.
 
