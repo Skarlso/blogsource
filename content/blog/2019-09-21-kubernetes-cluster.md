@@ -67,7 +67,7 @@ Okay, with that out of the way, let's get into the hows of things...
 
 The most important thing that you need to do in order to use Kubernetes is Containerizing all the things.
 
-![containers](/img/containers.png)
+![containers](/img/hosting/containers.png)
 
 Since Kubernetes is a container orchestration tool, without containers it's pretty useless.
 
@@ -75,7 +75,7 @@ As a driver, I'm going to use Docker. Kubernetes can use anything that's OCI com
 
 ## Example
 
-![fork-updater](/img/fork-updater.png)
+![fork-updater](/img/hosting/fork-updater.png)
 
 To show you what I mean... I have a cronjob which is running every month. It gathers all my forks on github and updates them with the latest from their parents. This a small ruby script located here: [Fork Updater](https://gist.github.com/Skarlso/fd5bd5971a78a5fa9760b31683de690e). How do we run this? It requires two things. First, a token. We pass that currently as an environment property. It could be in a file in a vault or a secret mounted in as a file it doesn't matter. Currently, it's an environment property. The second thing is more subtle.
 
@@ -286,7 +286,7 @@ That wasn't too bad, right? Let's do something a bit more complex this time. We 
 
 It's actually quite easy to do but can be daunting to look at at first.
 
-![easy](/img/the-climb.png)
+![easy](/img/hosting/the-climb.png)
 
 ### The container
 
@@ -900,7 +900,7 @@ It is important to note that we don't use `latest` anywhere. It's just not good 
 
 ## Idle Checker
 
-![idle-checker](/img/idle-checker.png)
+![idle-checker](/img/hosting/idle-checker.png)
 
 Let's create a last resource, then we'll call it a day.
 
