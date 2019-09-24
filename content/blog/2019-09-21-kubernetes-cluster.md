@@ -59,6 +59,10 @@ I'm the sole user of my things. I'm not really scaling my gitea up or down based
 - Nodes with certain capabilities
 - Affinities and Taints -- which means, everything can run anywhere
 
+## Readiness Liveliness
+
+Most of by deploys and services don't have these except for Athens.
+
 # How
 
 Okay, with that out of the way, let's get into the hows of things...
@@ -151,7 +155,7 @@ Alright. Now that we have the prereqs out of the way, let's get our hands dirty.
 
 ## My Website
 
-The site, located here: [Gergely's Domain](gergelybrautigam.com); is a really simple, static, [Hugo](https://gohugo.io) based website. It contains nothing fancy, no real Javascript magic, has a simple list of things I've done and who I am.
+The site, located here: [Gergely's Domain](https://gergelybrautigam.com); is a really simple, static, [Hugo](https://gohugo.io) based website. It contains nothing fancy, no real Javascript magic, has a simple list of things I've done and who I am.
 
 It's powered / served by an nginx instance running on port 9090 define by a very simple Dockerfile:
 
@@ -209,7 +213,7 @@ spec:
         - containerPort: 9090
 ```
 
-What is going on here? Really simple. The metadata section defines information about the deployment. It's name is gb-deployment. The namespace in which this sits is called gergely-brautigam and it has some labels to it so our routing can find it later on.
+The metadata section defines information about the deployment. It's name is gb-deployment. The namespace in which this sits is called gergely-brautigam and it has some labels to it so Prometheus monitoring tool can discover the pod.
 
 It's running a single replica, has a bunch of more metadata and template settings, and finally the container spec which defines the image, and the exposed container port on which the application is running.
 
@@ -391,7 +395,7 @@ Again, very boring stuff. Boring is good. Boring is predictable. We expose port 
 
 Now, I have a domain in which these things are running, let's call it `powerhouse.com` (because I'm tired of example.com). And I have multiple services in this namespace too, so I'll call the namespace here, powerhouse and put this irc service in there. This also means that the ingress resource for this namespace will contain a couple more routings, because my powerhouse namespace will also contain my gitea and Athens proxy installation.
 
-We can, however, take a peak the ingress resource here and now too... because I hate suspense.
+We can, however, take a peak at the ingress resource here and now... because I hate suspense.
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -439,7 +443,7 @@ spec:
         path: /
 ```
 
-Here, we can see that we have multiple paths pointing to three different subdomains with different ports. These ports will be routed to by nginx ingress. Meaning you **DO NOT OPEN THESE ON YOUR LOADBALANCER**. These will all be accessible from 443/HTTPS. Expect for gitea's SSH port, now that will be a doozy.
+We can see that I have multiple paths pointing to three different subdomains with different ports. These ports will be routed to by nginx ingress. Meaning you **DO NOT OPEN THESE ON YOUR LOADBALANCER**. These will all be accessible from 443/HTTPS. Expect for gitea's SSH port later on.
 
 With these in place, cert-manager should pick it up and provide a certificate for it.
 
@@ -894,7 +898,9 @@ So you can deploy / modify it later on.
 
 And with that, visit `gitea.powerhouse.com` and it should work including HTTPS and SSH!
 
-You can now clone repositories like this: `git clone ssh://git@gitea.powerhouse.com:1234/user/awesome_project.git`.
+You can now clone repositories like this: `git clone ssh://git@gitea.powerhouse.com:1234/user/awesome_project.git` after you created your user.
+
+User creation is done by using the gitea admin CLI tool described here: [Gitea Documentation](https://docs.gitea.io/en-us/command-line/).
 
 It is important to note that we don't use `latest` anywhere. It's just not good if you are trying to update a service later on. We could set ImagePolicy to AlwaysPull but that's just not a good thing to do if you have a 2 gig image. Always use version and policy `imagePullPolicy: IfNotPresent` to save yourself some bandwidth.
 
@@ -904,7 +910,7 @@ It is important to note that we don't use `latest` anywhere. It's just not good 
 
 Let's create a last resource, then we'll call it a day.
 
-The idle RPG is a cool little game that you play by... not playing. At all. If you play, you get penalties. Here is a cool resource to start: [Idle RPG](https://idlerpg.lolhosting.net). This looks something like this:
+The idle RPG is a cool little game that you play by... not playing. At all. If you play, you get penalties. Here is a cool resource to start: [Idle RPG](https://idlerpg.lolhosting.net). It looks something like this:
 
 ```
 21:56 <@IdleBot> Verily I say unto thee, the Heavens have burst forth, and the blessed hand of God carried ganome 0 days, 03:52:11 toward level 45.
@@ -917,7 +923,7 @@ The idle RPG is a cool little game that you play by... not playing. At all. If y
 22:26 <@IdleBot> Tor reaches next level in 39 days, 23:39:35.
 ```
 
-It could happen that by some misfortune the bouncer gets restarted and it doesn't log back in. Or you simply just lose connection and you don't re-connect. That is unacceptable because the point is to be present. Otherwise you don't play. So you need an early warning in case you are offline. Luckily, IdleRPG provides an XML based endpoint to get which contains your status.
+It could happen that by some misfortune the bouncer gets restarted and it doesn't log you back in. Or you simply just lose connection and you don't re-connect. That is unacceptable because the point is to be present. Otherwise you don't play. So you need an early warning in case you are offline. Luckily, IdleRPG provides an XML based endpoint to get which contains your status.
 
 From there, I'm using mailgun with a registered domain to send me an email in case my status is offline. For that, here is a small Go program [IdleRPG Checker Go Code](https://gist.github.com/Skarlso/318ddd6f8d71dbda8fbbd1a908fdb159).
 
