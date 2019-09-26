@@ -1,0 +1,16 @@
+on: push
+name: Publish Blog
+jobs:
+  blog-builder:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: blog-builder
+      uses: skarlso/blog-builder@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: blog-publisher
+      uses: skarlso/blog-publisher@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
