@@ -12,6 +12,8 @@ comments = true
 
 One morning I woke up and tried to access my gitea just to find that it wasn't running.
 
+![dead kube](/img/kube_dead.png)
+
 I checked my cluster and found that the whole thing was dead as meat. I quickly jumped in and ran `k get pods -A` to see what's
 going on. None of my services worked.
 
