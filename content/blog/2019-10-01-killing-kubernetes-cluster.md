@@ -51,7 +51,7 @@ spec:
             - name: fork-updater-ssh-key
               mountPath: "/etc/secret"
               readOnly: true
-          restartPolicy: Always
+          restartPolicy: OnFailure
 ~~~
 
 Inherently there is nothing wrong with this at first glance. But on a second glance, the problem is `restartPolicy: Always`.
