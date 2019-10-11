@@ -18,7 +18,7 @@ And I thought I'd draw a sort of summary of that workshop.
 
 ![enjoy](/img/practical_go.png)
 
-Click for larger resolution.
+Right-click->Open Image for higher resolution.
 
 Cheers,
 Gergely.
