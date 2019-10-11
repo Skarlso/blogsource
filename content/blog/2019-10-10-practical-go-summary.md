@@ -1,10 +1,10 @@
 +++
 author = "hannibal"
 categories = ["golang"]
-date = "2019-10-11T21:01:00+01:00"
+date = "2019-10-10T21:01:00+01:00"
 type = "post"
 title = "Summary of Practical Go workshop from Dave Cheney"
-url = "/2019/10/11/practical-go-summary"
+url = "/2019/10/10/practical-go-summary"
 comments = true
 +++
 
