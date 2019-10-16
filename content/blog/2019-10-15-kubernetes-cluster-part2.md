@@ -1,36 +1,35 @@
 +++
 author = "hannibal"
 categories = ["kubernetes"]
-date = "2019-09-25T21:01:00+01:00"
+date = "2019-10-15T21:01:00+01:00"
 type = "post"
 title = "Using a Kubernetes based Cluster for Various Services with auto HTTPS - Part 2"
-url = "/2019/09/25/kubernetes-cluster-part2"
+url = "/2019/10/15/kubernetes-cluster-part2"
 comments = true
-draft = true
 +++
 
 # Intro
 
 Hi folks.
 
-This is a continuation of the previous post about my Kubernetes infrastructure. The two remaining points are to deploy Athens Go proxy and setting up monitoring.
+This is a continuation of the previous post about my Kubernetes infrastructure located [here](https://skarlso.github.io/2019/09/21/kubernetes-cluster/). The two remaining points are to deploy Athens Go proxy and setting up monitoring.
 
 # Athens
 
-@TODO: Create Drawing of Athens.
+![Athens](/img/hosting/athens.png)
 
 Let's start with [Athens](https://github.com/gomods/athens).
 
-First of all if you are a helm user, I have to note that Athens has an awesome set of helm charts which you can use to deploy it in your cluster.
+First of all if you are a helm user, Athens has an awesome set of helm charts which you can use to deploy it in your cluster.
 Located [here](https://github.com/gomods/athens/tree/master/charts/athens-proxy).
 
-I prefer the deploy my own charts, I don't really like helm. But that's me. So here is my preferred way of deploying Athens.
+I prefer to deploy my own config files, but that's me. So here is my preferred way of deploying Athens.
 
-First, since this is also a subdomain of the previously created `powerhouse` namespace we are going to use that.
+Since this is also a subdomain of the previously created `powerhouse` namespace we are going to use that.
 
 ## PVC
 
-We are going to need a PersistentVolumeClaim again for Athens so it can store all the things forever.
+We are going to need a PersistentVolumeClaim for Athens so it can store all the things forever.
 
 ~~~yaml
 apiVersion: v1
@@ -47,11 +46,11 @@ spec:
   storageClassName: do-block-storage
 ~~~
 
-Claim is a boring thing. It's the same thing as for the rest.
+Claim is very boring. Which means it just works.
 
 ## Deployment
 
-Now, this is the interesting thing. Athens provides a lot of possibilities for the deployment. I'm just deploying the barest possible here. Which doesn't have any user auth doesn't have private repository support etc... It's a plain proxy installation.
+This is more interesting. Athens provides a lot of possibilities for the deployment. I'm just deploying the barest possible here. Which means, no user auth, no private repository support, ssh key configuration, etc... It's a plain proxy installation.
 
 ~~~yaml
 apiVersion: apps/v1
@@ -104,9 +103,9 @@ spec:
             claimName: athens-storage
 ~~~
 
-Fun fact. The name of the app must not be just plain `athens` because that will result in an error `too many colons in address`.
+Fun fact. The name of the app must not be just plain `athens` because that will result in an error: `too many colons in address`.
 
-The issue is here: https://github.com/gomods/athens/issues/1038#issuecomment-457145658 Besically it's because of the name used for the environment properties inside the container.
+The issue is here: https://github.com/gomods/athens/issues/1038#issuecomment-457145658 Basically it's because of the name used for the environment properties inside the container.
 
 ## Service
 
@@ -159,17 +158,17 @@ spec:
 
 And that's it! If you now visit `https://athens.powerhouse.com` it should say `"Welcome to The Athens Proxy"`.
 
-Now, if you set this proxy with `export GOPROXY=https://athens.powerhouse.com` it should start to cache modules.
+Now, if you set this proxy with `export GOPROXY=https://athens.powerhouse.com` it should start to cache modules. It's a fantastic proxy with a lot of capabilities. I encourage you to check it out and drop by it's slack channel on Gopher slack called Athens.
 
 # Monitoring
 
-Monitoring is a huge topic so I'm not going to talk about how to monitor or what. That is described in great many of posts. I especially recommend reading sysdig's 6 part post on doing monitoring with Prometheus and Grafana and what to monitor and the four golden metrics and whatnot. Starting [here](https://sysdig.com/blog/kubernetes-monitoring-prometheus/) and [here](https://sysdig.com/blog/monitoring-kubernetes-with-sysdig-cloud/).
+Monitoring is a huge topic so I'm not going to talk about how to monitor or what. That is described in great many of posts. I especially recommend reading sysdig's 6 part post on doing monitoring with Prometheus and Grafana and what to monitor and the four golden signals and whatnot. Starting [here](https://sysdig.com/blog/kubernetes-monitoring-prometheus/) and [here](https://sysdig.com/blog/monitoring-kubernetes-with-sysdig-cloud/).
 
 ## Prometheus
 
-I'm going to deploy [Prometheus](https://prometheus.io). Prometheus is a monitoring tool which sits inside your cluster and gathers data about running pods, nodes, whatever you expose and wants to send data to it. It can also alert on things and can be integrated with tools like Graphana for a nice front-end and metrics. Prometheus itself uses PromQL which is a query language to gather data from different sources and do timeseries analytics and much much more.
+I'm going to deploy [Prometheus](https://prometheus.io). Prometheus is a monitoring tool which sits inside your cluster and gathers data about running pods, nodes, services, whatever you expose and wants to send data to it. It can also alert on things and can be integrated with tools like Graphana for nice front-end and metrics. Prometheus itself uses PromQL as its query language to gather data from different sources and do time series analytics and much much more.
 
-Please visit the website and documentation for more details. TL;DR; it's the defacto monitoring tool for Kubernetes. Again, I'm going to do a very basic installation of Prometheus. So basic in fact, that I don't even have a PVC for it, because I don't care at this point about retaining data.
+Please visit the website and documentation for more details. It's the defacto monitoring tool for Kubernetes. Again, I'm going to do a very basic installation of Prometheus. So basic in fact, that I don't even have a PVC for it, because I don't care at this point about retaining data.
 
 ### Namespace
 
@@ -186,7 +185,7 @@ metadata:
 
 ### Config
 
-First off, Prometheus Server config. It's massive. I don't expect you to pick up on everything in this thing, but I would encourage you to at least try to find out what these setting do... Our config yaml file contains the configuration file for Prometheus which will be put into the right place. It's called `prometheus.yml`. **Notice** the missing `a`.
+Prometheus Server config is massive. I don't expect you to pick up on everything in this thing, but I would encourage you to at least try to find out what these setting do... Our config yaml file contains the configuration file for Prometheus which we'll later set up via a command line argument. It's called `prometheus.yml`.
 
 ~~~yaml
 apiVersion: v1
@@ -304,13 +303,13 @@ data:
           target_label: kubernetes_name
 ~~~
 
-Mostly it's just setting up what Prometheus should monitor and how. The important bits are the `labels`. How this is going to work is, that we will `annotate` the resources we want Prometheus to see. Which is pretty cool. Basically we will just alter a pod to include an annotation and it will begin monitoring it. No need to install anything anywhere.
+Mostly it's just setting up what Prometheus should monitor and how. The important bits are the `labels`. How this is going to work is, that we will `annotate` the resources we want Prometheus to see. Which is pretty cool. Basically we will just alter a pod to include an annotation and it will begin monitoring it. No need to install anything anywhere or restart anything. Just add an annotation and bamm, you're done.
 
 ## RBAC
 
-Prometheus needs permissions to access resources in the cluster such as API end-points and gathering data about the cluster. We will provide it with this permission through [Role Based Access Control](https://kubernetes.io/docs/reference/access-authn-authz/rbac/).
+Prometheus needs permissions to access resources in the cluster such as API end-points and gathering data about the cluster itself. We will provide it with this permission through [Role Based Access Control](https://kubernetes.io/docs/reference/access-authn-authz/rbac/).
 
-We'll create a service account which Prometheus can use to access there end-points. We want it to access the whole cluster so we'll use a `ClusterRole`.
+We'll create a service account which Prometheus can use. We want it to access the whole cluster so we'll use a `ClusterRole`.
 
 ~~~yaml
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -348,7 +347,7 @@ subjects:
   namespace: monitoring
 ~~~
 
-This will give access to monitor to following resources: nodes, nodes/proxy, services, endpoints and pods. The action are get, list, watch. No modifications.
+This will give access to monitor the following resources: nodes, nodes/proxy, services, endpoints and pods. The action are get, list, watch. No modifications.
 
 We'll also allow Prometheus to watch ingresses for data traffic and allow it to do get requests to non-resource endpoint `/metrics`.
 
@@ -395,9 +394,9 @@ The two interesting things here are the two arguments. The config file, which we
 
 ## Service
 
-Let's expose Prometheus. Now, this may come as a surpise if you don't know anything about Prometheus, but this is an in cluster monitoring tool. It's usually not supposed to be accessed directly, but through tools like Graphana or used by tools like Alerting and such. As such, Prometheus does not support authentication or authorization or user management of any kind. That is usually taken care of by a reverse proxy or other means written about [here](https://prometheus.io/docs/operating/security/#authentication-authorization-and-encryption) and [here](https://prometheus.io/docs/guides/basic-auth/).
+Let's expose Prometheus. Now, this may come as a surprise if you don't know anything about Prometheus, but this is an in cluster monitoring tool. It's usually not supposed to be accessed directly, but through tools like Graphana or used by tools like Alerting or traefik as a reverse proxy. As such, Prometheus does not support authentication or authorization or user management of any kind. That is usually taken care of by a reverse proxy or other means written about [here](https://prometheus.io/docs/operating/security/#authentication-authorization-and-encryption) and [here](https://prometheus.io/docs/guides/basic-auth/).
 
-As such, we can do a number of things. We can expose it as a nodeport service such as:
+As such, we can do a number of things. We can expose it as a NodePort service for example:
 
 ~~~yaml
 apiVersion: v1
@@ -425,7 +424,7 @@ Or we just port forward the pod like this:
 k port-forward pods/prometheus-deployment-6bf45557bd-qc6t6 9090:9090 -n monitoring
 ~~~
 
-And access it by simply opening the url: 127.0.0.1:9090.
+And access it by simply opening the url: http://127.0.0.1:9090.
 
 ## Prometheus
 
@@ -447,9 +446,9 @@ Done.
 
 # Bonus Round -- Graphana
 
-We deployed Athens and Prometheus to check some information about our cluster from time to time. We don't have anything before Prometheus that would be fency, but installing graphana is pretty easy too. You can follow instructions [here](https://prometheus.io/docs/visualization/grafana/).
+We deployed Athens and Prometheus to monitor our cluster. We don't have anything before Prometheus that would be fancy, but installing Graphana is actually pretty easy. You can follow the instructions [here](https://prometheus.io/docs/visualization/grafana/).
 
-A very easy way of looking at some nice metrics without worring about anything like users and such, is running a Graphana instance in docker on your local machine with:
+A very easy way of looking at some nice metrics without worrying about anything like users and such, is running a Graphana instance in docker on your local machine with:
 
 ~~~bash
 docker run -d -p 3000:3000 grafana/grafana
@@ -463,9 +462,11 @@ After that navigate to a new dashboard and select a simple PromQL metric to see 
 
 ![graphana](/img/hosting/graphana.png)
 
+Now you can create a new dashboard add a PVC to our Prometheus instance and enjoy all the metrics you can store!
+
 # Conclusion
 
-And this is it folks. Everything is installed and we can monitor stuff. If you give Prometheus a PVC you can build some pretty awesome time series graphs.
+And this is it folks. Everything is installed and we can monitor things now. If you give Prometheus a PVC you can build some pretty awesome time series graphs too and see how your cluster behaves over time.
 
 Thank you for reading!
 Gergely.
