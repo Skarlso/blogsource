@@ -167,7 +167,7 @@ Monitoring is a huge topic so I'm not going to talk about how to monitor or what
 
 ## Prometheus
 
-I'm going to deploy [Prometheus](https://prometheus.io). Prometheus is a monitoring tool which sits inside your cluster and gathers data about running pods, nodes, whatever you expose and wants to send data to it. It can also alert on things and can be integrated with tools like Graphana for a nice front-end and metrics. Prometheus itself uses PQL which is a query language to gather data from different sources and do timeseries analytics and much much more.
+I'm going to deploy [Prometheus](https://prometheus.io). Prometheus is a monitoring tool which sits inside your cluster and gathers data about running pods, nodes, whatever you expose and wants to send data to it. It can also alert on things and can be integrated with tools like Graphana for a nice front-end and metrics. Prometheus itself uses PromQL which is a query language to gather data from different sources and do timeseries analytics and much much more.
 
 Please visit the website and documentation for more details. TL;DR; it's the defacto monitoring tool for Kubernetes. Again, I'm going to do a very basic installation of Prometheus. So basic in fact, that I don't even have a PVC for it, because I don't care at this point about retaining data.
 
@@ -431,7 +431,7 @@ And access it by simply opening the url: 127.0.0.1:9090.
 
 Once you open it, you should see something like this, after running a small query:
 
-![prometheus.png](/img/prometheus.png)
+![prometheus.png](/img/hosting/prometheus.png)
 
 ## Adding in Resources to monitor
 
@@ -445,9 +445,27 @@ In order to add a resource to monitor simply insert these annotations:
 
 Done.
 
+# Bonus Round -- Graphana
+
+We deployed Athens and Prometheus to check some information about our cluster from time to time. We don't have anything before Prometheus that would be fency, but installing graphana is pretty easy too. You can follow instructions [here](https://prometheus.io/docs/visualization/grafana/).
+
+A very easy way of looking at some nice metrics without worring about anything like users and such, is running a Graphana instance in docker on your local machine with:
+
+~~~bash
+docker run -d -p 3000:3000 grafana/grafana
+~~~
+
+... and while you are forwarding the Prometheus end-point you navigate to your Graphana instance by opening `127.0.0.1:3000` and install a Prometheus data-point like this:
+
+![graphana config](/img/hosting/graphana_config.png)
+
+After that navigate to a new dashboard and select a simple PromQL metric to see if it's working. You should see something like this:
+
+![graphana](/img/hosting/graphana.png)
+
 # Conclusion
 
-And this is it. We deployed Athens and Prometheus to check some information about our cluster from time to time. We don't have anything before Prometheus that would be fency, but installing graphana is pretty easy too. You can follow instructions [here](https://prometheus.io/docs/visualization/grafana/).
+And this is it folks. Everything is installed and we can monitor stuff. If you give Prometheus a PVC you can build some pretty awesome time series graphs.
 
 Thank you for reading!
 Gergely.
