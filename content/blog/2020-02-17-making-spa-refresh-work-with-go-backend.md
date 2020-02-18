@@ -3,7 +3,7 @@ author = "hannibal"
 categories = ["golang"]
 date = "2020-02-17T21:01:00+01:00"
 type = "post"
-title = "How to Make SPA refresh wotk with a Go backend"
+title = "How to Make SPA refresh work with a Go backend"
 url = "/2020/02/17/making-spa-refresh-work-with-go-backend"
 comments = true
 +++
