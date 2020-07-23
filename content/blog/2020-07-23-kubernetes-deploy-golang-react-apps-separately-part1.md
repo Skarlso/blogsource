@@ -259,8 +259,12 @@ relatively secure installation.
 
 ### Secret
 
-The secret contains our password and our database user and name. This could come from Vault too, but
-the Kubernetes secret is usually enough since it's in a closed environment anyways. Our secret looks like this:
+The secret contains our password and our database user. In postgres, if you define a user using `POSTGRES_USER`
+postgres will create the user and a database with the user's name. This could come from Vault too, but
+the Kubernetes secret is usually enough since it should be a closed environment anyways. But for important information
+I would definitely use an admission policy and some vault secret goodness. (Maybe another post?)
+
+Our secret looks like this:
 database_secret.yaml
 
 ~~~yaml
@@ -318,7 +322,7 @@ spec:
                 key: POSTGRES_PASSWORD
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
-          subPath: data # important so it gets mounted correctly instead of adding a lost-and-found folder.
+          subPath: data # important so it gets mounted correctly
           name: staple-db-data
         - mountPath: /docker-entrypoint-initdb.d/staple_initdb.sql
           subPath: staple_initdb.sql
@@ -332,10 +336,12 @@ spec:
             name: staple-initdb-script
 ~~~
 
-The first one makes sure that our data isn't lost when the database pod itself restarts. It creates a mount
-to a persistent volume which is defined a few lines below by `persistentVolumeClaim`.
+Note the two volume mounts.
 
-Note the volume mounts. The first one will take care of our data.
+The first one makes sure that our data isn't lost when the database pod itself restarts. It creates a mount
+to a persistent volume which is defined a few lines below by `persistentVolumeClaim`. `subPath` is important
+in this case otherwise you'll end up with a lost&found folder.
+
 The second mount is a postgres specific initialization file. Postgres will run that sql file when it
 starts up. I'm using it to create my application's schema.
 
