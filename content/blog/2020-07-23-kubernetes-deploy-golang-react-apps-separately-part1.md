@@ -154,6 +154,7 @@ If you run a command you will most likely forget about it, unless it's logged an
 
 This is the structure I'm using:
 
+~~~
 .
 ├── LICENSE
 ├── README.md
@@ -179,10 +180,11 @@ This is the structure I'm using:
 └── staple-frontend
     ├── staple_deployment.yaml
     └── staple_service.yaml
-
+~~~
 
 One other possible combination is, if you have multiple applications:
 
+~~~
 .
 ├── README.md
 ├── applications
@@ -232,6 +234,8 @@ One other possible combination is, if you have multiple applications:
 └── namespaces
     ├── example1_namespace.yaml
     ├── example2_namespace.yaml
+~~~
+
 
 ## Namespace
 
