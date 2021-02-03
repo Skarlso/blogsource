@@ -3,7 +3,7 @@ author = "hannibal"
 categories = ["books"]
 date = "2021-02-01T01:01:00+01:00"
 type = "post"
-title = "Reader's Digest 2020-01"
+title = "Reader's Digest 2021-01"
 url = "/2021/02/01/readers-digest"
 comments = true
 +++
