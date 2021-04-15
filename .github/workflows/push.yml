@@ -13,4 +13,4 @@ jobs:
       uses: skarlso/blog-publisher@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+        PUSH_TOKEN: ${{ secrets.TOKEN }}
