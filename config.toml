@@ -33,6 +33,7 @@ disqusShortname = "hannibalDisqus"
   homeSubtitle = "Welcome to my little corner of the internet"
   footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
   bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
+  fofPoster = ""
 
   # Toggling this option needs to rebuild SCSS, requires Hugo extended version
   justifyContent = false  # Set "text-align: justify" to `.content`.
