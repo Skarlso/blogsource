@@ -9,7 +9,6 @@ jobs:
       uses: skarlso/blog-builder@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        HUGO_THEME: meme
     - name: blog-publisher
       uses: skarlso/blog-publisher@master
       env:
