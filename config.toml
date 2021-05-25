@@ -2,17 +2,23 @@ baseURL = "https://skarlso.github.io/"
 languageCode = "en-us"
 defaultContentLanguage = "en"
 title = "Ramblings of a cloud engineer"
-theme = "hermit"
+theme = "meme"
 # enableGitInfo = true
-pygmentsCodefences  = true
-pygmentsUseClasses  = true
+# pygmentsCodefences  = true
+# pygmentsUseClasses  = true
 # hasCJKLanguage = true  # If Chinese/Japanese/Korean is your main content language, enable this to make wordCount works right.
-rssLimit = 10  # Maximum number of items in the RSS feed.
-googleAnalytics = "UA-69463020-2"
-disqusShortname = "hannibalDisqus"
+# rssLimit = 10  # Maximum number of items in the RSS feed.
+# googleAnalytics = "UA-69463020-2"
+
+
+[services.rss]
+  limit = 10
 
 [author]
   name = "Gergely Brautigam"
+  website = "https://gergelybrautigam.com"
+  twitter = "https://twitter.com/skarlso"
+  github = "https://github.com/Skarlso"
 
 [taxonomies]
   category = "categories"
@@ -28,21 +34,20 @@ disqusShortname = "hannibalDisqus"
   # description = ""
   # images = [""]
   # themeColor = "#494f5c"
-
-  homeSubtitle = "Welcome to my little corner of the internet"
-  footerCopyright = ' &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>'
-  bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
+  homeLayout = "posts"
+  homeTitle = "Welcome to my little corner of the internet"
+  footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
+  # bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
 
   # Toggling this option needs to rebuild SCSS, requires Hugo extended version
-  justifyContent = false  # Set "text-align: justify" to `.content`.
+  # justifyContent = false  # Set "text-align: justify" to `.content`.
 
-  [[params.social]]
-    name = "twitter"
-    url = "https://twitter.com/skarlso"
+  enableDisqus = true
+  disqusShortname = "hannibalDisqus"
 
-  [[params.social]]
-    name = "github"
-    url = "https://github.com/Skarlso"
+  enableGoogleAnalytics = true
+  trackingCodeType = "gtag"
+  trackingID = "UA-69463020-2"
 
 [menu]
 
