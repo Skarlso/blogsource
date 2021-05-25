@@ -1,6 +1,6 @@
 baseURL = "https://skarlso.github.io/"
-languageCode = "en-us"
-defaultContentLanguage = "en"
+# languageCode = "en-us"
+# defaultContentLanguage = "en"
 title = "Ramblings of a cloud engineer"
 theme = "meme"
 # enableGitInfo = true
@@ -25,10 +25,10 @@ theme = "meme"
   tag = "tags"
 
 [params]
-  dateform        = "Jan 2, 2006"
-  dateformShort   = "Jan 2"
-  dateformNum     = "2006-01-02"
-  dateformNumTime = "2006-01-02 15:04 -0700"
+  # dateform        = "Jan 2, 2006"
+  # dateformShort   = "Jan 2"
+  # dateformNum     = "2006-01-02"
+  # dateformNumTime = "2006-01-02 15:04 -0700"
 
   # Metadata mostly used in document's head
   # description = ""
@@ -37,6 +37,9 @@ theme = "meme"
   homeLayout = "posts"
   homeTitle = "Welcome to my little corner of the internet"
   footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
+  # Display title of posts?
+  displayPosts = true
+
   # bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
 
   # Toggling this option needs to rebuild SCSS, requires Hugo extended version
