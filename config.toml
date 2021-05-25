@@ -25,40 +25,22 @@ theme = "meme"
   tag = "tags"
 
 [params]
-  # dateform        = "Jan 2, 2006"
-  # dateformShort   = "Jan 2"
-  # dateformNum     = "2006-01-02"
-  # dateformNumTime = "2006-01-02 15:04 -0700"
-
   # Metadata mostly used in document's head
-  # description = ""
-  # images = [""]
-  # themeColor = "#494f5c"
   homeLayout = "posts"
   homeTitle = "Welcome to my little corner of the internet"
   footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
-  # Display title of posts?
   displayPosts = true
-
-  # bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
-
-  # Toggling this option needs to rebuild SCSS, requires Hugo extended version
-  # justifyContent = false  # Set "text-align: justify" to `.content`.
-
   enableDisqus = true
   disqusShortname = "hannibalDisqus"
-
   enableGoogleAnalytics = true
   trackingCodeType = "gtag"
   trackingID = "UA-69463020-2"
-
   postMetaDateFormat = "2006.1.2"
   listDateFormat = "January 2"
   listDatePosition = "right"
   categoryBy = "categories"
   enableTOC = false
   fofPoster = ""
-
 [menu]
 
   [[menu.main]]
