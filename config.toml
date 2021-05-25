@@ -52,6 +52,13 @@ theme = "meme"
   trackingCodeType = "gtag"
   trackingID = "UA-69463020-2"
 
+  postMetaDateFormat = "2006.1.2"
+  listDateFormat = "January 2"
+  listDatePosition = "right"
+  categoryBy = "categories"
+  enableTOC = false
+  fofPoster = ""
+
 [menu]
 
   [[menu.main]]
