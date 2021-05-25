@@ -41,3 +41,5 @@ params:
   sidebar: true
   submitted: true
   fofPoster: ""
+  listDatePosition: "right"
+  listDateFormat: "1. January"
