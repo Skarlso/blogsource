@@ -1,6 +1,6 @@
 ---
 title: "Ramblings of a cloud engineer"
-baseURL: "https://skarlso.github.io/"
+baseURL: "https://skarlso.github.io"
 theme: "zen"
 languageCode: "en-GB"
 defaultContentLanguage: "en"
