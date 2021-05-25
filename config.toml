@@ -1,46 +1,49 @@
 baseURL = "https://skarlso.github.io/"
-# languageCode = "en-us"
-# defaultContentLanguage = "en"
+languageCode = "en-us"
+defaultContentLanguage = "en"
 title = "Ramblings of a cloud engineer"
-theme = "meme"
+theme = "hermit"
 # enableGitInfo = true
-# pygmentsCodefences  = true
-# pygmentsUseClasses  = true
+pygmentsCodefences  = true
+pygmentsUseClasses  = true
 # hasCJKLanguage = true  # If Chinese/Japanese/Korean is your main content language, enable this to make wordCount works right.
-# rssLimit = 10  # Maximum number of items in the RSS feed.
-# googleAnalytics = "UA-69463020-2"
-
-
-[services.rss]
-  limit = 10
+rssLimit = 10  # Maximum number of items in the RSS feed.
+googleAnalytics = "UA-69463020-2"
+disqusShortname = "hannibalDisqus"
 
 [author]
   name = "Gergely Brautigam"
-  website = "https://gergelybrautigam.com"
-  twitter = "https://twitter.com/skarlso"
-  github = "https://github.com/Skarlso"
 
 [taxonomies]
   category = "categories"
   tag = "tags"
 
 [params]
+  dateform        = "Jan 2, 2006"
+  dateformShort   = "Jan 2"
+  dateformNum     = "2006-01-02"
+  dateformNumTime = "2006-01-02 15:04 -0700"
+
   # Metadata mostly used in document's head
-  homeLayout = "posts"
-  homeTitle = "Welcome to my little corner of the internet"
+  # description = ""
+  # images = [""]
+  # themeColor = "#494f5c"
+
+  homeSubtitle = "Welcome to my little corner of the internet"
   footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
-  displayPosts = true
-  enableDisqus = true
-  disqusShortname = "hannibalDisqus"
-  enableGoogleAnalytics = true
-  trackingCodeType = "gtag"
-  trackingID = "UA-69463020-2"
-  postMetaDateFormat = "2006.1.2"
-  listDateFormat = "January 2"
-  listDatePosition = "right"
-  categoryBy = "categories"
-  enableTOC = false
-  fofPoster = ""
+  bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
+
+  # Toggling this option needs to rebuild SCSS, requires Hugo extended version
+  justifyContent = false  # Set "text-align: justify" to `.content`.
+
+  [[params.social]]
+    name = "twitter"
+    url = "https://twitter.com/skarlso"
+
+  [[params.social]]
+    name = "github"
+    url = "https://github.com/Skarlso"
+
 [menu]
 
   [[menu.main]]
