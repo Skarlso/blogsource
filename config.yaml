@@ -1,0 +1,42 @@
+---
+title: "Ramblings of a cloud engineer"
+baseURL: "https://skarlso.github.io/"
+theme: "zen"
+languageCode: "en-GB"
+defaultContentLanguage: "en"
+pluralizelisttitles: false
+removePathAccents: true
+paginate: 10
+paginatePath: "page"
+rssLimit: 20
+GoogleAnalytics: "UA-69463020-2"
+author:
+  name: "Gergely Brautigam"
+  url: "https://gergelybrautigam.com"
+
+outputFormats:
+  SearchIndex:
+    mediaType: "application/json"
+    baseName: "searchindex"
+    isPlainText: true
+    notAlternative: true
+
+outputs:
+  home: ["HTML","RSS", "JSON", "SearchIndex"]
+  section: ["HTML","RSS", "JSON"]
+
+params:
+  contact: "skarslo777@gmail.com"
+  copyright: "<!--Creative Commons License-->This site is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).<!--/Creative Commons License-->"
+  description: "Welcome to my little corner of the internet"
+  dateformat: "2 January, 2006"
+  favicon: "apple-touch-icon.png"
+  feedlinks: true
+  footer: "Powered by [Hugo](https://gohugo.io/) and the [Zen theme](https://github.com/frjo/hugo-theme-zen)."
+  icon: "apple-touch-icon.png"
+  image: "apple-touch-icon.png"
+  imageMaxWidth: 400
+  mobileMenu: true
+  poweredby: false
+  sidebar: true
+  submitted: true

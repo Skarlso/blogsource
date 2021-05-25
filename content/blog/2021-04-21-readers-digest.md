@@ -32,7 +32,7 @@ by a lot of other people in the whole galaxy. There is a literal coalition of pl
 
 And there are two main things which can kill / incapacitate them. The first one is a virus, which was developed by a
 traiter Viltrumite which killed like 99.9% of them. And the other is the same weakness as the things have in the movie
-called The quiet place. It’s sounds. Granted, some very specific frequency, but it's sound. Because Viltrumites have a
+called The quiet place. It's specific frequency sound. Granted, some very specific frequency, but it's sound. Because Viltrumites have a
 delicate equilibrium because of their flying ability, if there is a specific frequency sound being emitted in close proximity
 it can incapacitate or even kill a Viltrumite.
 
