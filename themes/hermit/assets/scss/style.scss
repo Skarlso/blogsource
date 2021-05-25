@@ -95,6 +95,7 @@ a {
 
   &:hover {
     color: #fff;
+    text-shadow: 0 0 1px #fff;
   }
 }
 
@@ -144,8 +145,43 @@ table {
   height: 1em;
 }
 
+.sub-menu {
+  font-size: .7em;
+}
+
 .desktop-only, .desktop-only-ib {
   display: none;
+}
+
+// Code copy buttons
+//
+
+.highlight {
+    position: relative;
+}
+
+.highlight pre {
+    padding-right: 75px;
+}
+
+.highlight-copy-btn {
+    position: absolute;
+    bottom: 7px;
+    right: 7px;
+    border: 0;
+    border-radius: 4px;
+    padding: 1px;
+    font-size: 0.7em;
+    line-height: 1.8;
+    color: #fff;
+    background-color: #777;
+    opacity: 0.6;
+    min-width: 55px;
+    text-align: center;
+}
+
+.highlight-copy-btn:hover {
+    background-color: #666;
 }
 
 // Accessibility
@@ -194,6 +230,7 @@ table {
   box-sizing: border-box;
   box-shadow: -1px -2px 3px rgba(0, 0, 0, 0.45);
   background-color: $dark-grey;
+  animation-duration: .3s;
 }
 
 .hdr-wrapper {
@@ -213,6 +250,15 @@ table {
     display: inline-block;
     font-size: 1.1em;
     opacity: .8;
+
+    .has-children {
+      padding-right: .5em;
+      border-right: 2px solid $highlight-grey;
+    }
+
+    .sub-menu > a{
+      margin-left: .3em;
+    }
 
     a {
       margin-left: .8em;
@@ -282,7 +328,7 @@ table {
 //
 #spotlight {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -408,6 +454,11 @@ p.img-404 {
     margin-right: 1.8em;
     font-size: 1.6em;
     @include dimmed;
+
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
   }
 
   .posts-list {
@@ -578,7 +629,7 @@ hr.post-end {
       background: transparent;
     }
 
-    &.footnote-return {
+    &.footnote-backref {
       text-decoration: none;
     }
   }
@@ -588,12 +639,18 @@ hr.post-end {
   }
 }
 
-.footnote-ref a {
+a.footnote-ref {
   box-shadow: none;
   text-decoration: none;
   padding: 2px;
   border-radius: 2px;
   background-color: $midnightblue;
+
+  &:hover{
+    box-shadow: none;
+    background-color: $theme;
+    transition-property: background-color;
+  }
 }
 
 .post-info {
@@ -680,6 +737,25 @@ hr.post-end {
     text-transform: uppercase;
   }
 }
+
+.related-posts {
+  padding: .8em;
+  margin-top: 1.5em;
+  font-size: .8rem;
+  border: 3px dashed rgba(255, 255, 255, .2);
+  border-radius: 5px;
+
+  h2{
+    margin: 0;
+    line-height: normal;
+  }
+
+  ul {
+    margin-top: .5em;
+    margin-bottom: 0;
+  }
+}
+
 
 // Media Queries
 //
