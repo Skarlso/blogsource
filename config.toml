@@ -1,0 +1,60 @@
+baseURL = "https://skarlso.github.io"
+languageCode = "en"
+defaultContentLanguage = "en"
+title = "Ramblings of a cloud engineer"
+theme = "even"
+pygmentsOptions = "linenos=table"
+pygmentsCodefences = true
+pygmentsUseClasses = true
+pygmentsCodefencesGuessSyntax = true
+rssLimit = 10  # Maximum number of items in the RSS feed.
+googleAnalytics = "UA-69463020-2"
+disqusShortname = "hannibalDisqus"
+paginate = 10
+
+[author]
+  name = "Gergely Brautigam"
+
+[params]
+  dateform        = "Jan 2, 2006"
+  dateformShort   = "Jan 2"
+  dateformNum     = "2006-01-02"
+  dateformNumTime = "2006-01-02 15:04 -0700"
+  listDateFormat  = "1. January"
+  listDatePosition = "right"
+
+  description = "Welcome to my little corner of the internet"
+  footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
+  fofPoster = ""
+
+  # Toggling this option needs to rebuild SCSS, requires Hugo extended version
+  justifyContent = false  # Set "text-align: justify" to `.content`.
+
+  toc = true
+  archivePaginate = 50
+  version = "4.x"
+
+  [params.social]
+    c-twitter = "https://twitter.com/skarlso"
+    g-github = "https://github.com/Skarlso"
+
+[[menu.main]]
+  name = "Archive"
+  url = "/blog/"
+  weight = 10
+[[menu.main]]
+  name = "Tags"
+  weight = 30
+  identifier = "tags"
+  url = "/tags/"
+[[menu.main]]
+  name = "Categories"
+  weight = 40
+  identifier = "categories"
+  url = "/categories/"
+
+[markup]
+  [markup.tableOfContents]
+    startLevel = 1
+  [markup.goldmark.renderer]
+    unsafe = true
