@@ -11,56 +11,51 @@ url = "/2015/07/15/bitwise-operator/"
 
 The first, and only time so far, that I got to use the bitwise & operator. I enjoyed doing so!!
 
-And of course from now on, I&#8217;ll be looking for more opportunities to (ab)use it.
+And of course from now on, I'll be looking for more opportunities to (ab)use it.
 
-<div class="wp_syntax">
-  <table>
-    <tr>
-      <td class="code">
-        <pre class="go" style="font-family:monospace;"><span style="color: #b1b100; font-weight: bold;">package</span> secret
-&nbsp;
-<span style="color: #b1b100; font-weight: bold;">import</span> <span style="color: #cc66cc;">"sort"</span>
-&nbsp;
-<span style="color: #b1b100; font-weight: bold;">const</span> REVERSE <span style="color: #339933;">=</span> <span style="color: #cc66cc;">16</span>
-&nbsp;
-<span style="color: #993333;">func</span> Handshake<span style="color: #339933;">(</span>code <span style="color: #993333;">int</span><span style="color: #339933;">)</span> <span style="color: #339933;">[]</span><span style="color: #993333;">string</span> <span style="color: #339933;">{</span>
-    <span style="color: #666666; font-style: italic;">// binary_rep := convertDecimalToBinary(code)</span>
-    <span style="color: #b1b100; font-weight: bold;">if</span> code &lt; <span style="color: #cc66cc;"></span> <span style="color: #339933;">{</span> <span style="color: #b1b100; font-weight: bold;">return</span> <span style="color: #000000; font-weight: bold;">nil</span> <span style="color: #339933;">}</span>
-    secret_map <span style="color: #339933;">:=</span> <span style="color: #993333;">map</span><span style="color: #339933;">[</span><span style="color: #993333;">int</span><span style="color: #339933;">]</span><span style="color: #993333;">string</span> <span style="color: #339933;">{</span>
-        <span style="color: #cc66cc;">1</span><span style="color: #339933;">:</span> <span style="color: #cc66cc;">"wink"</span><span style="color: #339933;">,</span>
-        <span style="color: #cc66cc;">2</span><span style="color: #339933;">:</span> <span style="color: #cc66cc;">"double blink"</span><span style="color: #339933;">,</span>
-        <span style="color: #cc66cc;">4</span><span style="color: #339933;">:</span> <span style="color: #cc66cc;">"close your eyes"</span><span style="color: #339933;">,</span>
-        <span style="color: #cc66cc;">8</span><span style="color: #339933;">:</span> <span style="color: #cc66cc;">"jump"</span><span style="color: #339933;">,</span>
-    <span style="color: #339933;">}</span>
-&nbsp;
-    <span style="color: #b1b100; font-weight: bold;">var</span> keys <span style="color: #339933;">[]</span><span style="color: #993333;">int</span>
-    <span style="color: #b1b100; font-weight: bold;">for</span> k <span style="color: #339933;">:=</span> <span style="color: #b1b100; font-weight: bold;">range</span> secret_map <span style="color: #339933;">{</span>
-        keys <span style="color: #339933;">=</span> append<span style="color: #339933;">(</span>keys<span style="color: #339933;">,</span> k<span style="color: #339933;">)</span>
-    <span style="color: #339933;">}</span>
-    <span style="color: #666666; font-style: italic;">// To make sure iteration is always in the same order.</span>
-    sort<span style="color: #339933;">.</span>Ints<span style="color: #339933;">(</span>keys<span style="color: #339933;">)</span>
-&nbsp;
-    code_array <span style="color: #339933;">:=</span> <span style="color: #000066;">make</span><span style="color: #339933;">([]</span><span style="color: #993333;">string</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;"></span><span style="color: #339933;">)</span>
-    <span style="color: #b1b100; font-weight: bold;">for</span> _<span style="color: #339933;">,</span> key <span style="color: #339933;">:=</span> <span style="color: #b1b100; font-weight: bold;">range</span> keys <span style="color: #339933;">{</span>
-        <span style="color: #b1b100; font-weight: bold;">if</span> code & key <span style="color: #339933;">==</span> key <span style="color: #339933;">{</span>
-            code_array <span style="color: #339933;">=</span> append<span style="color: #339933;">(</span>code_array<span style="color: #339933;">,</span> secret_map<span style="color: #339933;">[</span>key<span style="color: #339933;">])</span>
-        <span style="color: #339933;">}</span>
-    <span style="color: #339933;">}</span>
-&nbsp;
-    <span style="color: #b1b100; font-weight: bold;">if</span> code & REVERSE <span style="color: #339933;">==</span> REVERSE <span style="color: #339933;">{</span>
-        code_array <span style="color: #339933;">=</span> reverse_array<span style="color: #339933;">(</span>code_array<span style="color: #339933;">)</span>
-    <span style="color: #339933;">}</span>
-&nbsp;
-    <span style="color: #b1b100; font-weight: bold;">return</span> code_array
-<span style="color: #339933;">}</span>
-&nbsp;
-<span style="color: #993333;">func</span> reverse_array <span style="color: #339933;">(</span>array_to_reverse <span style="color: #339933;">[]</span><span style="color: #993333;">string</span><span style="color: #339933;">)</span> <span style="color: #339933;">[]</span><span style="color: #993333;">string</span> <span style="color: #339933;">{</span>
-    <span style="color: #b1b100; font-weight: bold;">for</span> <span style="">i</span><span style="color: #339933;">,</span> j <span style="color: #339933;">:=</span> <span style="color: #cc66cc;"></span><span style="color: #339933;">,</span> <span style="color: #000066;">len</span><span style="color: #339933;">(</span>array_to_reverse<span style="color: #339933;">)</span> <span style="color: #339933;">-</span><span style="color: #cc66cc;">1</span> <span style="color: #339933;">;</span> <span style="">i</span> &lt; j<span style="color: #339933;">;</span> <span style="">i</span><span style="color: #339933;">,</span> j <span style="color: #339933;">=</span> <span style="">i</span> <span style="color: #339933;">+</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> j <span style="color: #339933;">-</span> <span style="color: #cc66cc;">1</span> <span style="color: #339933;">{</span>
-        array_to_reverse<span style="color: #339933;">[</span><span style="">i</span><span style="color: #339933;">],</span> array_to_reverse<span style="color: #339933;">[</span>j<span style="color: #339933;">]</span> <span style="color: #339933;">=</span> array_to_reverse<span style="color: #339933;">[</span>j<span style="color: #339933;">],</span> array_to_reverse<span style="color: #339933;">[</span><span style="">i</span><span style="color: #339933;">]</span>
-    <span style="color: #339933;">}</span>
-    <span style="color: #b1b100; font-weight: bold;">return</span> array_to_reverse
-<span style="color: #339933;">}</span></pre>
-      </td>
-    </tr>
-  </table>
-</div>
+~~~go
+
+package secret
+
+import "sort"
+
+const REVERSE = 16
+
+func Handshake(code int) []string {
+    // binary_rep := convertDecimalToBinary(code)
+    if code <  { return nil }
+    secret_map := map[int]string {
+        1: "wink",
+        2: "double blink",
+        4: "close your eyes",
+        8: "jump",
+    }
+
+    var keys []int
+    for k := range secret_map {
+        keys = append(keys, k)
+    }
+    // To make sure iteration is always in the same order.
+    sort.Ints(keys)
+
+    code_array := make([]string, )
+    for _, key := range keys {
+        if code & key == key {
+            code_array = append(code_array, secret_map[key])
+        }
+    }
+
+    if code & REVERSE == REVERSE {
+        code_array = reverse_array(code_array)
+    }
+
+    return code_array
+}
+
+func reverse_array (array_to_reverse []string) []string {
+    for i, j := , len(array_to_reverse) -1 ; i < j; i, j = i + 1, j - 1 {
+        array_to_reverse[i], array_to_reverse[j] = array_to_reverse[j], array_to_reverse[i]
+    }
+    return array_to_reverse
+}
+~~~

@@ -9,64 +9,26 @@ url = "/2013/07/31/why-not-to-automate-everything/"
 
 +++
 
-Hello. I created a tale of why not to automate everything&#8230; With legos&#8230; Enjoy.
-  
+Hello. I created a tale of why not to automate everything. With legos. Enjoy.
+
 Gergely.
 
-![Picture 1][1]</br>
-  
-![Picture 2][2]</br>
-  
-![Picture 3][3]</br>
-  
-![Picture 4][4]</br>
-  
-![Picture 5][5]</br>
-  
-![Picture 6][6]</br>
-  
-![Picture 7][7]</br>
-  
-![Picture 8][8]</br>
-  
-![Picture 9][9]</br>
-  
-![Picture 10][10]</br>
-  
-![Picture 11][11]</br>
-  
-![Picture 12][12]</br>
-  
-![Picture 13][13]</br>
-  
-![Picture 14][14]</br>
-  
-![Picture 15][15]</br>
-  
-![Picture 16][16]</br>
-  
-![Picture 17][17]</br>
-  
-![Picture 18][18]</br>
-  
-![Picture 19][19]</br>
-
- [1]: https://dl.dropboxusercontent.com/u/7604030/lego/picture1.jpg
- [2]: https://dl.dropboxusercontent.com/u/7604030/lego/picture2.jpg
- [3]: https://dl.dropboxusercontent.com/u/7604030/lego/picture3.jpg
- [4]: https://dl.dropboxusercontent.com/u/7604030/lego/picture4.jpg
- [5]: https://dl.dropboxusercontent.com/u/7604030/lego/picture5.jpg
- [6]: https://dl.dropboxusercontent.com/u/7604030/lego/picture6.jpg
- [7]: https://dl.dropboxusercontent.com/u/7604030/lego/picture7fixed.jpg
- [8]: https://dl.dropboxusercontent.com/u/7604030/lego/picture8.jpg
- [9]: https://dl.dropboxusercontent.com/u/7604030/lego/picture9.jpg
- [10]: https://dl.dropboxusercontent.com/u/7604030/lego/picture10.jpg
- [11]: https://dl.dropboxusercontent.com/u/7604030/lego/picture11.jpg
- [12]: https://dl.dropboxusercontent.com/u/7604030/lego/picture12.jpg
- [13]: https://dl.dropboxusercontent.com/u/7604030/lego/picture13.jpg
- [14]: https://dl.dropboxusercontent.com/u/7604030/lego/picture14.jpg
- [15]: https://dl.dropboxusercontent.com/u/7604030/lego/picture15.jpg
- [16]: https://dl.dropboxusercontent.com/u/7604030/lego/picture16.jpg
- [17]: https://dl.dropboxusercontent.com/u/7604030/lego/picture17.jpg
- [18]: https://dl.dropboxusercontent.com/u/7604030/lego/picture18.jpg
- [19]: https://dl.dropboxusercontent.com/u/7604030/lego/picture19.jpg
+![Picture 1](/img/2013/07/31/picture1.jpg)</br>
+![Picture 2](/img/2013/07/31/picture2.jpg)</br>
+![Picture 3](/img/2013/07/31/picture3.jpg)</br>
+![Picture 4](/img/2013/07/31/picture4.jpg)</br>
+![Picture 5](/img/2013/07/31/picture5.jpg)</br>
+![Picture 6](/img/2013/07/31/picture6.jpg)</br>
+![Picture 7](/img/2013/07/31/picture7.jpg)</br>
+![Picture 8](/img/2013/07/31/picture8.jpg)</br>
+![Picture 9](/img/2013/07/31/picture9.jpg)</br>
+![Picture 10](/img/2013/07/31/picture10.jpg)</br>
+![Picture 11](/img/2013/07/31/picture11.jpg)</br>
+![Picture 12](/img/2013/07/31/picture12.jpg)</br>
+![Picture 13](/img/2013/07/31/picture13.jpg)</br>
+![Picture 14](/img/2013/07/31/picture14.jpg)</br>
+![Picture 15](/img/2013/07/31/picture15.jpg)</br>
+![Picture 16](/img/2013/07/31/picture16.jpg)</br>
+![Picture 17](/img/2013/07/31/picture17.jpg)</br>
+![Picture 18](/img/2013/07/31/picture18.jpg)</br>
+![Picture 19](/img/2013/07/31/picture19.jpg)</br>

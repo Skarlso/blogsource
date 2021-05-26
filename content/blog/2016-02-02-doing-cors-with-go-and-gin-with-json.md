@@ -13,7 +13,7 @@ Basics
 
 Hello folks.
 
-This will be a quick post about how to do CORS with jQuery, Gin in Go with a very simple ajax GET and Json. 
+This will be a quick post about how to do CORS with jQuery, Gin in Go with a very simple ajax GET and Json.
 
 I'm choosing JSON here because basically I don't really like JSONP. And actually, it's not very complicated to do CORS, it's just hidden enough so that it doesn't become transparent.
 
@@ -32,7 +32,7 @@ Server
 
 There is thing called a Preflight-Check. In essence, the preflight check is sent BEFORE the actual request to check if the next request is allowed to go out of the domain. The preflight check is sent to the same URI just with OPTIONS method. In order to tell the caller that the next one will be safe, you need three things.
 
-First, you need to set two Headers. 
+First, you need to set two Headers.
 #1 -> Access-Control-Allow-Origin to "*".
 #2 -> Access-Control-Allow-Headers to "access-control-allow-origin, access-control-allow-headers".
 
@@ -63,9 +63,9 @@ func preflight(c *gin.Context) {
 }
 ~~~
 
-You can see that the preflight method is there for two end-points. I added it to those end-points which will reach over the domain. The others are all local, thus they don't need that. This leads to a little duplication, but that is fine. I have a very fine control over what actually is allowed to go outside of the domain. 
+You can see that the preflight method is there for two end-points. I added it to those end-points which will reach over the domain. The others are all local, thus they don't need that. This leads to a little duplication, but that is fine. I have a very fine control over what actually is allowed to go outside of the domain.
 
-So, how do we call this? 
+So, how do we call this?
 
 
 Frontend
@@ -93,9 +93,9 @@ After the headers are set, the request will work nicely.
 Y U No Middleware?
 ------------------
 
-And now you could say that, why not just have a middleware which will always accept OPTIONS for every end-point. Because I like it better this way. Some would argue that this is too granular, but fact is, that in my opinion, this is more readable and immediatly visible. However, if you DO want to do that, you have several options to your disposal. 
+And now you could say that, why not just have a middleware which will always accept OPTIONS for every end-point. Because I like it better this way. Some would argue that this is too granular, but fact is, that in my opinion, this is more readable and immediatly visible. However, if you DO want to do that, you have several options to your disposal.
 
-[Cors Basic Http Middleware](https://github.com/itsjamie/gin-cors) and for Gin [Gin CORS Middleware](https://github.com/itsjamie/gin-cors). 
+[Cors Basic Http Middleware](https://github.com/itsjamie/gin-cors) and for Gin [Gin CORS Middleware](https://github.com/itsjamie/gin-cors).
 
 
 Summary
@@ -105,7 +105,7 @@ This is it. You can see the code in its entirety on Github. Have a better idea o
 
 Thank you for reading!
 
-And as always, 
+And as always,
 Have a nice day!
 
-Gergely. 
+Gergely.

@@ -9,14 +9,14 @@ url = "/2012/09/20/what-my-brain-is-up-to-the-whole-day/"
 
 +++
 
-Hello folks. 
+Hello folks.
 
-Here is a little graphic I made to show what my brain is up to the whole day long&#8230; Excuse me for the lack of my colouring skills&#8230; Enjoy
+Here is a little graphic I made to show what my brain is up to the whole day long. Excuse me for the lack of my colouring skills. Enjoy
 
-![Brain][1]
+![Brain][^1]
 
 Thanks for reading!
-  
+
 Gergely.
 
- [1]: http://dl.dropbox.com/u/7604030/barinColored.jpg
+[^1]: http://dl.dropbox.com/u/7604030/barinColored.jpg

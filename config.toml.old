@@ -2,7 +2,7 @@ baseURL = "https://skarlso.github.io"
 languageCode = "en-us"
 defaultContentLanguage = "en"
 title = "Ramblings of a cloud engineer"
-theme = "zen"
+theme = "bigspring"
 # enableGitInfo = true
 pygmentsCodefences  = true
 pygmentsUseClasses  = true
@@ -10,9 +10,6 @@ pygmentsUseClasses  = true
 rssLimit = 10  # Maximum number of items in the RSS feed.
 googleAnalytics = "UA-69463020-2"
 disqusShortname = "hannibalDisqus"
-
-[author]
-  name = "Gergely Brautigam"
 
 [taxonomies]
   category = "categories"
@@ -29,27 +26,24 @@ disqusShortname = "hannibalDisqus"
   # Metadata mostly used in document's head
   # description = ""
   # images = [""]
-  themeColor = "#494f5c"
-
-  homeSubtitle = "Welcome to my little corner of the internet"
+  author = "Gergely Brautigam"
+  description = "Welcome to my little corner of the internet"
   footerCopyright = '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
-  bgImg = "/img/adv_back_1.png"  # Homepage background-image URL
   fofPoster = ""
 
   # Toggling this option needs to rebuild SCSS, requires Hugo extended version
   justifyContent = false  # Set "text-align: justify" to `.content`.
 
-  [[params.social]]
+  [[social]]
     name = "twitter"
     url = "https://twitter.com/skarlso"
 
-  [[params.social]]
+  [[social]]
     name = "github"
     url = "https://github.com/Skarlso"
 
 [menu]
-
-  [[menu.main]]
+  [[main]]
     name = "blog"
     url = "blog/"
-    weight = 10
+    weight = 1

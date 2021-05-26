@@ -15,7 +15,7 @@ Welcome to my new blog. I decided to move away for a number of reasons, but sett
 
 And [Hugo](https://gohugo.io/) / Github pages provided the tools which made this move possible.
 
-Also, I love writing this post in Markdown. I always liked the formatting rules of it, so this is quiet the blast. 
+Also, I love writing this post in Markdown. I always liked the formatting rules of it, so this is quiet the blast.
 
 Code will look a little more readble now as well:
 

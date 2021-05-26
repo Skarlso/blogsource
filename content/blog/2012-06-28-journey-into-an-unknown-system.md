@@ -13,9 +13,9 @@ Aka, what you can do if you are facing and unknown framework / system you have t
 
 **Get intimate**
 
-You are going to live with this system for a while. The best thing you can do is getting to know it better. You have to get it to know like you would approche a fine lady. You have to ask it questions look after it, how it feels how its day was. Have to listen to what it tells you, you have to read its diary if necessary. 
+You are going to live with this system for a while. The best thing you can do is getting to know it better. You have to get it to know like you would approche a fine lady. You have to ask it questions look after it, how it feels how its day was. Have to listen to what it tells you, you have to read its diary if necessary.
 
-After a while you will be in a relationship with it. Now it&#8217;s time to look out for it. Nurture it. Grow it. Care for it. A good piece of software is like a happy lady. It will great you every morning and it will say good by when you go home. 
+After a while you will be in a relationship with it. Now it's time to look out for it. Nurture it. Grow it. Care for it. A good piece of software is like a happy lady. It will great you every morning and it will say good by when you go home.
 
 So how do you get to know a new system better.
 
@@ -25,14 +25,14 @@ In a new system Debugging is like a good old friend who tells you a story about 
 
 **Ask her girlfriend**
 
-Nothing knows more of the system at hand as its best friend. And a good systems best friends are the tests. Take a look at the unit tests, take a look at the integration tests and the acceptance tests. These will tell you more about the system and its actual working strategy than any documentation you can put your hands on. The tests are the closest and next best thing after the real deal. 
+Nothing knows more of the system at hand as its best friend. And a good systems best friends are the tests. Take a look at the unit tests, take a look at the integration tests and the acceptance tests. These will tell you more about the system and its actual working strategy than any documentation you can put your hands on. The tests are the closest and next best thing after the real deal.
 
 **Conclusion**
 
-It&#8217;s really not that hard to get to know a large system better. Follow a main process with debug, look at the tests, talk to developers, and read some documentation about it. By the time you are done you will be best of friends and you will learn how to handle her the way she likes it. 😉
+It's really not that hard to get to know a large system better. Follow a main process with debug, look at the tests, talk to developers, and read some documentation about it. By the time you are done you will be best of friends and you will learn how to handle her the way she likes it. 😉
 
 Hope that helped.
-  
+
 Cheers,
-  
+
 Gergely.

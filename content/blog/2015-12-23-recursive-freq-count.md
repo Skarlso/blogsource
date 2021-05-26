@@ -12,7 +12,7 @@ Hello everybody!
 
 I wanted to do a sort post about word frequency count. I did it many times now and I was curious as how a recursive solution would perform as opposed to looping.
 
-So I wrote it up quickly and added a few benchmarks with different sized data. 
+So I wrote it up quickly and added a few benchmarks with different sized data.
 
 First.... The code:
 
@@ -49,7 +49,7 @@ BenchmarkLoopFrequencyCount    30000         53336 ns/op
 BenchmarkRecursiveFrequencyCount       20000         61780 ns/op
 ~~~
 
-And, as expected, recursing is less performant than looping. Also, I think my machine would die from a larger data size... 
+And, as expected, recursing is less performant than looping. Also, I think my machine would die from a larger data size...
 
 But the recursive looks so much cooler though.
 

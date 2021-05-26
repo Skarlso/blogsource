@@ -16,7 +16,7 @@ This blog sits here: https://github.com/Skarlso/skarlso.github.io. In order to d
 
 The Wercker yml for that looks like this:
 
-~~~yml
+~~~yaml
 box: debian
 build:
     steps:

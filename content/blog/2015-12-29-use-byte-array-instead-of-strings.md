@@ -10,7 +10,7 @@ url = "/2015/12/29/use-byte-array-instead-of-strings/"
 
 Hello Folks.
 
-This is just a quick post on the topic and a reminder for myself and everybody to ALWAYS USE []BYTE INSTEAD OF STRINGS. 
+This is just a quick post on the topic and a reminder for myself and everybody to ALWAYS USE []BYTE INSTEAD OF STRINGS.
 
 []Byte is marginally faster than a simple Strings. In fact, I would say using []byte should be the standard instead of strings.
 
@@ -62,7 +62,7 @@ func GetLengthOfLookAndSay() {
 
 ~~~
 
-This, with the limit raised to 50 run for ~1 hour. Even with the routines although they were just for show since they had to wait for each others input. 
+This, with the limit raised to 50 run for ~1 hour. Even with the routines although they were just for show since they had to wait for each others input.
 
 Now change this to []byte and the run time was almost under 2 seconds on my machine.
 
