@@ -22,4 +22,5 @@ I'm interested in all technology and concepts, such as Quantum computing too!
 
 In any case,
 Thanks for staying with me all these years, and here's to much much more!
+
 Gergely.
