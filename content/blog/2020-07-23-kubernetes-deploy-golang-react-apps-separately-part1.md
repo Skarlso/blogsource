@@ -98,9 +98,9 @@ are simple to follow and work out of the box.
 
 To install nginx, simply apply the yaml file located here: [DigitalOcean Nginx](https://kubernetes.github.io/ingress-nginx/deploy/#digital-ocean).
 
-To install cert-manager follow this guide: https://cert-manager.io/docs/installation/kubernetes/.
+To install cert-manager follow this guide: [cert-manager](https://cert-manager.io/docs/installation/kubernetes/).
 Follow the regular manifest install part, then ignore the Helm part and proceed with verification and then install
-your issuer. I used a simple ACME/http01 issuer from here: https://cert-manager.io/docs/configuration/acme/http01/
+your issuer. I used a simple ACME/http01 issuer from here: [acme/http01](https://cert-manager.io/docs/configuration/acme/http01/)
 
 *Note*: That acme configuration contains the **staging** url. This is to test that things are working. Once you are
 sure that everything is wired up correctly, switch that url to this one:

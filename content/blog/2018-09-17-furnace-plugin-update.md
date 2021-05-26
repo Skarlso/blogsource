@@ -31,8 +31,7 @@ plugins can be written in the following languages:
 
 Adding new plugins is easy and I'm open for suggestions in which language to provide next if the need arrises.
 
-To find out more, please read the README on Furnace about plugins located here: [Furnace Plugin
-System](https://github.com/go-furnace/go-furnace/blob/master/README.md#plugins).
+To find out more, please read the README on Furnace about plugins located here: [Furnace Plugin System](https://github.com/go-furnace/go-furnace/blob/master/README.md#plugins).
 
 I hope to see a bunch of nice plugins pop up here and there if please are interested in writing them. I'm listing a couple of
 possibilities like, notification after create, or resource cleanup or even preventing the stack from creating in the first place

@@ -19,7 +19,7 @@ Today, we are going to continue with the Distributed Face-recognition applicatio
 
 # Steps
 
-https://kubernetes.io/docs/setup/custom-cloud/kops/ -- setting up kops
+[kops](https://kubernetes.io/docs/setup/custom-cloud/kops/) -- setting up kops
 
 - Create domain under route53.
 - Create a hosted zone. // look into private hosted zones. Do public hosted zones cost money?
