@@ -58,3 +58,6 @@ paginate = 10
     startLevel = 1
   [markup.goldmark.renderer]
     unsafe = true
+
+[outputs]
+  section = ["HTML", "RSS"]
