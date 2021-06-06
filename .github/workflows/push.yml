@@ -11,6 +11,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: blog-publisher
       uses: skarlso/blog-publisher@master
+      with:
+        repo: Skarlso/skarlso.github.io
+        branch: master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
