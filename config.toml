@@ -7,7 +7,6 @@ pygmentsOptions = "linenos=table"
 pygmentsCodefences = true
 pygmentsUseClasses = true
 pygmentsCodefencesGuessSyntax = true
-rssLimit = 10  # Maximum number of items in the RSS feed.
 googleAnalytics = "UA-69463020-2"
 disqusShortname = "hannibalDisqus"
 paginate = 10
