@@ -33,7 +33,8 @@ A Provider is like the [Repository pattern](https://martinfowler.com/eaaCatalog/
 [Chain Of Responsibility](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern). Basically, set up a Provider
 using an `interface` as a definition. Give that as dependency to another provider and call it's function. If the
 Provider doesn't understand the type its supposed to work on, it will call `Next` in the chain delegating the function
-to the following Provider. For a detailed use of this pattern, check out [Providers Example](https://github.com/Skarlso/providers-example) project on GitHub.
+to the following Provider. For a detailed use of this pattern, check out
+[Providers Example](https://github.com/Skarlso/providers-example) project on GitHub.
 
 ## The Project
 
@@ -46,12 +47,14 @@ will use Docker to execute the plugin. It will forward all possible parameters a
 
 Simple, yet there are a couple things that we can extract into Providers such as:
 
-1. Downloading
 1. Dealing with the archive ( so we can test the Tar function )
-1. Selecting the executing environment ( bare metal, container ) which we can chain
-1. Output formatting ( possibly, thing like, JSON, Table, etc. )
+2. Selecting the executing environment ( bare metal, container ) which we can chain
+3. Output formatting ( possibly, thing like, JSON, Table, etc. )
+4. Saving things into a Database ( we will save what kind of plugins exist using sqlite )
 
 ## Basics
+
+Let's take a look at the folder structure here.
 
 ## Dependency Injection
 
