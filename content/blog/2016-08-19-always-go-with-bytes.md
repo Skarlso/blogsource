@@ -8,6 +8,26 @@ url = "/2016/08/19/always-go-with-bytes"
 
 +++
 
+*Update*: This post ignored the fact that this works for utf-8 characters only. Characters which are stored on more than 1 byte
+will cause trouble. Look at this [Effective Go Example](https://go.dev/doc/effective_go#for).
+
+~~~go
+for pos, char := range "日本\x80語" { // \x80 is an illegal UTF-8 encoding
+    fmt.Printf("character %#U starts at byte position %d\n", char, pos)
+}
+~~~
+
+Prints:
+
+~~~
+character U+65E5 '日' starts at byte position 0
+character U+672C '本' starts at byte position 3
+character U+FFFD '�' starts at byte position 6
+character U+8A9E '語' starts at byte position 7
+~~~
+
+Keep this in mind when working with strings.
+
 Another quick reminder... Always go with []byte if possible. I said it before, and I'm going to say it over and over again. It's crucial.
 
 Here is a little code from exercism.io. First, with strings:
