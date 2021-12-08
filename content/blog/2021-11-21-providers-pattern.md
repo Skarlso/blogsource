@@ -51,6 +51,7 @@ Simple, yet there are a couple things that we can extract into Providers such as
 2. Selecting the executing environment ( bare metal, container ) which we can chain
 3. Output formatting ( possibly, thing like, JSON, Table, etc. )
 4. Saving things into a Database ( we will save what kind of plugins exist using sqlite )
+    4.1. We'll just save the name and the type for simplicity
 
 ## Basics
 
