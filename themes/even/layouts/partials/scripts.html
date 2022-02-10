@@ -92,11 +92,10 @@
   {{- end }}
 {{- end }}
 
-<!-- Analytics
+<!-- Analytics -->
 {{- if (in (slice (getenv "HUGO_ENV") hugo.Environment) "production") | and .Site.GoogleAnalytics -}}
   {{ template "_internal/google_analytics_async.html" . }}
 {{- end -}}
--->
 
 <!-- Matomo
 <script>
@@ -115,7 +114,7 @@
  End Matomo Code -->
 
 <!-- Plausible -->
-<script defer data-domain="skarlso.github.io" src="https://plausible.io/js/plausible.js"></script>
+<!-- <script defer data-domain="skarlso.github.io" src="https://plausible.io/js/plausible.js"></script> -->
 
 {{- with .Site.Params.baiduAnalytics -}}
 <script id="baidu_analytics">
