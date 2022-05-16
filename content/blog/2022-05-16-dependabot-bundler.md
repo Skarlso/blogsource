@@ -21,7 +21,7 @@ You would like to review these individually, of course, however, having to indiv
 
 Isn't it a lot better to do this instead?
 
-![prs](/img/2022/05/16/single_prs.png)
+![prs](/img/2022/05/16/single_pr.png)
 
 A lot nicer and more comfortable, isn't it?
 
