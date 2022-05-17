@@ -14,7 +14,6 @@ Today, I would like to write about a small pet project of mine called [Dependabo
 
 We've all been here:
 
-![img]()
 ![prs](/img/2022/05/16/multiple_prs.png)
 
 You would like to review these individually, of course, however, having to individually merge them is quite the pain.
