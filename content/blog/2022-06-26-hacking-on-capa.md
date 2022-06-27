@@ -3,27 +3,26 @@ author = "hannibal"
 categories = ["go","capa"]
 date = "2022-06-26T01:01:00+01:00"
 type = "post"
-title = "Hacking on CAPA - The journey of implementing a none trivial feature in a barely known codebase"
+title = "Hacking on CAPA - The journey of implementing a nontrivial feature in a barely known codebase"
 url = "/2022/06/26/hacking-on-capa"
 comments = true
-draft = true
 +++
 
-# Hacking on CAPA - The journey of implementing a none trivial feature in a barely known codebase
+# Hacking on CAPA - The journey of implementing a nontrivial feature in a barely known codebase
 
 Hello Dear readers.
 
 Today, I would like to write about a project I've been working on these past months or so. This is a longer story
-and hopefully an interesting one to write down.
+and hopefully an interesting one to read.
 
 I'm going to write about the journey I took while trying to implement IPv6 based Kubernetes cluster for [CAPA](https://github.com/kubernetes-sigs/cluster-api-provider-aws)
 and EKS.
 
-The interesting points of this journey are twofold. First, understanding what IPv6 means in AWS land and how its configured
+The interesting points of this journey are twofold. First, understanding IPv6 in AWS land and how it's configured
 and how it works. What are it's limitations and requirements? Topology, routing, security groups, launch configuration,
-IAM roles, node policies... the list goes on.
+IAM roles, node policies... etc.
 
-The second part is the codebase of CAPA itself, which was largely unknown to me. What I'm going to write about here is
+The second part is the codebase of CAPA, which was largely unknown to me. What I'm going to write about here is
 how I navigated these hurdles.
 
 ## TL;DR
@@ -31,7 +30,7 @@ how I navigated these hurdles.
 - I take lots of notes and re-work these notes into a semi-zettelkasten format
 - I read RFCs and documentations a couple times
 - I start exploring the codebase by reading package information and going through a known code path like, creating a
-cluster.
+cluster and reading tests
 - I had some prior knowledge due to working on a similar project at Weaveworks ( implementing ipv6 for eksctl )
 - I had ample of help from one of the project maintainers who happens to work at Weaveworks
 - I had some documentation already available on IPv6 and AWS and could compare to existing, working IPv6 clusters
@@ -39,20 +38,20 @@ using eksctl
 
 ## What is CAPA
 
-Before I begin, let's talk about what is [CAPA](https://github.com/kubernetes-sigs/cluster-api-provider-aws). CAPA is a project which implements
+Before I begin, let's talk about what [CAPA](https://github.com/kubernetes-sigs/cluster-api-provider-aws) is. It's a project which implements
 [cluster API](https://cluster-api.sigs.k8s.io/) for Kubernetes using AWS. CAPI ( Cluster API ) is simply a set of API
-projects and tooling for Kubernetes to basically use Kubernetes programmatically. Basically, it provides a way to create
-EKS clusters using a management cluster which runs the API code using a couple CRDs and controllers.
+projects and tooling for Kubernetes to basically use Kubernetes programmatically. It provides a way to create
+clusters using a management cluster which runs the API code using a couple CRDs and controllers.
 
 Once you create your management cluster, you can apply a YAML template which will use the AWS API to create a set of
-objects for an EKS cluster. These are for example, IAM roles, VPC, subnets, routing, security groups, IGWs, NAT gateways,
-instances and many many more things. Once that's done it will keep reconciling the cluster, detect and diffs and will
-manage its state until you remove the resources for it.
+objects for an EKS cluster. These are for example, IAM roles, a VPC, subnets, routing tables, security groups, IGWs, NAT gateways,
+instances and many many more things. Once that's done it will keep reconciling the cluster. Detect diffs and manage its
+state until you remove the resources for it ( the CRDs installed onto the management cluster ).
 
 ## IPv6
 
 The first thing to tackle was understanding and knowing IPv6. Though, funny enough, as we'll see later, it wasn't a hard
-requirement. But, never the less, it did me good to study up on it.
+requirement. Never the less, it did me good to study up on it.
 
 ### How do I approach the unknown
 
@@ -60,12 +59,13 @@ The reason why I wanted to understand IPv6 was because of how to calculate subne
 in the land of IPs and one that isn't easy to grasp if you aren't into these kinds of things in the first place.
 
 I did learn how to calculate CIDRs for IPv4 so I thought it should be kind of in the same ballpark. It actually took me
-a while to find a resource which neatly explained the math behind calculating subnets for IPv6. I rarely watch videos
-but [this](https://www.youtube.com/watch?v=KSiZ751-Zs8) one has a neat explanation with detailed calculations and samples.
+a while to find a resource which neatly explained the math behind the calculations and not just throw a website into my
+face into which you input a prefix range and done, you have your subnets. I rarely watch videos but [this](https://www.youtube.com/watch?v=KSiZ751-Zs8) one has
+a neat explanation with detailed calculations and samples.
 
-What I do in these cases, is the following. I open up a new page in my trusty notebook and start listing what things I
+What I do in these cases, is as follows. I open up a new page in my trusty notebook and start listing what things I
 can read or watch to understand the subject at hand better. Then I slowly start working down my list, taking notes from
-the material or video in a fashion similar depicted in [Effective Note taking](https://www.amazon.de/-/en/Fiona-McPherson/dp/1927166527/) book
+the material or video in a fashion similar as what is depicted in [Effective Note taking](https://www.amazon.de/-/en/Fiona-McPherson/dp/1927166527/) book
 written by Dr. Fiona McPherson. I create concept graphs and various visuals and just write down my thoughts.
 
 I'll try to connect to future notes or write ideas next to it, things like "Oh this will be useful when I do x,y,z".
@@ -74,12 +74,14 @@ A page from one my notes:
 
 ![page1](/img/2022/06/27/notes-01.jpeg)
 
-This is pre-review. Once I'm done with a material, I'll start translating the notes and get the gist of it into a
+This is in pre-review format. Once I'm done with a material, I'll start translating the notes and get the gist of it into a
 semi-zettelkasten type of note system using Obsidian. Or if it makes more sense, I'll use a single obsidian note to
 collect all the things together. For this implementation I'm doing on CAPA I have a single file which points to various
 other files with various other information about the code and about IPv6 itself.
 
-Once I translated my written notes, I'll move on to the next topic.
+Once I translated my written notes, I'll move on to the next topic. I have lots of tags and always create back-links. I use
+something akin to [Zettelkasten](https://zettelkasten.de/posts/overview/) but with a slight modification that sometimes
+my atomic notes contain a bit more information than a single idea.
 
 #### Why use a notebook in the digital age?
 
@@ -94,7 +96,7 @@ This blog post's idea has its origins in a notebook.
 
 ### Understanding IPv6
 
-The first step I took was to understand IPv6 itself. I already knew a couple things about it, but didn't intimately knew
+The first step I took was to understand IPv6 itself. I already knew a couple of things about it, but I didn't intimately knew
 its structure and composition. The best way to know about these things is go to the source. I read a couple of RFCs
 about it. Notably [RFC 8200 - The protocol itself](https://datatracker.ietf.org/doc/html/rfc8200) and [RFC 4291 - The Address itself](https://datatracker.ietf.org/doc/html/rfc4291).
 
@@ -111,12 +113,11 @@ It was time to put it all in perspective.
 
 ### Understanding IPv6 in relation to AWS
 
-Next, came understanding how all this fits into the AWS land.
-
 As always with AWS finding documentation which describes a feature in its completeness is near impossible. I found
 various blog posts, some hints here and there and when you open the EKS console page, there is an announcement at the
 top that they started supporting IPv6. That page contains some information about restrictions and requirements. But
-nothing profound enough to know how to call some APIs or what to set up or how routing works exactly.
+nothing profound enough to know how to call some APIs or what to set up or how routing works exactly. Or what to pass to
+the VPC. Or how to slice subnets not using eksctl and cloudformation.
 
 Lucky for me, I had some prior knowledge in the area. I work at https://weave.works/. And at `eksctl` a couple of
 co-workers of mine already did some research and created some documentations that I was able to follow. But ultimately,
@@ -124,7 +125,8 @@ that was using a different approach because it's using CloudFormation. But the n
 invaluable.
 
 The other guide which helped me was the [VPC usage guide](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ug.pdf) and
-the IPv6 section.
+the IPv6 section. And the EKS usage guide and how to migrate to IPv6 clusters. There were numerous restrictions which
+helped me understand what I needed to create. I read these over 5-6 times.
 
 From all of these, notes taken into my trusty notebook in which I gathered together all the relevant information that I
 could connect to things I needed, I slowly put together an approach for CAPA.
@@ -184,8 +186,8 @@ func SplitIntoSubnetsIPv6(cidrBlock string, numSubnets int) ([]*net.IPNet, error
 It's using a library to calculate the actual new IP based on `NthSubnet`. I did some bit shifting myself, but that turned
 out to be not so error resilient and didn't handle some edge cases that the library already did.
 
-However, this research all turned out to be mute once I re-read my notes and some of the docs and I internalised the point
-that all subnets have a fixed prefix length of 64. And further reading about subnet IDs in IPv6 and creating IPv6
+However, this research all turned out to be mute once I re-read my notes and some of the docs and I internalized the point
+that all subnets have a fixed prefix length of `64`. And further reading about subnet IDs in IPv6 and creating IPv6
 clusters using the console it became apparent that subnets are super easy, barely an inconvenience.
 
 See, it basically works like this. You get an IPv6 pool and an IPv6 address with a fixed prefix length of 56. You need to
@@ -215,7 +217,7 @@ func SplitIntoSubnetsIPv6(cidrBlock string, numSubnets int) ([]*net.IPNet, error
 }
 ```
 
-And that's all there is to it! That's mostly what the CloudFormation is doing internally too.
+Boom. And that's all there is to it! That's mostly what the CloudFormation is doing internally too.
 
 ### Why do you still need subnets?
 
@@ -234,7 +236,7 @@ data through IPv6.
 
 ## Implementation Time
 
-Alright. With these things out of the way, it was time to get acquainted with he source code.
+Alright. With these things out of the way, it was time to get acquainted with the source code.
 
 ### Approaching an unknown codebase
 
@@ -254,18 +256,20 @@ codebase. What are these?
 - Lots and LOTS of generated code
 - Controller lifecycle
     - What does this mean? This has a couple of baggages when you think about it. The code has a reconciliation loop
-    which takes care of creating, updating and deleting resources. But this also means that you have to always consider
-    existing infrastructure and objects in Kubernetes. And when deleting you always have to be aware of finalizers.
+      which takes care of creating, updating and deleting resources based on their state. But this also means that you
+      have to always consider existing infrastructure and objects in Kubernetes. And when deleting you always have to be
+      aware of finalizers.
 - Unit testing and mocking calls and Kubernetes
 - Certain package structure and code constructs
 
 All these helped me massively to discover where things are and why. Richard ( the maintainer ) talked us through a general
-flow and from there it was easier to go with the flow.
+flow and from there it was easier to go with the flow. And he was constantly available when I was stuck at a certain part
+like conversions...
 
 ### Analysing the code
 
 When faced with the unknown you must find what you might no in relation. I already knew it creates a cluster and that
-cluster has resources and log outputs. So... follow the flow. I started checking out the code and following a creation
+cluster has resources and log outputs. So... follow the flow. I started checking out the code and followed a `create`
 code path. How a cluster is reconciled.
 
 I started taking notes and write down which package and path did what. I started following `reconcileCluster`.
@@ -292,9 +296,9 @@ things incrementally. Small bits at a time. My first update, for example, was th
 	EnableIPv6 bool `json:"enableIPv6"`
 ```
 
-Basically I started updating the config types. It was a small, trivial thing. To add but it got the ball rolling. Which
-is the most important thing to have. When the codebase is daunting and you have no idea where to even begin, a tiny
-update can make all the difference. It gets you started. It gives you an entry point.
+Basically I started updating the config types. It was a small, trivial thin to add but it got the ball rolling. Which
+is the most important part of tackling a hard problem. When the codebase is daunting and you have no idea where to even
+begin, a tiny update can make all the differences. It gets you started. It gives you an entry point.
 
 I started adding more new settings and types and once I had all the settings I could think of, I started writing code
 which actually used them. First, gradually. Things like these came in to picture:
@@ -330,13 +334,14 @@ me understand somewhat how the code is structured and what it does and why and w
 do is, that I fiddle with the code and start to run the unit tests and see what things fail. That gives me more
 insight into how the thing I just changed works. This is invaluable when I'm facing code which is difficult to decipher.
 
-Write tests folks!
+Write tests folks! I don't care if you use TDD or not, jut PLEASE write tests!
 
 # Conclusion
 
 If you made it this far, congratulations! You deserve a cookie. This has been my journey in understanding a fairly new
 thing and implementing it into a largely unknown codebase. How I approached it and how I eventually ended up writing
-around +2500 lines of code.
+around +2500 lines of code. You got some insight into how I take notes and how I figure out a larger problem in an
+unknown environment. I hope it was a good read and worth your time.
 
 Thank you for reading!
 
