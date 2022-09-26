@@ -1,10 +1,10 @@
 +++
 author = "hannibal"
 categories = ["go", "algorithms"]
-date = "2022-10-25T01:01:00+01:00"
+date = "2022-09-25T01:01:00+01:00"
 type = "post"
 title = "Summary of Common Sense guide to Data Structures and Algorithms"
-url = "/2022/10/25/data-structures-and-algorithms"
+url = "/2022/09/25/data-structures-and-algorithms"
 comments = true
 +++
 
