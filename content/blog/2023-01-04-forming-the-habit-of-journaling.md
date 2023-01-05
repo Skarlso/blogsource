@@ -1,6 +1,6 @@
 +++
 author = "hannibal"
-categories = ["go", "showcase"]
+categories = ["journaling", "notetaking"]
 date = "2023-01-04T01:01:00+01:00"
 type = "post"
 title = "Forming the habit of analog journaling - Why the digital format did not work for me"
