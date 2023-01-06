@@ -48,24 +48,24 @@ What are some of the steps to access Obsidian, let's say, in the morning?
 - Walk to the computer
 - Sit down
 ( Here is where it will fork around a bit )
-(( if, I remembered on the previous day to not turn off my computer but let is sleep ))
+- (( if, I remembered on the previous day to not turn off my computer but let is sleep ))
 - Hit a key on the keyboard to let it wake up
 - Wait for my monitor to spin up
 - Hit a couple more keys and get impatient in waiting
 - The monitor finally turns on
 - Log in
-(( if, I turned my computer off because I don't want it to run all day then night ))
+- (( if, I turned my computer off because I don't want it to run all day then night ))
 - Turn on the computer
 - Wait of encryption to unlock
 - The rest from above
-(( if, I remembered on the previous day to leave Obsidian open as the forefront app ))
+- (( if, I remembered on the previous day to leave Obsidian open as the forefront app ))
 - Once the computer is unlocked, create a new note
 - Format it, add some title, start writing ( done )
-(( if, I didn't ))
+- (( if, I didn't ))
 - Switch to / Open Obsidian
 - Create a new note
 - Format it, add some title, start writing ( done )
-(( if, I left a new entry already open ( this is a _HUGE_ if ) and Obsidian is in focus ))
+- (( if, I left a new entry already open ( this is a _HUGE_ if ) and Obsidian is in focus ))
 - Start writing
 
 So, even if I develop the habit to prepare for the next time ( which is also a thing in Atomic Habits ) I would have to
@@ -129,7 +129,7 @@ We also know the drawbacks. Let's take a look.
 
 Indeed, a paper can't have a neat little search engine in it. There is the Second Brain for that sort of information.
 That said, it can be helped a little bit. Try looking at indexing methods for the written word.
-I like [this](https://thetechnicalgeekery.com/2013/06/the-complete-guide-to-indexing-your-paper-notes/)](https://thetechnicalgeekery.com/2013/06/the-complete-guide-to-indexing-your-paper-notes/) detailed post about indexing and indexing techniques from Soren Bjornstad.
+I like [this](https://thetechnicalgeekery.com/2013/06/the-complete-guide-to-indexing-your-paper-notes/) detailed post about indexing and indexing techniques from Soren Bjornstad.
 
 Whether you index by page or by keywords it gets a lot better finding things in your notebooks than flipping around
 pages.
@@ -142,7 +142,7 @@ desk or in a drawer. I recommend reading [this](https://austinkleon.com/2021/05/
 TL;DR: Label them and have a global index that keeps track of some other indexes in all of the books together. It's
 not hard setting it up. Austin has a lot of other great posts about that.
 
-### Crumbles after a couple hundred years
+### Crumbles after a couple of hundred years
 
 Come on.
 
