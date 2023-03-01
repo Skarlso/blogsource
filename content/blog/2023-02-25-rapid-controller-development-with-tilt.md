@@ -1032,6 +1032,8 @@ However, it can be helped. A nice Tiltfile with rightly named functions and a go
 Also, comments. And I can't stress this enough. Add comments! They help a lot for a new person reading the file and
 understanding what is being altered why and where.
 
+The Tiltfile as it looks like at the writing of this post can be found [here](https://github.com/open-component-model/ocm-controller/blob/95b0d839d86f643f0f10304da97bcd042e8c0dfc/Tiltfile).
+
 I hope this helped, and good luck!
 
 As always,
