@@ -2,12 +2,7 @@ baseURL = "https://skarlso.github.io"
 languageCode = "en"
 defaultContentLanguage = "en"
 title = "Ramblings of a cloud engineer"
-theme = "even"
-pygmentsOptions = "linenos=table"
-pygmentsCodefences = true
-pygmentsUseClasses = true
-pygmentsCodefencesGuessSyntax = true
-googleAnalytics = "UA-69463020-2"
+theme = "PaperMod"
 disqusShortname = "hannibalDisqus"
 paginate = 10
 
@@ -15,6 +10,8 @@ paginate = 10
   name = "Gergely Brautigam"
 
 [params]
+  comments        = true
+  env             = "production"
   dateform        = "Jan 2, 2006"
   dateformShort   = "Jan 2"
   dateformNum     = "2006-01-02"
@@ -39,7 +36,7 @@ paginate = 10
 
 [[menu.main]]
   name = "Archive"
-  url = "/blog/"
+  url = "/posts/"
   weight = 10
 [[menu.main]]
   name = "Tags"
@@ -59,4 +56,4 @@ paginate = 10
     unsafe = true
 
 [outputs]
-  section = ["HTML", "RSS"]
+  home = ["HTML", "RSS"]
