@@ -5,6 +5,7 @@ title = "Ramblings of a cloud engineer"
 theme = "PaperMod"
 disqusShortname = "hannibalDisqus"
 paginate = 10
+disableSpecial1stPost = true
 
 [author]
   name = "Gergely Brautigam"
