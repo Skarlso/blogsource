@@ -5,12 +5,12 @@ title = "Ramblings of a cloud engineer"
 theme = "PaperMod"
 disqusShortname = "hannibalDisqus"
 paginate = 10
-disableSpecial1stPost = true
 
 [author]
   name = "Gergely Brautigam"
 
 [params]
+  disableSpecial1stPost = true
   comments        = true
   env             = "production"
   dateform        = "Jan 2, 2006"
