@@ -2,7 +2,7 @@
 author = "hannibal"
 categories = ["github-actions", "certificates", "go"]
 date = "2023-07-04T01:01:00+01:00"
-title = "How to add a self-signed certificate the GitHub action runner"
+title = "How to add a self-signed certificate to the GitHub action runner"
 url = "/2023/07/04/how-to-add-self-signed-certificates-to-github-action-runner-using-mkcert"
 comments = true
 +++
