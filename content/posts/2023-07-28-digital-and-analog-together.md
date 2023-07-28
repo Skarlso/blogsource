@@ -63,6 +63,12 @@ I, usually, take notes in Obsidian. This happens in the ongoing project's note. 
 the day about anything and tag them. Then, at the end of the day, I cleared them out and put them into the right sections.
 Area or Resource. This is my Inbox.
 
+## At night
+
+At the end of the day, I would go over my notebook's pages to see if I can still cross out anything or if I'm done for the
+day. Sometimes I'll forget to do this when I'm exhausted. But it's fine, because the next day morning, I will do this
+anyways.
+
 ## Thinking on paper
 
 So what am I doing with my notebook? Most of the time, I think on paper. Thinking on paper helps a lot with Focusing Effort.
@@ -110,6 +116,9 @@ Page 1:
 Sometimes I also write a tiny bit of context next to the number. Maybe something like `tutorial`, `blog`, `idea`...
 Anything that would give me some incentive to look at it later.
 
+Further, my index contains main concepts, days maybe, projects and monthly calendar locations. Sometimes, I'll also write
+some interesting tid-bit on it.
+
 In Obsidian, I also use tags. Plus global search and the PARA folder structure help me find anything I want. I'm also using
 Zettelkasten to refine my learning process. I could summarize it like this:
 
@@ -123,7 +132,7 @@ I get to track things, find things, draw things, analyze things and understand t
 ## Conclusion
 
 I hope this makes sense dear reader. I combine all of these things to make a perfect system _for me_. I took the things
-from each system and mashed it together. I like the outcome. Do you?
+from each system and mashed them together. I like the outcome. Do you?
 
 
 And thank you for taking the time to go over it. Any questions, I'm happy to answer in
