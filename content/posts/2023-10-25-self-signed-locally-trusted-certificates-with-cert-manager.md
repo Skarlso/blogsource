@@ -1,7 +1,7 @@
 +++
 author = "hannibal"
 categories = ["kubernetes", "cert-manager"]
-date = "2023-08-11T01:01:00+01:00"
+date = "2023-10-25T01:01:00+01:00"
 title = "Self-Signed locally trusted certificates with cert-manager"
 url = "/2023/10/25/self-signed-locally-trusted-certificates-with-cert-manager"
 comments = true
