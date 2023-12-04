@@ -80,6 +80,26 @@ Second are the `if` statements. I update an internal error field if there is any
 content. If that error field isn't empty, I render an error message instead of the rest of the components. The error
 message can be dismissed with an `OnClick` event like this:
 
+```go
+
+func (i *index) dismissError(ctx app.Context, e app.Event) {
+	i.err = nil
+}
+
+```
+
+Basically, just clear the internal error field. This function is called in the `buildError` above like this:
+
+```go
+func (i *index) buildError() app.UI {
+	return app.Div().Class("alert alert-danger").Role("alert").Body(
+		app.Span().Class("closebtn").OnClick(i.dismissError).Body(app.Text("×")),
+		app.H4().Class("alert-heading").Text("Oops!"),
+		app.Text(i.err.Error()),
+	)
+}
+```
+
 The event will ensure the `Render` fires; thus, the main component is re-rendered.
 
 Where is the WASM thing, though, that I keep talking about? That's the best part. The `go-app` uses Go's own WASM file
