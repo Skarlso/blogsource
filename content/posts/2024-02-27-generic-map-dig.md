@@ -75,3 +75,6 @@ fmt.Println(value) // value is of type int
 
 will result in the desired value with the right type. The other interesting part is the default value in case the key is
 not found. That's just a nice addition, I think.
+
+_Note_: The JSON marshaller in Go will always consider number types as `float64`. But if you just happened to have a map
+with some arbitrary data, the `dig` part is still neat.
