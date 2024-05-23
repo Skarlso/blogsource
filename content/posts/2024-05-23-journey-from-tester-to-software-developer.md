@@ -1,7 +1,7 @@
 +++
 author = "hannibal"
 categories = ["personal"]
-date = "2024-23-09T01:01:00+01:00"
+date = "2024-05-23T01:01:00+01:00"
 title = "Journey from Testing into Software Development"
 url = "/2024/05/23/journey-from-tester-to-software-developer"
 comments = true
