@@ -17,7 +17,7 @@ For example, here is a quick Jira Search made easy:
 
 Keyword: jira
 
-URL: https://atlas.projectname.com/jira/browse/PROJECT-%s
+URL: `https://atlas.projectname.com/jira/browse/PROJECT-%s`
 
 So just type: jira|space|9999
 
@@ -29,7 +29,7 @@ Well, it's easy, and quick access, but wait. There is more. How about you want t
 
 Keyword: testenv
 
-URL: https://qa%s.projectname.com/testenv
+URL: `https://qa%s.projectname.com/testenv`
 
 Just type: testenv|space|14
 
